@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 
 export default function IdentificationTips({ navigation }) {
   return (
@@ -10,28 +10,40 @@ export default function IdentificationTips({ navigation }) {
         Create spaces where you can position and grow your plants
       </Text>
 
-      {/* Big Circle */}
-      <View style={styles.bigCircle} />
+      {/* Correct image (big circle) */}
+      <Image
+        source={require('../../assets/good.jpg')}
+        style={styles.bigCircle}
+      />
 
-      {/* Three Small Circles with labels */}
+      {/* Three small images with labels */}
       <View style={styles.row}>
         <View style={styles.item}>
-          <View style={styles.smallCircle} />
+          <Image
+            s source={require('../../assets/too_close.jpg')}
+            style={styles.smallCircle}
+          />
           <Text style={styles.label}>Too Close</Text>
         </View>
         <View style={styles.item}>
-          <View style={styles.smallCircle} />
+          <Image
+             source={require('../../assets/too_far.jpeg')} 
+            style={styles.smallCircle}
+          />
           <Text style={styles.label}>Too Far</Text>
         </View>
         <View style={styles.item}>
-          <View style={styles.smallCircle} />
+          <Image
+             source={require('../../assets/multi_species.jpeg')}
+            style={styles.smallCircle}
+          />
           <Text style={styles.label}>Multi-species</Text>
         </View>
       </View>
 
       {/* Done button */}
       <TouchableOpacity style={styles.doneButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.doneText}>Done</Text>
+        <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>Done</Text>
       </TouchableOpacity>
     </View>
   );
@@ -40,7 +52,7 @@ export default function IdentificationTips({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2B2B2B', // dark gray background
+    backgroundColor: '#2B2B2B', //lazy to do gradient
     alignItems: 'center',
     justifyContent: 'space-evenly',
     padding: 20,
@@ -59,10 +71,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   bigCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#B3B3B3',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
     marginVertical: 20,
   },
   row: {
@@ -75,10 +86,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   smallCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#B3B3B3',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     marginBottom: 8,
   },
   label: {
@@ -86,15 +96,10 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   doneButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#496D4C",
     paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 20,
+    paddingHorizontal: 60,
+    borderRadius: 16,
     marginBottom: 30,
-  },
-  doneText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
 });
