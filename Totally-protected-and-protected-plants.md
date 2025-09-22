@@ -1,5 +1,7 @@
 # Sarawak Forestry Corporation
 
+---
+
 ### Totally protected plants in Sarawak
 
 * Ensurai: _Dipterocarpus oblongifolius_
@@ -8,26 +10,33 @@
 ### Protected plants in Sarawak
 
 * Engkabang Rusa: _Shorea stenoptera_
-* Tapang: Koompassia excelsa
-* Engkabang Jantong: Shorea macrophylla
-* Api-api Hitam: Avicenmia alba
-* Perepat: Sonneratia alba
-* Api-api Merah: Avicenmia marina
-* Menggris: Koompassia malaccensis
-* Engkabang Asu: Shorea palembanica
-* Terentum Merah: Lumnitzera littorrea
-* Pokok Ara: All Ficus species
-* Pedada: Sonneratia caseolaris
-* Riang, Telinga Gajah: All Begonia species
-* Rhu Laut: Casuarina equisetifolia
-* Ekor Buaya: Johannesteijsmannia altifrons
-* Biris: Licuala orbicularis
-* Kayu Hujan Panas: Goniothalamus velutinus
-* Orkid: All Orchidaceae species
-* Ekor Tupai: All Epiphytic Lycopodium species
-* Pinang: Areca jugahpunya
-* Kayu Gaharu: Aquilaria beccariana, Aquilaria
-* Ipoh: Antiaris toxicaria
-* Paku Gajah, Paku Laut: Cycas rumphii
-* Tongkat Ali: Eurycoma longifolia
-* 
+* Tapang: _Koompassia excelsa_
+* Engkabang Jantong: _Shorea macrophylla_
+* Api-api Hitam: _Avicennia alba_
+* Perepat: _Sonneratia alba_
+* Api-api Merah: _Avicennia marina_
+* Menggris: _Koompassia malaccensis_
+* Engkabang Asu: _Shorea palembanica_
+* Terentum Merah: _Lumnitzera littorrea_
+* Pokok Ara: All _Ficus_ species
+* Pedada: _Sonneratia caseolaris_
+* Riang, Telinga Gajah: All _Begonia_ species
+* Rhu Laut: _Casuarina equisetifolia_
+* Ekor Buaya: _Johannesteijsmannia altifrons_
+* Biris: _Licuala orbicularis_
+* Kayu Hujan Panas: _Goniothalamus velutinus_
+* Orkid: All _Orchidaceae_ species
+* Ekor Tupai: All epiphytic _Lycopodium_ species
+* Pinang: _Areca jugahpunya_
+* Kayu Gaharu: _Aquilaria beccariana_, _Aquilaria microcarpa_
+* Ipoh: _Antiaris toxicaria_
+* Paku Gajah, Paku Laut: _Cycas rumphii_
+* Tongkat Ali: _Eurycoma longifolia_
+* Bintangor: _Calophyllum lanigerum_, _Calophyllum teysmanii_
+* Bunga Gegansai: All _Rhododendron_ species
+* Melebab: All _Didymorcarpus_ species, all _Cyrtandra_ species
+* Gincu Monyet: All _Aeschynanthus_ species
+* Periuk Kera: All _Nepenthes_ species
+* Pokok Satu Daun: All _Monophyllaea_ species
+* Ketiau: All _Madhuca_ species in the peat swamp forest
+* Daun Pelagus: _Didesmandra aspera_
