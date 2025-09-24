@@ -1,4 +1,4 @@
-import React, { useState, useRef,useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
@@ -17,6 +17,11 @@ export default function IdentifyPage() {
     const route = useRoute();
     const { mode } = route.params || { mode: "single" }; // default single
     const [facing, setFacing] = useState("back");
+    //prediction variable
+    const [prediction, setPrediction] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+
     //Reset images when switching modes
     useEffect(() => {
         setImages([]);
@@ -36,7 +41,7 @@ export default function IdentifyPage() {
         );
     }
 
-    
+
 
     const toggleCameraFacing = () => {
         setFacing((current) => (current === "back" ? "front" : "back"));
@@ -64,19 +69,19 @@ export default function IdentifyPage() {
         }
     };
 
-    const savePictures = async () => {
-        if (images.length > 0) {
-            try {
-                for (let uri of images) {
-                    await MediaLibrary.createAssetAsync(uri);
-                }
-                alert('Pictures saved! 🎉');
-                setImages([]);
-            } catch (error) {
-                console.log(error);
-            }
-        }
-    };
+    // const savePictures = async () => {
+    //     if (images.length > 0) {
+    //         try {
+    //             for (let uri of images) {
+    //                 await MediaLibrary.createAssetAsync(uri);
+    //             }
+    //             alert('Pictures saved! 🎉');
+    //             setImages([]);
+    //         } catch (error) {
+    //             console.log(error);
+    //         }
+    //     }
+    // };
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -104,6 +109,38 @@ export default function IdentifyPage() {
 
     const removeImage = (uri) => {
         setImages((prev) => prev.filter((img) => img !== uri));
+    };
+
+
+    //prediction 
+    const identifyImage = async () => {
+        if (images.length === 0) {
+            alert("Please capture or pick an image first");
+            return;
+        }
+
+        let formData = new FormData();
+        formData.append("image", {
+            uri: images[0],   // single mode
+            type: "image/jpeg",
+            name: "photo.jpg",
+        });
+
+        try {
+            const response = await fetch("http://172.17.29.108:3000/predict", {
+                method: "POST",
+                headers: { "Content-Type": "multipart/form-data" },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            // Navigate to output page with prediction
+            navigation.navigate("identify_output", { prediction: data , imageURI:images[0] });
+        } catch (err) {
+            console.log("Upload error:", err);
+            alert("Failed to identify. Check backend connection.");
+        }
     };
 
     return (
@@ -184,7 +221,7 @@ export default function IdentifyPage() {
                     <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                         <View style={styles.bottomRow}>
                             <CustomButton title={'Retake'} icon="retweet" onPress={() => setImages([])} />
-                            <CustomButton title={'Identify'} icon="check" onPress={savePictures} />
+                            <CustomButton title={'Identify'} icon="check" onPress={identifyImage} />
                         </View>
                     </View>
                 </ImageBackground>
