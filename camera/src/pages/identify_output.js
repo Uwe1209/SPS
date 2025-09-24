@@ -1,13 +1,20 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import CustomButton from "../component/Button";
+
 
 export default function ResultScreen() {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { prediction , imageURI} = route.params || {};
+  console.log("Prediction received:", prediction);
   return (
     <View style={styles.container}>
       {/* Image Preview Box */}
       <View style={styles.imageBox}>
         <Image
-          source={{ uri: "https://via.placeholder.com/150" }} //a placeholder.. i dk what this is for
+          source={{ uri: imageURI }} //a placeholder.. i dk what this is for
           style={styles.image}
         />
         <TouchableOpacity style={styles.iconButton}>
@@ -22,17 +29,25 @@ export default function ResultScreen() {
       <View style={styles.resultRow}>
         <View style={styles.resultCard}>
           <Text style={styles.resultLabel}>Plant Name</Text>
-          <Text style={styles.resultValue}>Plant</Text>
+          <Text style={styles.resultValue}>
+            {prediction && (prediction.class || prediction.class)
+              ? prediction.class || prediction.plantName
+              : "Unknown"}
+          </Text>
         </View>
         <View style={styles.resultCard}>
           <Text style={styles.resultLabel}>Accuracy</Text>
-          <Text style={styles.resultValue}>70%</Text>
+          <Text style={styles.resultValue}>
+            {prediction && (prediction.accuracy || prediction.confidence)
+              ? `${((prediction.accuracy || prediction.confidence) * 100).toFixed(2)}%`
+              : "N/A"}
+          </Text>
         </View>
       </View>
 
       {/* Done Button */}
-      <TouchableOpacity style={styles.doneButton}>
-        <Text style={{color: "white",fontWeight: "bold",fontSize: 18,}}>Done</Text>
+      <TouchableOpacity style={styles.doneButton} onPress={() => navigation.goBack()}>
+        <Text style={{ color: "white", fontWeight: "bold", fontSize: 18, }}>Done</Text>
       </TouchableOpacity>
     </View>
   );
@@ -106,7 +121,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 60,
     borderRadius: 16,
-    marginTop: "auto", 
+    marginTop: "auto",
     marginBottom: 30,
   },
 
