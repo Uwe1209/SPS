@@ -1,27 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import MapPage from './src/MapPage';
+import Profile from "./profile";
+import MyProfile from "./myprofile";
+import Setting from "./setting";
+import Saved from "./saved";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Map">
-        <Stack.Screen name="Map" component={MapPage}/>
+      <Stack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="MyProfile" component={MyProfile} />
+        <Stack.Screen name="Setting" component={Setting} />
+        <Stack.Screen name="Saved" component={Saved} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
