@@ -22,7 +22,6 @@ const colors = {
   sub: '#6f6f6f',
   white: '#fff',
 };
-
 export default function App() {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All'); // 'Unread' | 'Flagged' | 'To Me' | 'All'
