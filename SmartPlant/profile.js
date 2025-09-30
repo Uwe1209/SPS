@@ -68,7 +68,7 @@ export default function ProfileScreen({ navigation }) {
           <Ionicons name="camera" size={28} color="black" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.tab}>
+        <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("Notification")}>
           <Ionicons name="notifications" size={28} color="black" />
         </TouchableOpacity>
 
