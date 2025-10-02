@@ -1,4 +1,3 @@
-// NotificationsScreen.js
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
