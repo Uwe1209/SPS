@@ -17,7 +17,7 @@ export default function SettingsScreen({ navigation }) {
 
       <View style={styles.row}>
         <Image
-            source={require("./assets/language.png")} 
+            source={require("../../assets/language.png")} 
             style={styles.icon}
         />
         <Text style={styles.text}>Choose Language: English</Text>
@@ -25,7 +25,7 @@ export default function SettingsScreen({ navigation }) {
 
       <View style={styles.row}>
         <Image
-            source={require("./assets/location.png")} 
+            source={require("../../assets/location.png")} 
             style={styles.icon}
         />
         <Text style={styles.text}>Location</Text>
@@ -35,7 +35,7 @@ export default function SettingsScreen({ navigation }) {
 
       <View style={styles.row}>
         <Image
-            source={require("./assets/camera.png")} 
+            source={require("../../assets/camera.png")} 
             style={styles.icon}
         />
         <Text style={styles.text}>Camera</Text>
@@ -45,7 +45,7 @@ export default function SettingsScreen({ navigation }) {
 
       <View style={styles.row}>
         <Image
-            source={require("./assets/photos.png")} 
+            source={require("../../assets/photos.png")} 
             style={styles.icon}
         />
         <Text style={styles.text}>Photos</Text>
@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
   container: { 
       flex: 1, 
       backgroundColor: "#fefae0", 
+      paddingHorizontal: "5%",
       padding: 20 
   },
   header: {
@@ -74,8 +75,7 @@ const styles = StyleSheet.create({
   },
   title: { 
       fontSize: 20, 
-      marginTop: 30, 
-      width: "80%",
+      flex: 1,
       textAlign: "center",
   },
   row: {
