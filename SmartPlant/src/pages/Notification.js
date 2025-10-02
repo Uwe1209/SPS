@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import BottomNav from "../components/navigation";
+import BottomNav from "../components/Navigation";
 
 export default function NotificationsScreen({ navigation }) {
   // simple helpers to render placeholder rows
