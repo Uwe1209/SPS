@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import BottomNav from "../components/navigation";
 
 export default function NotificationsScreen({ navigation }) {
   // simple helpers to render placeholder rows
@@ -45,28 +46,9 @@ export default function NotificationsScreen({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Nav (green, with camera bump; bell is active) */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.tab} onPress={() => navigation?.navigate?.("Home")}>
-          <Ionicons name="home" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tab} onPress={() => navigation?.navigate?.("Map")}>
-          <Ionicons name="map" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.cameraNav} onPress={() => {}}>
-          <Ionicons name="camera" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.bellNav} onPress={() => {}}>
-          <Ionicons name="notifications" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tab} onPress={() => navigation?.navigate?.("Profile")}>
-          <FontAwesome name="user" size={28} color="black" />
-        </TouchableOpacity>
-      </View>
+      {/* Fixed Bottom Nav */}
+      <BottomNav navigation={navigation} />
+      
     </View>
   );
 }
@@ -81,7 +63,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: "#fefae0",
     padding: 20,
-    paddingBottom: 120, // keep content above nav
+    paddingBottom: 60,
   },
 
   /* header */
@@ -161,40 +143,5 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 
-  /* bottom nav */
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#578C5B",
-    height: 60,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  tab: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cameraNav: {
-    backgroundColor: "#578C5B",
-    borderRadius: 50,
-    width: 55,
-    height: 55,
-    marginTop: -20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  // active bell tab (light green background like your userNav in the sample)
-  bellNav: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#95D26D",
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
-  },
+
 });

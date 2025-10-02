@@ -1,28 +1,45 @@
-// BottomNav.js
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";//icons
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
 export default function BottomNav({ navigation }) {
+  const route = useRoute(); // get current active route
+
   return (
     <View style={styles.bottomNav}>
-      <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("Home")}>
+      <TouchableOpacity
+        style={[styles.tab, route.name === "Home" && styles.activeTab]}
+        onPress={() => navigation.navigate("Home")}
+      >
         <Ionicons name="home" size={28} color="black" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("Map")}>
+      <TouchableOpacity
+        style={[styles.tab, route.name === "Map" && styles.activeTab]}
+        onPress={() => navigation.navigate("Map")}
+      >
         <Ionicons name="map" size={28} color="black" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.cameraNav} onPress={() => navigation.navigate("Camera")}>
+      <TouchableOpacity
+        style={[styles.cameraNav, route.name === "Camera" && styles.activeTab]}
+        onPress={() => navigation.navigate("Camera")}
+      >
         <Ionicons name="camera" size={28} color="black" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("Notifications")}>
+      <TouchableOpacity
+        style={[styles.tab, route.name === "Notification" && styles.activeTab]}
+        onPress={() => navigation.navigate("Notification")}
+      >
         <Ionicons name="notifications" size={28} color="black" />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.userNav} onPress={() => navigation.navigate("Profile")}>
+      <TouchableOpacity
+        style={[styles.tab, route.name === "Profile" && styles.activeTab]}
+        onPress={() => navigation.navigate("Profile")}
+      >
         <FontAwesome name="user" size={28} color="black" />
       </TouchableOpacity>
     </View>
@@ -58,12 +75,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  userNav: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#95D26D",
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
+  activeTab: {
+    backgroundColor: "#95D26D", // light green
+    borderRadius: 20,
   },
 });
