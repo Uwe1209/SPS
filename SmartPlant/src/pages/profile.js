@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
-import BottomNav from "../components/navigation";
+import BottomNav from "../components/Navigation";
 
 export default function ProfileScreen({ navigation }) {   
   return (

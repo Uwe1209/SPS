@@ -1,10 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import Profile from "./src/pages/profile";
-import MyProfile from "./src/pages/myprofile";
-import Setting from "./src/pages/setting";
-import Saved from "./src/pages/saved";
+import Profile from "./src/pages/Profile";
+import MyProfile from "./src/pages/Myprofile";
+import Setting from "./src/pages/Setting";
+import Saved from "./src/pages/Saved";
 import Notification from "./src/pages/Notification";
 
 const Stack = createNativeStackNavigator();
