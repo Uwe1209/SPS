@@ -5,6 +5,7 @@ import Profile from "./src/pages/profile";
 import MyProfile from "./src/pages/myprofile";
 import Setting from "./src/pages/setting";
 import Saved from "./src/pages/saved";
+import Notification from "./src/pages/Notification";
 
 const Stack = createNativeStackNavigator();
 
