@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
-import { Ionicons, FontAwesome } from '@expo/vector-icons'; // for icons
+import BottomNav from "../components/navigation";
 
 export default function ProfileScreen({ navigation }) {   
   return (
@@ -10,7 +10,7 @@ export default function ProfileScreen({ navigation }) {
         {/* Profile Image */}
         <View style={styles.profileContainer}>
           <Image
-            source={require("./assets/user2.png")}
+            source={require("../../assets/user2.png")}
             style={styles.profileImage}
           />
           <Text style={styles.username}>LiYing</Text>
@@ -55,27 +55,7 @@ export default function ProfileScreen({ navigation }) {
       </ScrollView>
 
       {/* Fixed Bottom Nav */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.tab}>
-          <Ionicons name="home" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tab}>
-          <Ionicons name="map" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.cameraNav}>
-          <Ionicons name="camera" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.tab} onPress={() => navigation.navigate("Notification")}>
-          <Ionicons name="notifications" size={28} color="black" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.userNav}>
-          <FontAwesome name="user" size={28} color="black" />
-        </TouchableOpacity>
-      </View>
+      <BottomNav navigation={navigation} />
     </View>
   );
 }
@@ -100,12 +80,14 @@ const styles = StyleSheet.create({
   profileContainer: {
     alignItems: "center",
     marginVertical: 20,
+    width: "100%",
   },
   profileImage: {
     width: 100,
     height: 100,
-    borderRadius: 50,
-    resizeMode: "contain",
+    aspectRatio: 1,
+    borderRadius: 100,
+    resizeMode: "cover",
     backgroundColor: "#ddd",
   },
   username: {
@@ -130,42 +112,6 @@ const styles = StyleSheet.create({
   arrow: {
     fontSize: 18,
     color: "#333",
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#578C5B',
-    height: 60,           
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    bottom: 0,
-    left:0,
-    right:0,
-    width: "100%",
-    marginTop: 150,
-    padding: 0,
-  },
-  tab: {
-    flex: 1,               
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cameraNav: {
-    backgroundColor: '#578C5B',
-    borderRadius: 50,
-    width: 55,
-    height: 55,
-    marginTop: -20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  userNav: {
-    flex: 1,                  
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: '#95D26D',
-    borderTopRightRadius: 20, 
-    borderTopLeftRadius: 20,
   },
 });
 

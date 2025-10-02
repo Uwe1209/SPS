@@ -19,7 +19,7 @@ export default function MyProfile({ navigation }) {
         </TouchableOpacity>
       </View>
       <Image
-        source={require("./assets/user2.png")}
+        source={require("../../assets/user2.png")}
         style={styles.profileImage}
       />
 
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 100,
     height: 100,
-    borderRadius: 50,
+    borderRadius: 100,
     backgroundColor: "#ddd",
     alignSelf: "center",
     marginVertical: 15,
@@ -146,14 +146,19 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+    flexWrap: "wrap",
     paddingVertical: 5,
   },
   label: {
+    flex: 1,
     fontSize: 15,
     fontWeight: "500",
   },
   value: {
+    flex: 2,
     fontSize: 15,
     color: "#333",
+    textAlign: "right",
   },
 });

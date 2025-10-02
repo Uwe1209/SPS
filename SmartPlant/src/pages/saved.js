@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet, Text } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Text, Dimensions } from "react-native";
 
 export default function SavedScreen({ navigation }) {
   const colors = ["#D96D63", "#446C47", "#8FCF6F", "#E0F474", "#517B53", "#AAAAAA", "#94D27A", "#444444"];
@@ -22,6 +22,10 @@ export default function SavedScreen({ navigation }) {
     </View>
   );
 }
+
+const screenWidth = Dimensions.get("window").width;
+const numColumns = 3; // how many boxes per row
+const boxSize = screenWidth / numColumns; // calculate size
 
 const styles = StyleSheet.create({
   container: { 
@@ -55,8 +59,8 @@ const styles = StyleSheet.create({
       flexWrap: "wrap",
   },
   box: {
-      width: 120,
-      height: 120,
+      width: boxSize,
+      height: boxSize,
       borderWidth: 1,
       borderColor: "white",
   },
