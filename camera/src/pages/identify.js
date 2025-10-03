@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity, ScrollView,ActivityIndicator } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImagePicker from "expo-image-picker";
 import Entypo from '@expo/vector-icons/Entypo';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 
 import CustomButton from '../component/Button';
 
@@ -127,16 +128,18 @@ export default function IdentifyPage() {
         });
 
         try {
-            const response = await fetch("http://172.17.29.108:3000/predict", {
+            setLoading(true);
+            const response = await fetch("http://172.17.23.210:3000/predict", {
                 method: "POST",
                 headers: { "Content-Type": "multipart/form-data" },
                 body: formData,
             });
 
             const data = await response.json();
+            setLoading(false);
 
             // Navigate to output page with prediction
-            navigation.navigate("identify_output", { prediction: data , imageURI:images[0] });
+            navigation.navigate("identify_output", { prediction: data, imageURI: images[0] });
         } catch (err) {
             console.log("Upload error:", err);
             alert("Failed to identify. Check backend connection.");
@@ -144,7 +147,15 @@ export default function IdentifyPage() {
     };
 
     return (
+
         <View style={styles.container}>
+            {loading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#00ff3cff" />
+                    <Text style={{ color: "white", marginTop: 10 }}>Identifying...</Text>
+                </View>
+            )}
+
             {/* Camera */}
             {images.length === 0 || mode === "multiple" ? (
                 <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
@@ -231,6 +242,18 @@ export default function IdentifyPage() {
 }
 
 const styles = StyleSheet.create({
+    loadingOverlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.5)",
+        zIndex: 1000,
+    },
+
     container: {
         flex: 1,
         backgroundColor: '#000'

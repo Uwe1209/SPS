@@ -1,22 +1,21 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
-import CustomButton from "../component/Button";
-
 
 export default function ResultScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { prediction , imageURI} = route.params || {};
-  console.log("Prediction received:", prediction);
+  const { prediction, imageURI } = route.params || {}; 
+  // prediction is expected to be an array like:
+  // [{ class: "Nepenthes_tentaculata", confidence: 0.7321 }, {...}, {...}]
+
+  console.log("Predictions received:", prediction);
+
   return (
     <View style={styles.container}>
       {/* Image Preview Box */}
       <View style={styles.imageBox}>
-        <Image
-          source={{ uri: imageURI }} //a placeholder.. i dk what this is for
-          style={styles.image}
-        />
+        <Image source={{ uri: imageURI }} style={styles.image} />
         <TouchableOpacity style={styles.iconButton}>
           <View style={styles.circle} />
         </TouchableOpacity>
@@ -25,29 +24,25 @@ export default function ResultScreen() {
       {/* Title */}
       <Text style={styles.title}>AI Identification Result</Text>
 
-      {/* Result Row */}
-      <View style={styles.resultRow}>
-        <View style={styles.resultCard}>
-          <Text style={styles.resultLabel}>Plant Name</Text>
-          <Text style={styles.resultValue}>
-            {prediction && (prediction.class || prediction.class)
-              ? prediction.class || prediction.plantName
-              : "Unknown"}
-          </Text>
-        </View>
-        <View style={styles.resultCard}>
-          <Text style={styles.resultLabel}>Accuracy</Text>
-          <Text style={styles.resultValue}>
-            {prediction && (prediction.accuracy || prediction.confidence)
-              ? `${((prediction.accuracy || prediction.confidence) * 100).toFixed(2)}%`
-              : "N/A"}
-          </Text>
-        </View>
-      </View>
+      {/* Top 3 Results */}
+      <FlatList
+        data={prediction || []}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
+          <View style={styles.resultCard}>
+            <Text style={styles.resultRank}>#{index + 1}</Text>
+            <Text style={styles.resultLabel}>{item.class}</Text>
+            <Text style={styles.resultValue}>
+              {(item.confidence * 100).toFixed(2)}%
+            </Text>
+          </View>
+        )}
+        contentContainerStyle={styles.resultsContainer}
+      />
 
       {/* Done Button */}
       <TouchableOpacity style={styles.doneButton} onPress={() => navigation.goBack()}>
-        <Text style={{ color: "white", fontWeight: "bold", fontSize: 18, }}>Done</Text>
+        <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>Done</Text>
       </TouchableOpacity>
     </View>
   );
@@ -56,14 +51,14 @@ export default function ResultScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFF8E1", // could not find the color code
+    backgroundColor: "#FFF8E1",
     alignItems: "center",
     padding: 20,
   },
   imageBox: {
     width: 220,
     height: 220,
-    backgroundColor: "#D9D9D9", // gray placeholder
+    backgroundColor: "#D9D9D9",
     borderRadius: 4,
     marginTop: 30,
     marginBottom: 20,
@@ -88,15 +83,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    marginVertical: 10,
+    marginVertical: 12,
   },
-  resultRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  resultsContainer: {
     width: "100%",
-    marginVertical: 20,
+    paddingHorizontal: 10,
+    marginBottom: 20,
   },
   resultCard: {
     backgroundColor: "#496D4C",
@@ -104,17 +98,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 6,
     alignItems: "center",
-    minWidth: 100,
+    marginVertical: 6,
+  },
+  resultRank: {
+    color: "white", // gold for ranking
+    fontWeight: "bold",
+    marginBottom: 4,
   },
   resultLabel: {
     color: "white",
-    fontSize: 12,
+    fontWeight: "bold",
+    fontSize: 14,
     marginBottom: 4,
   },
   resultValue: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: 16,
   },
   doneButton: {
     backgroundColor: "#496D4C",
@@ -124,5 +124,4 @@ const styles = StyleSheet.create({
     marginTop: "auto",
     marginBottom: 30,
   },
-
 });
