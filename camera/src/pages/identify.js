@@ -76,7 +76,7 @@ export default function IdentifyPage() {
     //             for (let uri of images) {
     //                 await MediaLibrary.createAssetAsync(uri);
     //             }
-    //             alert('Pictures saved! 🎉');
+    //             alert('Pictures saved! ');
     //             setImages([]);
     //         } catch (error) {
     //             console.log(error);

@@ -5,21 +5,89 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 export default function ResultScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { prediction, imageURI } = route.params || {}; 
+  const { prediction, imageURI } = route.params || {};
+
+  const [heatmapURI, setHeatmapURI] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [showHeatmap, setShowHeatmap] = React.useState(false); // toggle overlay
+
   // prediction is expected to be an array like:
   // [{ class: "Nepenthes_tentaculata", confidence: 0.7321 }, {...}, {...}]
 
   console.log("Predictions received:", prediction);
 
+  const constructHeatmap = async () => {
+    if (heatmapURI) {
+      // toggle overlay
+      setShowHeatmap(!showHeatmap);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", {
+      uri: imageURI,
+      type: "image/jpeg",
+      name: "photo.jpg",
+    });
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://172.17.23.210:3000/heatmap", {
+        method: "POST",
+        headers: { "Content-Type": "multipart/form-data" },
+        body: formData,
+      });
+
+      const data = await response.json();
+      setLoading(false);
+
+      if (data.heatmap) {
+        setHeatmapURI(data.heatmap);
+        setShowHeatmap(true);
+      } else {
+        alert("Heatmap not returned from server.");
+      }
+    } catch (err) {
+      console.log("Upload error:", err);
+      setLoading(false);
+      alert("Failed to generate heatmap. Check backend connection.");
+    }
+  };
+
+
+
   return (
     <View style={styles.container}>
       {/* Image Preview Box */}
-      <View style={styles.imageBox}>
+      {/* <View style={styles.imageBox}>
         <Image source={{ uri: imageURI }} style={styles.image} />
         <TouchableOpacity style={styles.iconButton}>
+          <View style={styles.circle} onLongPress={constructHeatmap}/>
+        </TouchableOpacity>
+      </View> */}
+      <View style={styles.imageBox}>
+        <Image
+          source={{ uri: showHeatmap && heatmapURI ? heatmapURI : imageURI }}
+          style={styles.image}
+        />
+
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            if (heatmapURI) {
+              // toggle overlay
+              setShowHeatmap(!showHeatmap);
+            } else {
+              // generate heatmap first
+              constructHeatmap();
+            }
+          }}
+        >
           <View style={styles.circle} />
         </TouchableOpacity>
       </View>
+
 
       {/* Title */}
       <Text style={styles.title}>AI Identification Result</Text>
