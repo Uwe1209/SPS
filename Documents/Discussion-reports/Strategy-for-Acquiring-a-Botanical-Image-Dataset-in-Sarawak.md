@@ -24,42 +24,42 @@ The botanical data landscape for Sarawak is highly fragmented. Relevant data is 
 
 ### 3. Key Data Sources and Repositories
 
-### 3.1. Publicly Available Digital Datasets
+#### 3.1. Publicly Available Digital Datasets
 
-### 3.1.1. Global Biodiversity Information Facility (GBIF)
+##### 3.1.1. Global Biodiversity Information Facility (GBIF)
 This is the most important starting point. As a major international data aggregator, GBIF provides access to tens of thousands of georeferenced plant records from Sarawak, contributed by hundreds of different institutions and projects. Data can be filtered by location and for records that contain images.
 
-### 3.1.2. Citizen Science Platforms
+##### 3.1.2. Citizen Science Platforms
 These platforms are the largest source of modern, in-situ photographs of living plants.
-    *   **iNaturalist:** This platform provides a vast collection of user-submitted, georeferenced photos. For data quality, it is recommended to filter for "Research-Grade" observations, which have been vetted by the platform's community.
-    *   **Pl@ntNet:** As a platform focused specifically on plant identification, its dataset is highly relevant and of high quality. Its data is also accessible through GBIF.
+*   **iNaturalist:** This platform provides a vast collection of user-submitted, georeferenced photos. For data quality, it is recommended to filter for "Research-Grade" observations, which have been vetted by the platform's community.
+*   **Pl@ntNet:** As a platform focused specifically on plant identification, its dataset is highly relevant and of high quality. Its data is also accessible through GBIF.
 
-### 3.2. Authoritative Institutional and Reference Sources
+#### 3.2. Authoritative Institutional and Reference Sources
 
-### 3.2.1. The Sarawak Herbarium (SAR)
+##### 3.2.1. The Sarawak Herbarium (SAR)
 Managed by the Forest Department Sarawak (FDS), the herbarium is the state's ultimate authoritative repository, holding approximately 300,000 preserved plant specimens. Its digital data is stored in the Botanical Research and Herbarium Management System (BRAHMS). However, there is no public-facing online portal for this database; access requires a formal request to the FDS.
 
-### 3.2.2. International Herbaria
+##### 3.2.2. International Herbaria
 Many historical specimens from Sarawak are held in international institutions that are now digitizing their collections. Key sources include:
-    *   **Royal Botanic Gardens, Kew (RBGK):** Holds extensive and historically significant collections from Borneo, which are being made available online.
-    *   **Harvard University Herbaria:** Provides online access to its specimen database, which includes numerous collections from Sarawak.
+*   **Royal Botanic Gardens, Kew (RBGK):** Holds extensive and historically significant collections from Borneo, which are being made available online.
+*   **Harvard University Herbaria:** Provides online access to its specimen database, which includes numerous collections from Sarawak.
 
-### 3.2.3. National Portals and Published Literature
-    *   **Malaysia Biodiversity Information System (MyBIS):** This is the country's official biodiversity repository. While not a primary source of images, it is the most authoritative source for compiling a master species checklist for Sarawak, which is essential for guiding the data collection process.
-    *   **"Tree Flora of Sabah and Sarawak":** This multi-volume scientific publication is the most systematic documentation of the region's tree species and serves as a foundational taxonomic reference.
+##### 3.2.3. National Portals and Published Literature
+*   **Malaysia Biodiversity Information System (MyBIS):** This is the country's official biodiversity repository. While not a primary source of images, it is the most authoritative source for compiling a master species checklist for Sarawak, which is essential for guiding the data collection process.
+*   **"Tree Flora of Sabah and Sarawak":** This multi-volume scientific publication is the most systematic documentation of the region's tree species and serves as a foundational taxonomic reference.
 
 ---
 
 ### 4. Strategic Recommendations
 
-### 4.1. Phased Approach
+#### 4.1. Phased Approach
 A phased approach is recommended to systematically build the dataset:
-    *   **Phase 1: Aggregation and Scoping.** Begin by downloading all publicly available data from GBIF and iNaturalist. Concurrently, compile a master species checklist from MyBIS and the "Tree Flora of Sabah and Sarawak" to conduct a gap analysis.
-    *   **Phase 2: Institutional Engagement.** Initiate formal, diplomatic approaches to the Forest Department Sarawak and the Sarawak Biodiversity Centre to request access to their restricted data holdings.
-    *   **Phase 3: Targeted Data Generation.** Based on the gap analysis, commission targeted fieldwork to photograph under-represented or missing species.
-    *   **Phase 4: Curation and Verification.** Integrate all data sources, perform rigorous taxonomic verification against authoritative references, implement ethical safeguards, and structure the final dataset for AI training.
+*   **Phase 1: Aggregation and Scoping.** Begin by downloading all publicly available data from GBIF and iNaturalist. Concurrently, compile a master species checklist from MyBIS and the "Tree Flora of Sabah and Sarawak" to conduct a gap analysis.
+*   **Phase 2: Institutional Engagement.** Initiate formal, diplomatic approaches to the Forest Department Sarawak and the Sarawak Biodiversity Centre to request access to their restricted data holdings.
+*   **Phase 3: Targeted Data Generation.** Based on the gap analysis, commission targeted fieldwork to photograph under-represented or missing species.
+*   **Phase 4: Curation and Verification.** Integrate all data sources, perform rigorous taxonomic verification against authoritative references, implement ethical safeguards, and structure the final dataset for AI training.
 
-### 4.2. Ethical Considerations
+#### 4.2. Ethical Considerations
 A critical step in the curation process must be the protection of sensitive species. The precise GPS coordinates for any plant on IUCN Red Lists or local protected lists must be obscured or generalized to a lower resolution. This mitigates the risk of the data being used for illegal poaching, a known issue with public biodiversity platforms.
 
 ---
