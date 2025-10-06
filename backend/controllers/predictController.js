@@ -20,7 +20,7 @@ const handlePrediction = (req, res) => {
 
   python.stderr.on("data", (data) => {
     errorOutput += data.toString();
-    console.error(`🐍 Python error: ${data}`);
+    console.error("Python error: ${data}");
   });
 
   python.on("close", (code) => {

@@ -7,13 +7,13 @@ from torchvision.models import resnet18
 from torchvision import transforms
 from PIL import Image
 
-# === Setup ===
+#Setup
 num_classes = 12
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load model (ResNet18)
 model = resnet18(pretrained=False)
-model.fc = nn.Linear(model.fc.in_features, num_classes)  # ✅ use .fc for ResNet
+model.fc = nn.Linear(model.fc.in_features, num_classes)
 
 # Load checkpoint
 checkpoint = torch.load("resnet18_with_class_label_weights_best_acc.tar", map_location=device)

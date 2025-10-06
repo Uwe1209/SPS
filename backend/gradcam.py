@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from torchvision import models, transforms
 
-# ======= Config =======
+#Global variable
 CHECKPOINT_PATH = "resnet18_with_class_label_weights_best_acc.tar"
 OUTPUT_DIR = "heatmaps"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -14,6 +14,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 MODEL_CONFIG = {
     "resnet18": {"size": 224, "norm_mean": [0.485,0.456,0.406], "norm_std": [0.229,0.224,0.225], "conv_layer": "layer4"},
 }
+
+#Data preprocessing 
 
 def preprocess_image(img_path):
     config = MODEL_CONFIG["resnet18"]
@@ -73,9 +75,9 @@ def overlay_heatmap(img_path, heatmap, alpha=0.4):
     superimposed = cv2.addWeighted(img, alpha, heatmap, 1-alpha, 0)
     return superimposed
 
-# ======= Main =======
+
 if __name__ == "__main__":
-    image_path = sys.argv[1]   # first arg: image path
+    image_path = sys.argv[1]   
     output_filename = os.path.join(OUTPUT_DIR, os.path.basename(image_path))
 
     checkpoint = torch.load(CHECKPOINT_PATH, map_location="cpu")
