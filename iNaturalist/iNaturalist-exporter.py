@@ -28,39 +28,65 @@ def get_taxon_name(taxon_id):
         print(f"Error fetching taxon name for ID {taxon_id}: {e}")
     return None
 
-def download_observation_data(task):
-    """Downloads and saves observation data for a given taxon and year."""
-    taxon_id, year, species_dir = task
-    
-    export_url = (
-        f"https://www.inaturalist.org/observations.csv?"
-        f"quality_grade=any&identifications=any&taxon_id={taxon_id}"
-        f"&year={year}&verifiable=true&spam=false"
-    )
-    
-    output_csv_path = species_dir / f"{year}.csv"
+def download_and_save_species_data(taxon_info):
+    """Downloads all data for a single species and saves to a single CSV, handling throttling."""
+    taxon_id = taxon_info['id']
+    name = taxon_info['name']
 
-    if output_csv_path.exists() and output_csv_path.stat().st_size > 0:
-        print(f"  - {species_dir.name}/{year}.csv already exists and is not empty. Skipping.")
-        return
+    print(f"\nProcessing {name} (Taxon ID: {taxon_id})")
 
-    print(f"  - Downloading data for {species_dir.name}/{year}...")
-    
-    try:
-        response = requests.get(export_url)
-        response.raise_for_status()
+    species_folder_name = sanitize_filename(name)
+    species_dir = OUTPUT_DIR / species_folder_name
+    species_dir.mkdir(exist_ok=True)
 
-        if response.content:
-            with open(output_csv_path, 'wb') as f:
-                f.write(response.content)
-            print(f"    - Saved to {output_csv_path}")
-        else:
-            print(f"    - No data found for {year}.")
-            # Create an empty file to avoid re-downloading
-            output_csv_path.touch()
+    output_csv_path = species_dir / f"{species_folder_name}.csv"
+    print(f"Exporting data to: {output_csv_path}")
 
-    except requests.exceptions.RequestException as e:
-        print(f"    - Error downloading data for {year}: {e}")
+    with open(output_csv_path, 'wb') as f_out:
+        header_written = False
+        for year in range(START_YEAR, END_YEAR - 1, -1):
+            export_url = (
+                f"https://www.inaturalist.org/observations.csv?"
+                f"quality_grade=any&identifications=any&taxon_id={taxon_id}"
+                f"&year={year}&verifiable=true&spam=false"
+            )
+
+            print(f"  - Downloading data for {year}...")
+
+            retries = 3
+            for attempt in range(retries):
+                try:
+                    time.sleep(1)  # Proactive delay to avoid throttling
+                    response = requests.get(export_url)
+                    response.raise_for_status()
+
+                    if response.content:
+                        content_lines = response.content.splitlines(True)
+                        if not header_written:
+                            f_out.writelines(content_lines)
+                            if content_lines:
+                                header_written = True
+                        elif len(content_lines) > 1:
+                            f_out.writelines(content_lines[1:])
+                    else:
+                        print(f"    - No data found for {year}.")
+
+                    break  # Success
+                except requests.exceptions.HTTPError as e:
+                    if e.response.status_code == 429:
+                        retry_after = int(e.response.headers.get("Retry-After", 5))
+                        print(f"    - Throttled. Retrying after {retry_after} seconds... (Attempt {attempt + 1}/{retries})")
+                        time.sleep(retry_after)
+                    else:
+                        print(f"    - HTTP Error downloading data for {year}: {e}")
+                        break
+                except requests.exceptions.RequestException as e:
+                    print(f"    - Request Error downloading data for {year}: {e}")
+                    if attempt < retries - 1:
+                        time.sleep(5)
+                    else:
+                        print(f"    - Max retries reached for {year}. Skipping.")
+                        break
 
 def main():
     """Main function to download iNaturalist data."""
@@ -97,19 +123,9 @@ def main():
             except Exception as exc:
                 print(f'  - Taxon ID {taxon_id} generated an exception when fetching name: {exc}')
 
-    tasks = []
-    for taxon in taxa_info:
-        scientific_name = taxon['name']
-        species_folder_name = sanitize_filename(scientific_name)
-        species_dir = OUTPUT_DIR / species_folder_name
-        species_dir.mkdir(exist_ok=True)
-        
-        for year in range(START_YEAR, END_YEAR - 1, -1):
-            tasks.append((taxon['id'], year, species_dir))
-
-    print(f"\nStarting to process {len(tasks)} download tasks with up to 10 workers...")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        executor.map(download_observation_data, tasks)
+    print(f"\nStarting to process {len(taxa_info)} species with up to 5 workers...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        executor.map(download_and_save_species_data, taxa_info)
     
     print("\nAll tasks completed.")
 
