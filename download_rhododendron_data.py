@@ -23,7 +23,7 @@ for year in range(2025, 1969, -1):
         'year': year,
         'verifiable': 'true',
         'spam': 'false',
-        'fields': 'id,observed_on,quality_grade,url,image_url,taxon_name,uuid'
+        'columns': 'id,observed_on,quality_grade,url,image_url,scientific_name,uuid'
     }
 
     try:
