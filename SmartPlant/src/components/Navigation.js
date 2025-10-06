@@ -23,8 +23,8 @@ export default function BottomNav({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.cameraNav, route.name === "Camera" && styles.activeTab]}
-        onPress={() => navigation.navigate("Camera")}
+        style={[styles.cameraNav, route.name === "identify" && styles.activeTab]}
+        onPress={() => navigation.navigate("identify")}
       >
         <Ionicons name="camera" size={28} color="black" />
       </TouchableOpacity>
