@@ -15,29 +15,35 @@ def sanitize_filename(name):
     """Sanitises a string to be used as a valid folder name."""
     return re.sub(r'[<>:"/\\|?*]', '-', name).replace(' ', '-')
 
-def get_taxon_name(taxon_id):
-    """Fetches the scientific name for a given taxon ID from the iNaturalist API."""
+def get_taxon_details(taxon_id):
+    """Fetches details (name, observation count) for a given taxon ID from the iNaturalist API."""
     api_url = f"https://api.inaturalist.org/v1/taxa/{taxon_id}"
     try:
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
         if data['results']:
-            return data['results'][0]['name']
+            result = data['results'][0]
+            return {
+                'name': result.get('name'),
+                'observations_count': result.get('observations_count', 0)
+            }
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching taxon name for ID {taxon_id}: {e}")
+        print(f"Error fetching taxon details for ID {taxon_id}: {e}")
     return None
 
 def download_and_save_species_data(taxon_info):
     """Downloads all data for a single species and saves to a single CSV, handling throttling."""
     taxon_id = taxon_info['id']
     name = taxon_info['name']
+    path_parts = taxon_info['path']
 
     print(f"\nProcessing {name} (Taxon ID: {taxon_id})")
 
+    sanitized_path_parts = [sanitize_filename(part) for part in path_parts]
     species_folder_name = sanitize_filename(name)
-    species_dir = OUTPUT_DIR / species_folder_name
-    species_dir.mkdir(exist_ok=True)
+    species_dir = OUTPUT_DIR.joinpath(*sanitized_path_parts, species_folder_name)
+    species_dir.mkdir(parents=True, exist_ok=True)
 
     output_csv_path = species_dir / f"{species_folder_name}.csv"
     print(f"Exporting data to: {output_csv_path}")
@@ -56,7 +62,7 @@ def download_and_save_species_data(taxon_info):
             retries = 3
             for attempt in range(retries):
                 try:
-                    time.sleep(1)  # Proactive delay to avoid throttling
+                    time.sleep(1.5)  # Proactive delay to avoid throttling
                     response = requests.get(export_url)
                     response.raise_for_status()
 
@@ -88,6 +94,32 @@ def download_and_save_species_data(taxon_info):
                         print(f"    - Max retries reached for {year}. Skipping.")
                         break
 
+def print_tree(node, prefix=""):
+    """Recursively prints a tree structure from a nested dictionary."""
+    subdirs = {k: v for k, v in node.items() if k != '_species'}
+    species = sorted(node.get('_species', []))
+    
+    items = list(subdirs.items())
+    total_items = len(items) + len(species)
+    count = 0
+
+    # Print subdirectories
+    for name, child_node in items:
+        count += 1
+        is_last = count == total_items
+        connector = "└── " if is_last else "├── "
+        print(f"{prefix}{connector}{name}")
+        
+        new_prefix = prefix + ("    " if is_last else "│   ")
+        print_tree(child_node, new_prefix)
+
+    # Print species
+    for name in species:
+        count += 1
+        is_last = count == total_items
+        connector = "└── " if is_last else "├── "
+        print(f"{prefix}{connector}{name}")
+
 def main():
     """Main function to download iNaturalist data."""
     if not Path(INPUT_FILE).exists():
@@ -97,34 +129,73 @@ def main():
     with open(INPUT_FILE, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    taxon_ids = sorted(list(set(re.findall(r'Taxon ID: (\d+)', content))))
+    taxa_with_paths_dict = {}
+    current_h1 = None
+    current_h2 = None
+    for line in content.splitlines():
+        line = line.strip()
+        h1_match = re.match(r'###\s+(.*)', line)
+        h2_match = re.match(r'#####\s+[\d\.]+\s+(.*)', line)
+        taxon_match = re.search(r'Taxon ID: (\d+)', line)
 
-    if not taxon_ids:
-        print("No Taxon IDs found in the input file.")
+        if h1_match:
+            current_h1 = h1_match.group(1).strip()
+            current_h2 = None
+        elif h2_match:
+            current_h2 = h2_match.group(1).strip()
+        elif taxon_match and current_h1 and current_h2:
+            taxon_id = taxon_match.group(1)
+            if taxon_id not in taxa_with_paths_dict:
+                taxa_with_paths_dict[taxon_id] = {
+                    'id': taxon_id,
+                    'path': [current_h1, current_h2]
+                }
+
+    taxa_with_paths = sorted(taxa_with_paths_dict.values(), key=lambda x: x['id'])
+
+    if not taxa_with_paths:
+        print("No Taxon IDs found with associated paths in the input file.")
         return
 
-    print(f"Found {len(taxon_ids)} unique Taxon IDs.")
+    print(f"Found {len(taxa_with_paths)} unique Taxon IDs with paths.")
     
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     taxa_info = []
-    print("\nFetching scientific names for all Taxon IDs...")
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future_to_id = {executor.submit(get_taxon_name, taxon_id): taxon_id for taxon_id in taxon_ids}
-        for future in concurrent.futures.as_completed(future_to_id):
-            taxon_id = future_to_id[future]
-            try:
-                name = future.result()
-                if name:
-                    print(f"  - {taxon_id}: {name}")
-                    taxa_info.append({'id': taxon_id, 'name': name})
-                else:
-                    print(f"  - Could not retrieve name for Taxon ID {taxon_id}. Skipping.")
-            except Exception as exc:
-                print(f'  - Taxon ID {taxon_id} generated an exception when fetching name: {exc}')
-
-    print(f"\nStarting to process {len(taxa_info)} species with up to 5 workers...")
+    print("\nFetching taxon details for all Taxon IDs...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_taxon = {executor.submit(get_taxon_details, taxon['id']): taxon for taxon in taxa_with_paths}
+        for future in concurrent.futures.as_completed(future_to_taxon):
+            taxon = future_to_taxon[future]
+            try:
+                details = future.result()
+                if details and details['name']:
+                    taxa_info.append({
+                        'id': taxon['id'], 
+                        'name': details['name'], 
+                        'path': taxon['path'],
+                        'count': details['observations_count']
+                    })
+                else:
+                    print(f"  - Could not retrieve details for Taxon ID {taxon['id']}. Skipping.")
+            except Exception as exc:
+                print(f'  - Taxon ID {taxon["id"]} generated an exception when fetching details: {exc}')
+
+    tree_data = {}
+    for taxon in taxa_info:
+        current_level = tree_data
+        for part in taxon['path']:
+            current_level = current_level.setdefault(part, {})
+        
+        if '_species' not in current_level:
+            current_level['_species'] = []
+        current_level['_species'].append(f"{taxon['name']} (Taxon ID: {taxon['id']}) - {taxon['count']:,} observations")
+
+    print("\nDiscovered Taxa and Planned Directory Structure:")
+    print_tree(tree_data)
+
+    print(f"\nStarting to process {len(taxa_info)} species with up to 2 workers...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         executor.map(download_and_save_species_data, taxa_info)
     
     print("\nAll tasks completed.")
