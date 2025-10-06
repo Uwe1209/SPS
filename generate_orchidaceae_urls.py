@@ -26,27 +26,33 @@ def setup_driver():
     driver = webdriver.Chrome(options=chrome_options)
     return driver
 
-def login_to_inaturalist(driver, username, password):
-    """Logs into iNaturalist."""
+def login_to_inaturalist(driver):
+    """Handles login to iNaturalist using Google OAuth."""
     print("Navigating to iNaturalist login page...")
     driver.get("https://www.inaturalist.org/login")
-    
+
     wait = WebDriverWait(driver, 10)
-    user_field = wait.until(EC.presence_of_element_located((By.ID, "user_login")))
-    pass_field = driver.find_element(By.ID, "user_password")
-    
-    print("Entering credentials...")
-    user_field.send_keys(username)
-    pass_field.send_keys(password)
-    
-    driver.find_element(By.NAME, "commit").click()
-    
-    print("Logging in...")
+
+    # Find and click the Google login button
+    google_login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/auth/google_oauth2']")))
+    print("Clicking 'Sign in with Google' button...")
+    google_login_button.click()
+
+    print("\n" + "="*50)
+    print("Please complete the Google login process in the browser window.")
+    print("The script will continue automatically after you log in.")
+    print("="*50 + "\n")
+
+    # Wait for the user to be redirected back and logged in.
+    # Increase timeout to give user time to log in.
+    long_wait = WebDriverWait(driver, 300)  # 5 minutes
+
+    print("Waiting for successful login...")
     try:
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.user-parent[href*='/people/']")))
+        long_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.user-parent[href*='/people/']")))
         print("Login successful.")
     except Exception:
-        print("Login failed. Please check your credentials or network connection.")
+        print("Login timed out or failed. Please try again.")
         driver.quit()
         exit()
 
@@ -114,22 +120,20 @@ def wait_for_download_complete(filename, timeout):
 def main():
     """Main function to automate iNaturalist exports."""
     print("--- iNaturalist Automated Exporter ---")
-    username = input("Enter your iNaturalist username: ")
-    password = getpass.getpass("Enter your iNaturalist password: ")
-    
+
     driver = None
     try:
         driver = setup_driver()
-        login_to_inaturalist(driver, username, password)
-        
+        login_to_inaturalist(driver)
+
         for year in range(2025, 1969, -1):
             trigger_and_download_export(driver, year)
-            
+
     finally:
         if driver:
             print("\nClosing browser.")
             driver.quit()
-        
+
     print("-" * 60)
     print("All exports complete.")
 
