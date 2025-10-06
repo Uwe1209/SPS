@@ -33,10 +33,26 @@ def login_to_inaturalist(driver):
 
     wait = WebDriverWait(driver, 10)
 
-    # Find and click the Google login button
-    google_login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/auth/google_oauth2']")))
-    print("Clicking 'Sign in with Google' button...")
-    google_login_button.click()
+    # Handle cookie consent banner first
+    try:
+        cookie_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "div#cookie-consent button.btn-primary")))
+        print("Accepting cookie policy...")
+        cookie_button.click()
+    except Exception:
+        # If the banner is not there, that's fine.
+        print("Cookie consent banner not found or already accepted, continuing...")
+
+    try:
+        # Find and click the Google login button
+        google_login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/auth/google_oauth2']")))
+        print("Clicking 'Sign in with Google' button...")
+        google_login_button.click()
+    except Exception as e:
+        print("\nError: Could not find or click the 'Sign in with Google' button.")
+        print("The iNaturalist login page may have changed, or an overlay is blocking the button.")
+        print(f"Selenium error: {e}")
+        driver.quit()
+        exit()
 
     print("\n" + "="*50)
     print("Please complete the Google login process in the browser window.")
