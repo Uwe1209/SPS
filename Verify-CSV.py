@@ -11,7 +11,7 @@ API_BASE_URL = "https://api.inaturalist.org/v1/observations"
 # The root directory to scan for CSV files.
 CSV_ROOT_DIR = r"C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV"
 
-def get_remote_count(taxon_id, year):
+def get_remote_count(taxon_id):
     """
     Queries the iNaturalist API to get the total number of verifiable observations.
     Note: This function makes API calls without a delay. Aggressive use may
@@ -21,7 +21,6 @@ def get_remote_count(taxon_id, year):
         'quality_grade': 'any',
         'identifications': 'any',
         'taxon_id': taxon_id,
-        'year': year,
         'verifiable': 'true',
         'spam': 'false',
         'per_page': 0  # We only want the total count, not the results.
@@ -65,20 +64,13 @@ def verify_csv_file(file_path):
     """Worker function to verify a single CSV file against the iNaturalist API."""
     filename = os.path.basename(file_path)
     
-    # Parse year from filename, e.g., '...-2024.csv'
-    match = re.search(r'-(\d{4})\.csv$', filename)
-    if not match:
-        return f"SKIPPED: Filename '{filename}' does not match '...-YYYY.csv' format.", "skip"
-
-    year = int(match.group(1))
-    
     try:
         taxon_id = get_taxon_id_from_csv(file_path)
         if not taxon_id:
             return f"SKIPPED: Could not retrieve taxon_id from '{filename}'.", "skip"
 
         local_count = get_local_count(file_path)
-        remote_count = get_remote_count(taxon_id, year)
+        remote_count = get_remote_count(taxon_id)
 
         if local_count == remote_count:
             if remote_count > 0 or os.path.exists(file_path):
