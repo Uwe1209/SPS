@@ -72,7 +72,8 @@ def login_to_inaturalist(driver):
 
     print("Waiting for successful login...")
     try:
-        long_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.user-parent[href*='/people/']")))
+        # Wait for the user menu to appear, which indicates a successful login.
+        long_wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "a.user-parent")))
         print("Login successful.")
     except Exception:
         print("Login timed out or failed. Please try again.")
