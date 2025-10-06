@@ -44,12 +44,12 @@ def login_to_inaturalist(driver):
 
     try:
         # Find and click the "Show more login options" link first
-        show_more_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.sso-show-more")))
+        show_more_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.togglelink")))
         print("Clicking 'Show more login options'...")
         show_more_button.click()
 
         # Now, find and click the Google login button
-        google_login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a[href='/auth/google_oauth2']")))
+        google_login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.providerlink.google")))
         print("Clicking 'Sign in with Google' button...")
         google_login_button.click()
     except Exception as e:
