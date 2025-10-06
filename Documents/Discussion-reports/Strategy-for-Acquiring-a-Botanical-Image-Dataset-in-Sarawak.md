@@ -1,8 +1,6 @@
-Of course. Here is a report summarizing our discussion.
+### Strategy for Acquiring a Botanical Image Dataset in Sarawak
 
-### Report on the Strategy for Acquiring a Botanical Image Dataset in Sarawak
-
-Date: 6th of October, 2025
+Date: 22nd of September, 2025
 
 ---
 
