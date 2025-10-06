@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 # Configuration
-INPUT_FILE = 'protected_plants.txt'
+INPUT_FILE = 'iNaturalist/iNaturalist-notes.md'
 OUTPUT_DIR = Path(r'C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV')
 START_YEAR = 2025
 END_YEAR = 1970
