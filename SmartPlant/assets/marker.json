@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "Orchid",
+    "type": "Flower",
+    "coordinate": { "latitude": 1.5574, "longitude": 110.3592 },
+    "identifiedBy": "Gibson",
+    "time": "2 weeks ago",
+    "image": "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400",
+    "description": "Orchids are one of the largest families of flowering plants with over 25,000 species. They are known for their beautiful and diverse flowers."
+  },
+  {
+    "id": 2,
+    "title": "Pitcher Plant",
+    "type": "Plant",
+    "coordinate": { "latitude": 1.5421, "longitude": 110.3518 },
+    "identifiedBy": "Amina",
+    "time": "1 week ago",
+    "image": "https://images.unsplash.com/photo-1596436889106-be35e8433c0b?w=400",
+    "description": "Pitcher plants are carnivorous plants that have modified leaves known as pitfall traps—a prey-trapping mechanism featuring a deep cavity filled with digestive liquid."
+  },
+  {
+    "id": 3,
+    "title": "Hibiscus",
+    "type": "Flower",
+    "coordinate": { "latitude": 1.5367, "longitude": 110.3705 },
+    "identifiedBy": "Razak",
+    "time": "3 days ago",
+    "image": "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=400",
+    "description": "Hibiscus is a genus of flowering plants in the mallow family, Malvaceae. The genus is quite large, comprising several hundred species."
+  }
+]
