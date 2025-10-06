@@ -10,8 +10,7 @@ import re
 CSV_ROOT_DIR = r"C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV"
 
 # The root directory where images will be saved.
-# This will be created in 'iNaturalist\Images'.
-IMAGE_OUTPUT_DIR = os.path.join(os.path.dirname(CSV_ROOT_DIR), "Images")
+IMAGE_OUTPUT_DIR = r"C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\Images"
 
 # The file to keep track of already downloaded images.
 CHECKSUM_FILE = "image_download_checksum.txt"
