@@ -1,6 +1,7 @@
 import os
 import time
 import getpass
+import undetected_chromedriver as uc
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -23,7 +24,8 @@ def setup_driver():
     print(f"Configuring Chrome to download files to: {DOWNLOAD_DIR}")
     
     # Selenium 4+ includes Selenium Manager, which handles chromedriver automatically.
-    driver = webdriver.Chrome(options=chrome_options)
+    # Using undetected_chromedriver to avoid bot detection.
+    driver = uc.Chrome(options=chrome_options)
     return driver
 
 def login_to_inaturalist(driver):
