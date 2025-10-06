@@ -48,16 +48,19 @@
 ### Additional Protected Plants
 
 #### Protected plants in Sarawak
-* Shorea splendida
-* Shorea hemsleyana
-* Shorea seminis
-* Shorea ochracea
-* Shorea pinanga
-* Aetoxylon sympetalum
-* Avicennia lanata
-* Avicennia officinalis
-* Aquilaria malaccensis
-* Salacca magnifica
-* Pinanga mirabilis
-* Areca triandra
-* Areca subacaulis
+
+* _Shorea splendida_
+* _Shorea hemsleyana_
+* _Shorea seminis_
+* _Shorea ochracea_
+* _Shorea pinanga_
+* _Aetoxylon sympetalum_
+* _Avicennia lanata_
+* _Avicennia officinalis_
+* _Aquilaria malaccensis_
+* _Salacca magnifica_
+* _Pinanga mirabilis_
+* _Areca triandra_
+* _Areca subacaulis_
+
+
