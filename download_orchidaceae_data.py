@@ -22,7 +22,8 @@ for year in range(2025, 1969, -1):
         'taxon_id': 47217,
         'year': year,
         'verifiable': 'true',
-        'spam': 'false'
+        'spam': 'false',
+        'fields': 'id,observed_on,quality_grade,url,image_url,taxon_name,uuid'
     }
 
     try:
