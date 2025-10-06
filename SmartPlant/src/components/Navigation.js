@@ -16,8 +16,8 @@ export default function BottomNav({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.tab, route.name === "Map" && styles.activeTab]}
-        onPress={() => navigation.navigate("Map")}
+        style={[styles.tab, route.name === "MapPage" && styles.activeTab]}
+        onPress={() => navigation.navigate("MapPage")}
       >
         <Ionicons name="map" size={28} color="black" />
       </TouchableOpacity>
@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 150,
     padding: 0,
+    zIndex: 1,
   },
   tab: {
     flex: 1,
