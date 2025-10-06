@@ -1,6 +1,6 @@
 ### Acquiring a Comprehensive Botanical Image Dataset for Sarawak: A Strategic Guide for the SmartPlant Sarawak Project
 
-Date: 6th of October, 2025
+Date: 22nd of September, 2025
 
 ---
 

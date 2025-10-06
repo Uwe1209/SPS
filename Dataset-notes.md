@@ -1,10 +1,12 @@
 ### iNaturalist
 
-#### Totally protected plants in Sarawak
+#### 1. Found
+
+##### 1.1. Totally protected plants in Sarawak
 * Dipterocarpus oblongifolius
 * Rafflesia
 
-#### Protected plants in Sarawak
+##### 1.2. Protected plants in Sarawak
 * Shorea stenoptera (Rubroshorea stenoptera)
 * Koompassia excelsa
 * Shorea macrophylla (Rubroshorea macrophylla)
@@ -29,21 +31,29 @@
 * Nepenthes
 * Monophyllaea
 
-##### Not found
+#### 2. Not found
+
+##### 2.1. Protected plants in Sarawak
 * Kayu Hujan Panas: _Goniothalamus velutinus_
 * Bintangor: _Calophyllum teysmanii_
 
-##### No results found
+#### 3. No results found
+
+##### 3.1. Protected plants in Sarawak
 * Pinang: _Areca jugahpunya_
 * Kayu Gaharu: _Aquilaria microcarpa_
 * Daun Pelagus: _Didesmandra aspera_
 
-##### Unclear
+#### 4. Unclear
+
+##### 4.1. Protected plants in Sarawak
 * Ekor Tupai: All epiphytic _Lycopodium_ species
 * Melebab: All _Didymorcarpus_ species
 * Ketiau: All _Madhuca_ species in the peat swamp forest
 
-##### Failed to save record: Exports cannot contain more than 200,000 observations
+#### 5. Failed to save record: Exports cannot contain more than 200,000 observations
+
+##### 5.1. Protected plants in Sarawak
 * Pokok Ara: All _Ficus_ species
 * Orkid: All _Orchidaceae_ species
 * Bunga Gegansai: All _Rhododendron_ species
