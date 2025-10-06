@@ -11,37 +11,6 @@ API_BASE_URL = "https://api.inaturalist.org/v1/observations"
 # The root directory to scan for CSV files.
 CSV_ROOT_DIR = r"C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV"
 
-# A mapping of directory names (as lowercase) to iNaturalist taxon IDs.
-TAXON_MAP = {
-    'aeschynanthus': 53545,
-    'antiaris-toxicaria': 120710,
-    'aquilaria-beccariana': 348752,
-    'avicennia-alba': 210711,
-    'avicennia-marina': 62100,
-    'begonia': 49929,
-    'calophyllum-lanigerum': 334003,
-    'casuarina-equisetifolia': 68403,
-    'cycas-rumphii': 120691,
-    'cyrtandra': 60900,
-    'eurycoma-longifolia': 320989,
-    'johannesteijsmannia-altifrons': 279998,
-    'koompassia-excelsa': 319149,
-    'koompassia-malaccensis': 333999,
-    'licuala-orbicularis': 339008,
-    'lumnitzera-littorea': 318098,
-    'monophyllaea': 83918,
-    'nepenthes': 61422,
-    'rubroshorea-macrophylla': 973803,
-    'rubroshorea-palembanica': 1158003,
-    'rubroshorea-stenoptera': 1079961,
-    'sonneratia-alba': 125051,
-    'sonneratia-caseolaris': 155573,
-    'dipterocarpus-oblongifolius': 333991,
-    'rafflesia': 53861,
-    'rhododendron': 49487,
-    'orchidaceae': 47217,
-}
-
 def get_remote_count(taxon_id, year):
     """
     Queries the iNaturalist API to get the total number of verifiable observations.
@@ -80,6 +49,18 @@ def get_local_count(file_path):
     except IOError as e:
         raise IOError(f"File Error reading {file_path}: {e}")
 
+def get_taxon_id_from_csv(file_path):
+    """Reads the first data row of a CSV to find the taxon_id."""
+    try:
+        with open(file_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            first_row = next(reader, None)
+            if first_row and 'taxon_id' in first_row and first_row['taxon_id']:
+                return first_row['taxon_id']
+            return None
+    except (IOError, StopIteration, KeyError) as e:
+        raise ValueError(f"Could not read taxon_id from {os.path.basename(file_path)}: {e}")
+
 def verify_csv_file(file_path):
     """Worker function to verify a single CSV file against the iNaturalist API."""
     filename = os.path.basename(file_path)
@@ -92,12 +73,9 @@ def verify_csv_file(file_path):
     year = int(match.group(1))
     
     try:
-        # Infer taxon from the parent directory name.
-        taxon_name_from_dir = os.path.basename(os.path.dirname(file_path)).lower()
-        taxon_id = TAXON_MAP.get(taxon_name_from_dir)
-
+        taxon_id = get_taxon_id_from_csv(file_path)
         if not taxon_id:
-            return f"SKIPPED: Taxon '{taxon_name_from_dir}' (from directory) not in TAXON_MAP.", "skip"
+            return f"SKIPPED: Could not retrieve taxon_id from '{filename}'.", "skip"
 
         local_count = get_local_count(file_path)
         remote_count = get_remote_count(taxon_id, year)
