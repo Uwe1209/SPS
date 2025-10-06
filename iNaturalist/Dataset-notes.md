@@ -16,16 +16,19 @@
 * Koompassia malaccensis
 * Shorea palembanica (Rubroshorea palembanica)
 * Lumnitzera littorrea
+* Pokok Ara: All _Ficus_ species
 * Sonneratia caseolaris
 * Begonia
 * Casuarina equisetifolia
 * Johannesteijsmannia altifrons
 * Licuala orbicularis
+* Orkid: All _Orchidaceae_ species
 * Aquilaria beccariana
 * Antiaris toxicaria
 * Cycas rumphii
 * Eurycoma longifolia
 * Calophyllum lanigerum
+* Bunga Gegansai: All _Rhododendron_ species
 * Cyrtandra
 * Aeschynanthus
 * Nepenthes
@@ -50,10 +53,3 @@
 * Ekor Tupai: All epiphytic _Lycopodium_ species
 * Melebab: All _Didymorcarpus_ species
 * Ketiau: All _Madhuca_ species in the peat swamp forest
-
-#### 5. Failed to save record: Exports cannot contain more than 200,000 observations
-
-##### 5.1. Protected plants in Sarawak
-* Pokok Ara: All _Ficus_ species
-* Orkid: All _Orchidaceae_ species
-* Bunga Gegansai: All _Rhododendron_ species

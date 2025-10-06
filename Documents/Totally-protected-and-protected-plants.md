@@ -2,12 +2,14 @@
 
 ---
 
-### Totally protected plants in Sarawak
+### Examples of Protected Plants
+
+#### Totally protected plants in Sarawak
 
 * Ensurai: _Dipterocarpus oblongifolius_
 * Bunga Pakma: All _Rafflesia_ species
 
-### Protected plants in Sarawak
+#### Protected plants in Sarawak
 
 * Engkabang Rusa: _Shorea stenoptera_
 * Tapang: _Koompassia excelsa_
@@ -41,4 +43,21 @@
 * Ketiau: All _Madhuca_ species in the peat swamp forest
 * Daun Pelagus: _Didesmandra aspera_
 
+---
 
+### Additional Protected Plants
+
+#### Protected plants in Sarawak
+* Shorea splendida
+* Shorea hemsleyana
+* Shorea seminis
+* Shorea ochracea
+* Shorea pinanga
+* Aetoxylon sympetalum
+* Avicennia lanata
+* Avicennia officinalis
+* Aquilaria malaccensis
+* Salacca magnifica
+* Pinanga mirabilis
+* Areca triandra
+* Areca subacaulis
