@@ -3,8 +3,9 @@ import { StyleSheet, TextInput, Text, View, TouchableOpacity, ScrollView, Image,
 import MapView, { Marker, PROVIDER_GOOGLE, Circle } from "react-native-maps";
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import mapStyle from "../assets/mapStyle.json";
-import markers from "../assets/marker.json";
+import mapStyle from "../../assets/mapStyle.json";
+import markers from "../../assets/marker.json";
+import BottomNav from "../components/Navigation";
 
 
 const { width, height } = Dimensions.get('window');
@@ -230,7 +231,9 @@ const MapPage = ({navigation}) => {
   };
 
   return (
+    
     <View style={styles.container}>
+    
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -291,13 +294,15 @@ const MapPage = ({navigation}) => {
           ))}
         </ScrollView>
       </View>
-
+      
       <TouchableOpacity style={styles.locationButton} onPress={focusOnUserLocation}>
         <Ionicons name="locate" size={24} color="#4285F4" />
       </TouchableOpacity>
 
       {renderBottomSheet()}
+
     </View>
+
   );
 };
 
