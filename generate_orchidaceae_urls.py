@@ -46,12 +46,12 @@ def login_to_inaturalist(driver):
         # Find and click the "Show more login options" link first
         show_more_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a.togglelink")))
         print("Clicking 'Show more login options'...")
-        show_more_button.click()
+        driver.execute_script("arguments[0].click();", show_more_button)
 
         # Now, find and click the Google login button
         google_login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.providerlink.google")))
         print("Clicking 'Sign in with Google' button...")
-        google_login_button.click()
+        driver.execute_script("arguments[0].click();", google_login_button)
     except Exception as e:
         print("\nError: Could not complete the login button sequence.")
         print("The iNaturalist login page may have changed.")
