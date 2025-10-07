@@ -16,18 +16,29 @@ def sanitize_filename(name):
     return re.sub(r'[<>:"/\\|?*]', '-', name).replace(' ', '-')
 
 def get_taxon_details(taxon_id):
-    """Fetches details (name, observation count) for a given taxon ID from the iNaturalist API."""
-    api_url = f"https://api.inaturalist.org/v1/taxa/{taxon_id}"
+    """Fetches details (name, verifiable observation count) for a given taxon ID from the iNaturalist API."""
     try:
-        response = requests.get(api_url)
-        response.raise_for_status()
-        data = response.json()
-        if data['results']:
-            result = data['results'][0]
-            return {
-                'name': result.get('name'),
-                'observations_count': result.get('observations_count', 0)
-            }
+        # Get taxon name
+        taxa_api_url = f"https://api.inaturalist.org/v1/taxa/{taxon_id}"
+        taxa_response = requests.get(taxa_api_url)
+        taxa_response.raise_for_status()
+        taxa_data = taxa_response.json()
+        name = taxa_data['results'][0].get('name') if taxa_data.get('results') else None
+
+        if not name:
+            return None
+
+        # Get verifiable observation count
+        obs_api_url = f"https://api.inaturalist.org/v1/observations?taxon_id={taxon_id}&verifiable=true&per_page=0"
+        obs_response = requests.get(obs_api_url)
+        obs_response.raise_for_status()
+        obs_data = obs_response.json()
+        verifiable_count = obs_data.get('total_results', 0)
+
+        return {
+            'name': name,
+            'observations_count': verifiable_count
+        }
     except requests.exceptions.RequestException as e:
         print(f"Error fetching taxon details for ID {taxon_id}: {e}")
     return None
