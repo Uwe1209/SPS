@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
 
 export default function MyProfile({ navigation }) {

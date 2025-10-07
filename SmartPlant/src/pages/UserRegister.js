@@ -1,7 +1,31 @@
+import React from "react";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { user_register } from '../firebase/login_register/user_register.js';
+import { Alert } from "react-native";
 
 export default function UserRegister({navigation}){
+  const [fullName, setFullName] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+
+  async function handleRegister() {
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match");
+      return;
+    }
+
+    try {
+      await user_register(fullName, email, password);
+      Alert.alert("Success", "Account created successfully!", [
+        { text: "OK", onPress: function () { navigation.navigate("UserLogin"); } }
+      ]);
+    } catch (error) {
+      Alert.alert("Registration Failed", error.message);
+    }
+  }
+
   function toUserLogin() {
     navigation.navigate("UserLogin");
   }
@@ -21,22 +45,22 @@ export default function UserRegister({navigation}){
 
         <View>
           <Text style={styles.input_label}>Full Name</Text>
-          <TextInput style={styles.input_textinput} placeholder="John Doe"></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="John Doe" onChangeText={setFullName}></TextInput>
         </View>
 
         <View>
           <Text style={styles.input_label}>Email</Text>
-          <TextInput style={styles.input_textinput} placeholder="john@gmail.com"></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="john@gmail.com" value={email} onChangeText={setEmail} autoCapitalize="none"></TextInput>
         </View>
         
         <View>
           <Text style={styles.input_label}>Password</Text>
-          <TextInput style={styles.input_textinput} placeholder="Password" secureTextEntry={true}></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="Password" secureTextEntry={true} value={password} onChangeText={setPassword}></TextInput>
         </View>
 
         <View>
           <Text style={styles.input_label}>Confirm Password</Text>
-          <TextInput style={styles.input_textinput} placeholder="Confirm Password" secureTextEntry={true}></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="Confirm Password" secureTextEntry={true} value={confirmPassword} onChangeText={setConfirmPassword}></TextInput>
         </View>
         
         <View style={styles.text_agreement_container}>
@@ -46,7 +70,7 @@ export default function UserRegister({navigation}){
         </View>
 
         <View style={styles.button_login_container}>
-          <TouchableOpacity style={styles.button_login}>
+          <TouchableOpacity style={styles.button_login} onPress={handleRegister}>
             <Text style={styles.button_text}>Create Account</Text>
           </TouchableOpacity>
         </View>

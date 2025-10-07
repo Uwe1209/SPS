@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Switch, TouchableOpacity, Image } from "react-native";
 
 export default function SettingsScreen({ navigation }) {
-  const [location, setLocation] = useState(false);
-  const [camera, setCamera] = useState(false);
-  const [photos, setPhotos] = useState(false);
+  const [location, setLocation] = React.useState(false);
+  const [camera, setCamera] = React.useState(false);
+  const [photos, setPhotos] = React.useState(false);
 
   return (
     <View style={styles.container}>

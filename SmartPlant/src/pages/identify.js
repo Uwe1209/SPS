@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity, ScrollView,ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, ImageBackground, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImagePicker from "expo-image-picker";
@@ -71,20 +71,6 @@ export default function IdentifyPage() {
         }
     };
 
-    // const savePictures = async () => {
-    //     if (images.length > 0) {
-    //         try {
-    //             for (let uri of images) {
-    //                 await MediaLibrary.createAssetAsync(uri);
-    //             }
-    //             alert('Pictures saved! ');
-    //             setImages([]);
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     }
-    // };
-
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
@@ -130,7 +116,7 @@ export default function IdentifyPage() {
 
         try {
             setLoading(true);
-            const response = await fetch("http://192.168.95.1:3000/predict", {
+            const response = await fetch("http://192.168.0.196:3000/predict", {
                 method: "POST",
                 headers: { "Content-Type": "multipart/form-data" },
                 body: formData,
@@ -229,7 +215,7 @@ export default function IdentifyPage() {
                 </CameraView>
             ) : (
                 // Single image preview mode
-                <ImageBackground source={{ uri: images[0] }} style={styles.camera}>
+                <ImageBackground source={{ uri: images[0] }} style={styles.camera} imageStyle={styles.previewImage}>
                     <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                         <View style={styles.bottomRow}>
                             <CustomButton title={'Retake'} icon="retweet" onPress={() => setImages([])} />
@@ -269,6 +255,12 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%'
+
+    },
+    previewImage: {
+        resizeMode: 'contain', // keeps aspect ratio 
+        width: '100%',
+        height: '100%',
     },
     topBar: {
         position: 'absolute',

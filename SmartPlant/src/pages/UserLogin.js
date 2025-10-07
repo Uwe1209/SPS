@@ -1,7 +1,28 @@
+import React from "react";
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { Alert } from "react-native";
+import { loginUser } from "../firebase/login_register/user_login";
 
 export default function UserLogin({navigation}){
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  async function handleLogin() {
+    if (email === "" || password === "") {
+      Alert.alert("Error", "Please enter email and password");
+      return;
+    }
+
+    const response = await loginUser(email, password);
+    if (response.success) {
+      Alert.alert("Success", "Login successful!");
+      navigation.navigate("Profile"); // ✅ Redirect after login
+    } else {
+      Alert.alert("Login Failed", response.error);
+    }
+  }
+
   function toSelection(){
     navigation.navigate("LoginSelection");
   }
@@ -25,12 +46,12 @@ export default function UserLogin({navigation}){
 
         <View>
           <Text style={styles.input_label}>Email</Text>
-          <TextInput style={styles.input_textinput} placeholder="john@example.com"></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="john@example.com" onChangeText={(text) => setEmail(text)}></TextInput>
         </View>
 
         <View>
           <Text style={styles.input_label}>Password</Text>
-          <TextInput style={styles.input_textinput} placeholder="********" secureTextEntry={true}></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="********" secureTextEntry={true} onChangeText={(text) => setPassword(text)}></TextInput>
         </View>
 
         <View style={styles.row}>
@@ -39,7 +60,7 @@ export default function UserLogin({navigation}){
         </View>
 
         <View style={styles.button_login_container}>
-          <TouchableOpacity style={styles.button_login}>
+          <TouchableOpacity style={styles.button_login} onPress={handleLogin}>
             <Text style={styles.button_text}>Log In</Text>
           </TouchableOpacity>
         </View>
