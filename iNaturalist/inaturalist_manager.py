@@ -154,7 +154,8 @@ def parse_manifest(file_path):
 
 def get_observation_count(taxon_id):
     """
-    Fetches the observation count for a given taxon ID from the iNaturalist API.
+    Fetches the observation count for a given taxon ID from the iNaturalist API,
+    with retries on timeout.
     """
     url = "https://api.inaturalist.org/v1/observations"
     params = {
@@ -164,17 +165,29 @@ def get_observation_count(taxon_id):
         'verifiable': 'true',
         'spam': 'false'
     }
-    try:
-        # Sleep to stay under the API rate limit (100 reqs/min) with 2 workers.
-        # (60 seconds / 1.2 seconds) * 2 workers = 100 requests/min.
-        time.sleep(1.2)
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()  # Raise an exception for bad status codes
-        data = response.json()
-        return data.get('total_results', 'N/A')
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching count for taxon {taxon_id}: {e}")
-        return 'Error'
+    retries = 3
+    timeout = 30
+
+    # Sleep to stay under the API rate limit (100 reqs/min) with 2 workers.
+    # (60 seconds / 1.2 seconds) * 2 workers = 100 requests/min.
+    time.sleep(1.2)
+
+    for attempt in range(retries):
+        try:
+            response = requests.get(url, params=params, timeout=timeout)
+            response.raise_for_status()  # Raise an exception for bad status codes
+            data = response.json()
+            return data.get('total_results', 'N/A')
+        except requests.exceptions.Timeout:
+            wait_time = 2 * (attempt + 1)
+            print(f"Timeout on attempt {attempt + 1}/{retries} for taxon {taxon_id}. Retrying in {wait_time}s...")
+            time.sleep(wait_time)
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching count for taxon {taxon_id}: {e}")
+            return 'Error' # For non-timeout request errors, fail immediately
+
+    print(f"Failed to fetch count for taxon {taxon_id} after {retries} attempts.")
+    return 'Error'
 
 def count_taxons_recursively(node):
     """
