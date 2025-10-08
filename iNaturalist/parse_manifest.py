@@ -6,12 +6,10 @@ from datetime import datetime
 def slugify(text):
     """
     Converts a heading string into a file-system-friendly name.
-    e.g., "1.1. My Heading" -> "My-Heading"
+    e.g., "1.1. My Heading" -> "1.1.-My-Heading"
     """
-    # Remove leading list-like numbering (e.g., "1.", "1.1.", "1.1.1.")
-    text = re.sub(r'^\d+(\.\d+)*\.\s*', '', text.strip())
-    # Replace spaces with dashes
-    return text.replace(' ', '-')
+    # Replace spaces with dashes to create a unique, valid name
+    return text.strip().replace(' ', '-')
 
 def parse_manifest(file_path):
     """
