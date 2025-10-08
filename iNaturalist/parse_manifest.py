@@ -135,6 +135,16 @@ def get_observation_count(taxon_id):
     except requests.exceptions.RequestException:
         return 'Error'
 
+def count_taxons_recursively(node):
+    """
+    Recursively counts the total number of taxons in a node and its sub-nodes.
+    """
+    count = len(node.get('__taxons__', []))
+    for key, child_node in node.items():
+        if key != '__taxons__' and isinstance(child_node, dict):
+            count += count_taxons_recursively(child_node)
+    return count
+
 def fetch_and_update_counts(node):
     """
     Recursively traverses the tree and fetches counts for each taxon.
@@ -167,7 +177,8 @@ def print_tree(node, prefix=""):
         count += 1
         is_last = count == total_items
         connector = "└── " if is_last else "├── "
-        print(f"{prefix}{connector}{name}")
+        taxon_count = count_taxons_recursively(child_node)
+        print(f"{prefix}{connector}{name} (Count: {taxon_count})")
         
         new_prefix = prefix + ("    " if is_last else "│   ")
         print_tree(child_node, new_prefix)
@@ -180,6 +191,28 @@ def print_tree(node, prefix=""):
         count_str = taxon.get('count', 'N/A')
         print(f"{prefix}{connector}{taxon['filename']} (Count: {count_str})")
 
+def prune_empty_dirs(node):
+    """
+    Recursively removes directories that do not contain any taxons or non-empty subdirectories.
+    Returns True if the node is empty after pruning, False otherwise.
+    """
+    # Prune children first (post-order traversal)
+    child_dirs_to_remove = []
+    for name, child_node in node.items():
+        if name == '__taxons__':
+            continue
+        if prune_empty_dirs(child_node):
+            child_dirs_to_remove.append(name)
+
+    for name in child_dirs_to_remove:
+        del node[name]
+
+    # A node is empty if it has no taxons and no remaining child directories.
+    has_taxons = '__taxons__' in node and node['__taxons__']
+    has_children = any(k != '__taxons__' for k in node)
+    
+    return not has_taxons and not has_children
+
 def main():
     """
     Main function to run the script.
@@ -188,6 +221,8 @@ def main():
     print(f"Parsing manifest file: {manifest_path}")
     file_tree = parse_manifest(manifest_path)
     
+    prune_empty_dirs(file_tree)
+
     if file_tree:
         print("Fetching observation counts from iNaturalist API...")
         fetch_and_update_counts(file_tree)
