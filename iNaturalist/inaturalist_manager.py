@@ -391,8 +391,8 @@ def get_local_count(file_path):
 
 def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     """
-    Downloads observation data for a taxon as a CSV file, iterating year by year.
-    Handles pagination for large datasets within each year.
+    Downloads observation data for a taxon as a CSV file.
+    Handles pagination for large datasets by fetching all observations.
     """
     if total_count == 0:
         print(f"Skipping {taxon_filename} (0 observations).")
@@ -404,82 +404,69 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     print(f"Downloading {total_count} observations for {taxon_filename} to {file_path}...")
 
     base_url = "https://www.inaturalist.org/observations.csv"
-    
-    is_header_written = False
-    total_fetched_for_taxon = 0
-    current_year = datetime.now().year
+    params = {
+        'taxon_id': taxon_id,
+        'order': 'asc',
+        'order_by': 'id',
+        'quality_grade': 'any',
+        'identifications': 'any',
+        'verifiable': 'true',
+        'spam': 'false',
+        'per_page': 200
+    }
 
     try:
         with requests.Session() as session:
-            # Iterate through years. iNaturalist started in 2008.
-            for year in range(2008, current_year + 1):
-                if total_count > 0 and total_fetched_for_taxon >= total_count:
-                    # Optimization: if we've already downloaded all expected observations, stop checking later years.
-                    print("  All expected observations downloaded, skipping remaining years.")
+            time.sleep(1) # Rate limit
+            # Initial request to get the first page and headers
+            response = session.get(base_url, params=params, timeout=60)
+            response.raise_for_status()
+            
+            content = response.content
+            if not content.strip():
+                print(f"No content returned for {taxon_filename}. Skipping.")
+                return
+
+            with open(file_path, 'wb') as f:
+                f.write(content)
+
+            decoded_content = content.decode('utf-8', errors='ignore').strip()
+            rows = list(csv.reader(io.StringIO(decoded_content)))
+
+            if len(rows) <= 1: # Only header or empty
+                return
+
+            data_rows = rows[1:]
+            last_id = data_rows[-1][0]
+
+            fetched_count = len(data_rows)
+            print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
+
+            while fetched_count < total_count:
+                params['id_above'] = last_id
+                time.sleep(1) # Rate limit
+                response = session.get(base_url, params=params, timeout=60)
+                response.raise_for_status()
+                
+                content = response.content
+                if not content.strip():
+                    break # No more data
+
+                # Paginated responses do not have a header
+                with open(file_path, 'ab') as f:
+                    f.write(content)
+
+                decoded_content = content.decode('utf-8', errors='ignore').strip()
+                if not decoded_content:
                     break
 
-                last_id = None
-                
-                while True: # Pagination loop for the current year
-                    params = {
-                        'taxon_id': taxon_id,
-                        'd1': f'{year}-01-01',
-                        'd2': f'{year}-12-31',
-                        'order': 'asc',
-                        'order_by': 'id',
-                        'quality_grade': 'any',
-                        'identifications': 'any',
-                        'verifiable': 'true',
-                        'spam': 'false',
-                        'per_page': 200
-                    }
-                    if last_id:
-                        params['id_above'] = last_id
+                rows = list(csv.reader(io.StringIO(decoded_content)))
+                if not rows:
+                    break
 
-                    time.sleep(1) # 60 requests per minute
-                    response = session.get(base_url, params=params, timeout=60)
-                    response.raise_for_status()
-                    
-                    content = response.content
-                    if not content.strip():
-                        break # No more data for this year.
-
-                    has_header = (last_id is None)
-                    
-                    if not is_header_written:
-                        if not has_header:
-                            print(f"Warning: First data chunk for {taxon_filename} is missing a header. Skipping file write for this chunk.")
-                        else:
-                            with open(file_path, 'wb') as f: # 'wb' truncates the file if it exists
-                                f.write(content)
-                            is_header_written = True
-                    else:
-                        content_to_append = content
-                        if has_header:
-                            try:
-                                first_newline = content.index(b'\n') + 1
-                                content_to_append = content[first_newline:]
-                            except ValueError:
-                                content_to_append = b''
-                        
-                        if content_to_append.strip():
-                            with open(file_path, 'ab') as f:
-                                f.write(content_to_append)
-
-                    decoded_content = content.decode('utf-8', errors='ignore').strip()
-                    rows = list(csv.reader(io.StringIO(decoded_content)))
-                    data_rows = rows[1:] if has_header else rows
-                    
-                    if not data_rows:
-                        break
-
-                    total_fetched_for_taxon += len(data_rows)
-                    last_id = data_rows[-1][0]
-                    
-                    print(f"  ... fetched {total_fetched_for_taxon}/{total_count} for {taxon_filename} (Year: {year})")
-
-                    if len(data_rows) < 200:
-                        break
+                fetched_count += len(rows)
+                last_id = rows[-1][0]
+                print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
     
     except requests.exceptions.RequestException as e:
         print(f"Error downloading {taxon_filename}: {e}")
