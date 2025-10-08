@@ -17,30 +17,51 @@ def sanitize_filename(name):
 
 def get_taxon_details(taxon_id):
     """Fetches details (name, verifiable observation count) for a given taxon ID from the iNaturalist API."""
-    try:
-        # Get taxon name
-        taxa_api_url = f"https://api.inaturalist.org/v1/taxa/{taxon_id}"
-        taxa_response = requests.get(taxa_api_url)
-        taxa_response.raise_for_status()
-        taxa_data = taxa_response.json()
-        name = taxa_data['results'][0].get('name') if taxa_data.get('results') else None
+    retries = 3
+    for attempt in range(retries):
+        try:
+            # Add a small delay to be a good API citizen, especially in a concurrent context.
+            time.sleep(1)
 
-        if not name:
-            return None
+            # Get taxon name
+            taxa_api_url = f"https://api.inaturalist.org/v1/taxa/{taxon_id}"
+            taxa_response = requests.get(taxa_api_url)
+            taxa_response.raise_for_status()
+            taxa_data = taxa_response.json()
+            name = taxa_data['results'][0].get('name') if taxa_data.get('results') else None
 
-        # Get verifiable observation count
-        obs_api_url = f"https://api.inaturalist.org/v1/observations?taxon_id={taxon_id}&verifiable=true&per_page=0"
-        obs_response = requests.get(obs_api_url)
-        obs_response.raise_for_status()
-        obs_data = obs_response.json()
-        verifiable_count = obs_data.get('total_results', 0)
+            if not name:
+                return None
 
-        return {
-            'name': name,
-            'observations_count': verifiable_count
-        }
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching taxon details for ID {taxon_id}: {e}")
+            # Another small delay before the next request
+            time.sleep(1)
+
+            # Get verifiable observation count
+            obs_api_url = f"https://api.inaturalist.org/v1/observations?taxon_id={taxon_id}&verifiable=true&per_page=0"
+            obs_response = requests.get(obs_api_url)
+            obs_response.raise_for_status()
+            obs_data = obs_response.json()
+            verifiable_count = obs_data.get('total_results', 0)
+
+            return {
+                'name': name,
+                'observations_count': verifiable_count
+            }
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:
+                retry_after = int(e.response.headers.get("Retry-After", 5))
+                print(f"    - Throttled fetching details for {taxon_id}. Retrying after {retry_after}s... (Attempt {attempt + 1}/{retries})")
+                time.sleep(retry_after)
+            else:
+                print(f"Error fetching taxon details for ID {taxon_id}: {e}")
+                return None # Fail on other HTTP errors
+        except requests.exceptions.RequestException as e:
+            print(f"Request error for taxon details for ID {taxon_id}: {e}")
+            if attempt < retries - 1:
+                time.sleep(5) # Wait before retrying
+            else:
+                print(f"Max retries reached for taxon details for ID {taxon_id}.")
+                return None
     return None
 
 def get_local_observation_count(csv_path):
@@ -205,7 +226,7 @@ def main():
 
     taxa_info = []
     print("\nFetching taxon details for all Taxon IDs...")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         future_to_taxon = {executor.submit(get_taxon_details, taxon['id']): taxon for taxon in taxa_with_paths}
         for future in concurrent.futures.as_completed(future_to_taxon):
             taxon = future_to_taxon[future]
