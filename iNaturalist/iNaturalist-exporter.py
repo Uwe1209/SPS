@@ -43,7 +43,19 @@ def get_taxon_details(taxon_id):
         print(f"Error fetching taxon details for ID {taxon_id}: {e}")
     return None
 
-def download_and_save_species_data(taxon_info):
+def get_local_observation_count(csv_path):
+    """Counts the number of observations in a local CSV file."""
+    if not csv_path.exists():
+        return 0
+    try:
+        with open(csv_path, 'r', encoding='utf-8', errors='ignore') as f:
+            # Subtract 1 for the header
+            return max(0, sum(1 for _ in f) - 1)
+    except Exception as e:
+        print(f"Could not read {csv_path}: {e}")
+        return 0
+
+def download_and_save_species_data(taxon_info, mode='overwrite'):
     """Downloads all data for a single species and saves to a single CSV, handling throttling."""
     taxon_id = taxon_info['id']
     name = taxon_info['name']
@@ -54,9 +66,14 @@ def download_and_save_species_data(taxon_info):
     sanitized_path_parts = [sanitize_filename(part) for part in path_parts]
     species_folder_name = sanitize_filename(name)
     species_dir = OUTPUT_DIR.joinpath(*sanitized_path_parts, species_folder_name)
-    species_dir.mkdir(parents=True, exist_ok=True)
 
     output_csv_path = species_dir / f"{species_folder_name}.csv"
+
+    if mode == 'missing' and output_csv_path.exists():
+        print(f"  - CSV file already exists for {name}. Skipping download.")
+        return
+
+    species_dir.mkdir(parents=True, exist_ok=True)
     print(f"Exporting data to: {output_csv_path}")
 
     with open(output_csv_path, 'wb') as f_out:
@@ -133,6 +150,20 @@ def print_tree(node, prefix=""):
 
 def main():
     """Main function to download iNaturalist data."""
+    print("Please choose an action:")
+    print("1. Show remote and local observation counts")
+    print("2. Download all observation data (overwrite existing files)")
+    print("3. Download missing observation data only")
+    print("4. Exit")
+
+    choice = input("Enter your choice (1-4): ").strip()
+
+    if choice == '4':
+        return
+    if choice not in ['1', '2', '3']:
+        print("Invalid choice. Exiting.")
+        return
+
     if not Path(INPUT_FILE).exists():
         print(f"Error: Input file '{INPUT_FILE}' not found.")
         return
@@ -169,7 +200,7 @@ def main():
         return
 
     print(f"Found {len(taxa_with_paths)} unique Taxon IDs with paths.")
-    
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     taxa_info = []
@@ -182,8 +213,8 @@ def main():
                 details = future.result()
                 if details and details['name']:
                     taxa_info.append({
-                        'id': taxon['id'], 
-                        'name': details['name'], 
+                        'id': taxon['id'],
+                        'name': details['name'],
                         'path': taxon['path'],
                         'count': details['observations_count']
                     })
@@ -192,23 +223,55 @@ def main():
             except Exception as exc:
                 print(f'  - Taxon ID {taxon["id"]} generated an exception when fetching details: {exc}')
 
-    tree_data = {}
-    for taxon in taxa_info:
-        current_level = tree_data
-        for part in taxon['path']:
-            current_level = current_level.setdefault(part, {})
-        
-        if '_species' not in current_level:
-            current_level['_species'] = []
-        current_level['_species'].append(f"{taxon['name']} (Taxon ID: {taxon['id']}) - {taxon['count']:,} observations")
+    if choice == '1':
+        tree_data = {}
+        for taxon in taxa_info:
+            sanitized_path_parts = [sanitize_filename(part) for part in taxon['path']]
+            species_folder_name = sanitize_filename(taxon['name'])
+            species_dir = OUTPUT_DIR.joinpath(*sanitized_path_parts, species_folder_name)
+            csv_path = species_dir / f"{species_folder_name}.csv"
 
-    print("\nDiscovered Taxa and Planned Directory Structure:")
-    print_tree(tree_data)
+            local_count = get_local_observation_count(csv_path)
+            remote_count = taxon['count']
 
-    print(f"\nStarting to process {len(taxa_info)} species with up to 2 workers...")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        executor.map(download_and_save_species_data, taxa_info)
-    
+            current_level = tree_data
+            for part in taxon['path']:
+                current_level = current_level.setdefault(part, {})
+
+            if '_species' not in current_level:
+                current_level['_species'] = []
+
+            count_str = f"Local: {local_count:,}, Remote: {remote_count:,}"
+            species_str = f"{taxon['name']} (Taxon ID: {taxon['id']}) - {count_str}"
+            current_level['_species'].append(species_str)
+
+        print("\nObservation Counts (Local vs. Remote):")
+        print_tree(tree_data)
+
+    elif choice in ['2', '3']:
+        tree_data = {}
+        for taxon in taxa_info:
+            current_level = tree_data
+            for part in taxon['path']:
+                current_level = current_level.setdefault(part, {})
+
+            if '_species' not in current_level:
+                current_level['_species'] = []
+            current_level['_species'].append(f"{taxon['name']} (Taxon ID: {taxon['id']}) - {taxon['count']:,} observations")
+
+        print("\nDiscovered Taxa and Planned Directory Structure:")
+        print_tree(tree_data)
+
+        mode = 'overwrite' if choice == '2' else 'missing'
+
+        if mode == 'overwrite':
+            print(f"\nStarting to process {len(taxa_info)} species (overwrite mode) with up to 2 workers...")
+        else:
+            print(f"\nStarting to process {len(taxa_info)} species (missing files mode) with up to 2 workers...")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            list(executor.map(lambda t: download_and_save_species_data(t, mode=mode), taxa_info))
+
     print("\nAll tasks completed.")
 
 if __name__ == "__main__":
