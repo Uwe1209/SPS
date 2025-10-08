@@ -265,26 +265,38 @@ def print_tree(node, prefix=""):
 
 def load_counts_cache(cache_path):
     """
-    Loads the taxon counts from a JSON cache file.
+    Loads the taxon counts and last updated timestamp from a JSON cache file.
     """
     if not os.path.exists(cache_path):
-        return {}
+        return {}, None
     try:
         with open(cache_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+            if isinstance(data, dict) and 'counts' in data:
+                # New format with metadata
+                return data.get('counts', {}), data.get('last_updated')
+            else:
+                # Old format (just a dictionary of counts)
+                return data, None
     except (json.JSONDecodeError, IOError):
-        return {}
+        return {}, None
 
 def save_counts_cache(cache_path, counts):
     """
-    Saves the taxon counts to a JSON cache file.
+    Saves the taxon counts and the current timestamp to a JSON cache file.
     """
+    cache_data = {
+        'last_updated': datetime.now().isoformat(),
+        'counts': counts
+    }
     try:
         with open(cache_path, 'w', encoding='utf-8') as f:
-            json.dump(counts, f, indent=4)
+            json.dump(cache_data, f, indent=4)
         print(f"Counts saved to {cache_path}")
+        return cache_data['last_updated']
     except IOError:
         print(f"Error: Could not save counts to {cache_path}")
+        return None
 
 def apply_cached_counts(node, cached_counts):
     """
@@ -593,11 +605,13 @@ def main():
         return
 
     # Load and apply cached counts
-    cached_counts = load_counts_cache(cache_path)
+    cached_counts, last_updated = load_counts_cache(cache_path)
     apply_cached_counts(file_tree, cached_counts)
 
     while True:
         print("\n--- iNaturalist Manager ---")
+        if last_updated:
+            print(f"Cache last updated: {last_updated}")
         print("Current hierarchy from manifest:")
         print_tree(file_tree)
         print("\nOptions:")
@@ -612,7 +626,9 @@ def main():
             print("\nFetching observation counts from iNaturalist API...")
             fetch_and_update_counts(file_tree)
             new_counts = extract_counts_from_tree(file_tree)
-            save_counts_cache(cache_path, new_counts)
+            updated_at = save_counts_cache(cache_path, new_counts)
+            if updated_at:
+                last_updated = updated_at
             print("Counts cache updated.")
         
         elif choice == '2':
@@ -621,7 +637,9 @@ def main():
                  print("Warning: No counts loaded. Fetching counts first.")
                  fetch_and_update_counts(file_tree)
                  new_counts = extract_counts_from_tree(file_tree)
-                 save_counts_cache(cache_path, new_counts)
+                 updated_at = save_counts_cache(cache_path, new_counts)
+                 if updated_at:
+                    last_updated = updated_at
 
             clear_download_directory()
             download_all_taxons(file_tree)
@@ -631,7 +649,9 @@ def main():
             print("\nChecking for updates...")
             fetch_and_update_counts(file_tree) # Always get latest counts before updating
             new_counts = extract_counts_from_tree(file_tree)
-            save_counts_cache(cache_path, new_counts)
+            updated_at = save_counts_cache(cache_path, new_counts)
+            if updated_at:
+                last_updated = updated_at
             
             update_changed_taxons(file_tree)
             print("\nUpdate check complete.")
