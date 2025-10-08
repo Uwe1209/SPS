@@ -5,11 +5,20 @@ from datetime import datetime
 
 def slugify(text):
     """
-    Converts a heading string into a file-system-friendly name.
-    e.g., "1.1. My Heading" -> "1.1.-My-Heading"
+    Converts a heading string into a file-system-friendly name, preserving
+    leading numbers for uniqueness but slugifying the text part.
+    e.g., "1.1. My Heading" -> "1.1. My-Heading"
     """
-    # Replace spaces with dashes to create a unique, valid name
-    return text.strip().replace(' ', '-')
+    text = text.strip()
+    match = re.match(r'^(\d+(\.\d+)*\.)\s+(.*)', text)
+    if match:
+        # Heading with number, e.g., "1.1. My Heading"
+        number_part = match.group(1)
+        text_part = match.group(3)
+        return f"{number_part} {text_part.replace(' ', '-')}"
+    else:
+        # Heading without number
+        return text.replace(' ', '-')
 
 def parse_manifest(file_path):
     """
@@ -187,7 +196,14 @@ def print_tree(node, prefix=""):
         is_last = count == total_items
         connector = "└── " if is_last else "├── "
         taxon_count = count_taxons_recursively(child_node)
-        print(f"{prefix}{connector}{name} (Count: {taxon_count})")
+        
+        display_name = name
+        # Strip leading numbers like "1.1. " for display purposes
+        match = re.match(r'^\d+(\.\d+)*\.\s(.*)', name)
+        if match:
+            display_name = match.group(2)
+
+        print(f"{prefix}{connector}{display_name} (Count: {taxon_count})")
         
         new_prefix = prefix + ("    " if is_last else "│   ")
         print_tree(child_node, new_prefix)
