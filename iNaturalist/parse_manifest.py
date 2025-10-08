@@ -24,6 +24,7 @@ def parse_manifest(file_path):
 
     tree = {}
     path_stack = []  # A stack of (level, dict_reference)
+    path_valid_stack = [] # A stack of (level, is_valid)
 
     with open(file_path, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -55,12 +56,22 @@ def parse_manifest(file_path):
             if has_taxon_id:
                 match = re.match(r'^(#+)\s*(.*)', line)
                 level = len(match.group(1))
-                title = slugify(match.group(2))
                 raw_title = match.group(2)
 
-                # Only process headings that are not explicitly "Not found", "Unclear", etc.
-                if not any(keyword in raw_title for keyword in ["Not found", "No results found", "Unclear"]):
-                    # Adjust the path stack to the correct parent level.
+                # Manage a stack to track if the current heading is under a "Not found" branch.
+                while path_valid_stack and path_valid_stack[-1][0] >= level:
+                    path_valid_stack.pop()
+                
+                parent_is_valid = path_valid_stack[-1][1] if path_valid_stack else True
+                is_invalid_keyword = any(keyword in raw_title for keyword in ["Not found", "No results found", "Unclear"])
+                current_is_valid = parent_is_valid and not is_invalid_keyword
+                path_valid_stack.append((level, current_is_valid))
+
+                # Only build the tree and parse taxons if the entire path is valid.
+                if current_is_valid:
+                    title = slugify(raw_title)
+                    
+                    # Adjust the path stack for dictionary references.
                     while path_stack and path_stack[-1][0] >= level:
                         path_stack.pop()
 
