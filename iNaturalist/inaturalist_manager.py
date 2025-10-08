@@ -2,7 +2,23 @@ import re
 import os
 import json
 import requests
+import shutil
+import csv
 from datetime import datetime
+
+DOWNLOAD_BASE_PATH = r'C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV\iNaturalist-manager'
+
+def clean_dir_name(text):
+    """
+    Cleans a heading string to be used as a directory name, removing leading numbers.
+    e.g., "1.1. My Heading" -> "My-Heading"
+    """
+    match = re.match(r'^\d+(\.\d+)*\.\s+(.*)', text)
+    if match:
+        text_part = match.group(2)
+        return text_part.replace(' ', '-')
+    else:
+        return text.replace(' ', '-')
 
 def slugify(text):
     """
@@ -198,12 +214,7 @@ def print_tree(node, prefix=""):
         connector = "└── " if is_last else "├── "
         taxon_count = count_taxons_recursively(child_node)
         
-        display_name = name
-        # Strip leading numbers like "1.1. " for display purposes
-        match = re.match(r'^\d+(\.\d+)*\.\s(.*)', name)
-        if match:
-            display_name = match.group(2)
-
+        display_name = clean_dir_name(name)
         print(f"{prefix}{connector}{display_name} (Count: {taxon_count})")
         
         new_prefix = prefix + ("    " if is_last else "│   ")
@@ -292,6 +303,186 @@ def prune_empty_dirs(node):
     
     return not has_taxons and not has_children
 
+def clear_download_directory():
+    """
+    Deletes the entire download directory and recreates it.
+    """
+    if os.path.exists(DOWNLOAD_BASE_PATH):
+        print(f"Clearing download directory: {DOWNLOAD_BASE_PATH}")
+        shutil.rmtree(DOWNLOAD_BASE_PATH)
+    os.makedirs(DOWNLOAD_BASE_PATH, exist_ok=True)
+
+def get_local_count(file_path):
+    """
+    Counts the number of data rows in a local CSV file, excluding the header.
+    Returns -1 if file not found or error.
+    """
+    if not os.path.exists(file_path):
+        return -1
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            # -1 for the header, but handle empty file
+            count = sum(1 for _ in f)
+            return count - 1 if count > 0 else 0
+    except Exception as e:
+        print(f"Error counting lines in {file_path}: {e}")
+        return -1
+
+def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
+    """
+    Downloads observation data for a taxon as a CSV file.
+    Handles pagination for large datasets.
+    """
+    if total_count == 0:
+        print(f"Skipping {taxon_filename} (0 observations).")
+        return
+
+    os.makedirs(dir_path, exist_ok=True)
+    file_path = os.path.join(dir_path, f"{taxon_filename}.csv")
+    
+    print(f"Downloading {total_count} observations for {taxon_filename} to {file_path}...")
+
+    base_url = "https://api.inaturalist.org/v1/observations.csv"
+    params = {
+        'taxon_id': taxon_id,
+        'order': 'asc',
+        'order_by': 'id',
+        'quality_grade': 'any',
+        'identifications': 'any',
+        'verifiable': 'true',
+        'spam': 'false'
+    }
+
+    try:
+        with requests.Session() as session:
+            # Initial request to get the first page and headers
+            response = session.get(base_url, params=params, timeout=60)
+            response.raise_for_status()
+            
+            content = response.content
+            if not content:
+                print(f"No content returned for {taxon_filename}. Skipping.")
+                return
+
+            with open(file_path, 'wb') as f:
+                f.write(content)
+
+            # Decode for CSV reader and get last ID
+            lines = content.decode('utf-8', errors='ignore').strip().split('\n')
+            if len(lines) <= 1: # Only header or empty
+                return
+
+            last_row = list(csv.reader([lines[-1]]))[0]
+            last_id = last_row[0]
+
+            # Paginate if necessary
+            fetched_count = len(lines) - 1
+            while True:
+                # Check if we might be done to avoid extra requests
+                if fetched_count >= total_count:
+                    break
+
+                params['id_above'] = last_id
+                response = session.get(base_url, params=params, timeout=60)
+                response.raise_for_status()
+                
+                content = response.content
+                if not content:
+                    break # No more data
+
+                # The paginated responses do not have a header in this context
+                with open(file_path, 'ab') as f:
+                    f.write(content)
+
+                lines = content.decode('utf-8', errors='ignore').strip().split('\n')
+                if not lines or not lines[0]:
+                    break
+
+                fetched_count += len(lines)
+                last_row = list(csv.reader([lines[-1]]))[0]
+                last_id = last_row[0]
+                print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading {taxon_filename}: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred during download for {taxon_filename}: {e}")
+
+def download_all_taxons(node, current_path_parts=[]):
+    """
+    Recursively traverses the tree and downloads a CSV for every taxon.
+    """
+    dir_path = os.path.join(DOWNLOAD_BASE_PATH, *current_path_parts)
+
+    if '__taxons__' in node:
+        for taxon in node['__taxons__']:
+            count = taxon.get('count')
+            if isinstance(count, int):
+                download_taxon_csv(taxon['taxon_id'], taxon['filename'], dir_path, count)
+            else:
+                print(f"Skipping download for {taxon['filename']} due to invalid count: {count}. Please fetch counts first.")
+
+    for name, child_node in node.items():
+        if name != '__taxons__' and isinstance(child_node, dict):
+            clean_name = clean_dir_name(name)
+            download_all_taxons(child_node, current_path_parts + [clean_name])
+
+def update_changed_taxons(node, current_path_parts=[]):
+    """
+    Recursively compares remote and local counts, and downloads updates.
+    """
+    dir_path = os.path.join(DOWNLOAD_BASE_PATH, *current_path_parts)
+
+    if '__taxons__' in node:
+        for taxon in node['__taxons__']:
+            remote_count = taxon.get('count')
+            if not isinstance(remote_count, int):
+                print(f"Skipping update for {taxon['filename']} due to invalid remote count: {remote_count}")
+                continue
+
+            file_path = os.path.join(dir_path, f"{taxon['filename']}.csv")
+            local_count = get_local_count(file_path)
+
+            if remote_count != local_count:
+                print(f"Count mismatch for {taxon['filename']}: Local={local_count}, Remote={remote_count}. Updating.")
+                download_taxon_csv(taxon['taxon_id'], taxon['filename'], dir_path, remote_count)
+            else:
+                print(f"No changes for {taxon['filename']}. Skipping.")
+
+    for name, child_node in node.items():
+        if name != '__taxons__' and isinstance(child_node, dict):
+            clean_name = clean_dir_name(name)
+            update_changed_taxons(child_node, current_path_parts + [clean_name])
+
+def compare_counts(node, current_path_parts=[]):
+    """
+    Recursively compares remote and local counts and prints a report.
+    """
+    dir_path = os.path.join(DOWNLOAD_BASE_PATH, *current_path_parts)
+
+    if '__taxons__' in node:
+        for taxon in node['__taxons__']:
+            remote_count = taxon.get('count')
+            if not isinstance(remote_count, int):
+                print(f"Cannot compare {taxon['filename']}: Invalid remote count ({remote_count})")
+                continue
+
+            file_path = os.path.join(dir_path, f"{taxon['filename']}.csv")
+            local_count = get_local_count(file_path)
+
+            if local_count == -1:
+                print(f"MISSING: {os.path.join(*current_path_parts, taxon['filename'] + '.csv')} (Remote count: {remote_count})")
+            elif remote_count != local_count:
+                print(f"MISMATCH: {os.path.join(*current_path_parts, taxon['filename'] + '.csv')} (Local: {local_count}, Remote: {remote_count})")
+            else:
+                # print(f"MATCH: {os.path.join(*current_path_parts, taxon['filename'] + '.csv')} (Count: {local_count})")
+                pass # Don't print matches to reduce noise
+
+    for name, child_node in node.items():
+        if name != '__taxons__' and isinstance(child_node, dict):
+            clean_name = clean_dir_name(name)
+            compare_counts(child_node, current_path_parts + [clean_name])
+
 def main():
     """
     Main function to run the script.
@@ -312,26 +503,57 @@ def main():
     cached_counts = load_counts_cache(cache_path)
     apply_cached_counts(file_tree, cached_counts)
 
-    print("\nGenerated directory and file hierarchy:")
-    print_tree(file_tree)
-
     while True:
+        print("\n--- iNaturalist Manager ---")
+        print("Current hierarchy from manifest:")
+        print_tree(file_tree)
         print("\nOptions:")
-        print("1. Fetch updated counts from iNaturalist API")
-        print("2. Exit")
-        choice = input("Enter your choice (1/2): ")
+        print("1. Fetch updated counts from iNaturalist API (updates cache)")
+        print("2. Download all taxon data (clears existing downloads)")
+        print("3. Update changed taxon data (downloads new/changed files)")
+        print("4. Compare local and remote counts (updates cache)")
+        print("5. Exit")
+        choice = input("Enter your choice (1-5): ")
 
         if choice == '1':
             print("\nFetching observation counts from iNaturalist API...")
             fetch_and_update_counts(file_tree)
-            
+            new_counts = extract_counts_from_tree(file_tree)
+            save_counts_cache(cache_path, new_counts)
+            print("Counts cache updated.")
+        
+        elif choice == '2':
+            print("\nDownloading all taxon data...")
+            if not any(isinstance(taxon.get('count'), int) for key in file_tree for node in file_tree[key].values() if isinstance(node, dict) for taxon in node.get('__taxons__',[]) ):
+                 print("Warning: No counts loaded. Fetching counts first.")
+                 fetch_and_update_counts(file_tree)
+                 new_counts = extract_counts_from_tree(file_tree)
+                 save_counts_cache(cache_path, new_counts)
+
+            clear_download_directory()
+            download_all_taxons(file_tree)
+            print("\nDownload complete.")
+
+        elif choice == '3':
+            print("\nChecking for updates...")
+            fetch_and_update_counts(file_tree) # Always get latest counts before updating
             new_counts = extract_counts_from_tree(file_tree)
             save_counts_cache(cache_path, new_counts)
             
-            print("\nUpdated directory and file hierarchy:")
-            print_tree(file_tree)
-            break
-        elif choice == '2':
+            update_changed_taxons(file_tree)
+            print("\nUpdate check complete.")
+
+        elif choice == '4':
+            print("\nComparing local and remote counts...")
+            fetch_and_update_counts(file_tree) # Always get latest counts for comparison
+            new_counts = extract_counts_from_tree(file_tree)
+            save_counts_cache(cache_path, new_counts)
+
+            print("Comparison Report (mismatches and missing files):")
+            compare_counts(file_tree)
+            print("\nComparison complete.")
+
+        elif choice == '5':
             print("Exiting.")
             break
         else:
