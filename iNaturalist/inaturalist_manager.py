@@ -168,9 +168,9 @@ def get_observation_count(taxon_id):
     retries = 3
     timeout = 30
 
-    # Sleep to stay under the API rate limit (~75 reqs/min) with 4 workers.
-    # (60 seconds / 3.2 seconds) * 4 workers = 75 requests/min.
-    time.sleep(3.2)
+    # Sleep to stay under the API rate limit (~50 reqs/min) with 4 workers.
+    # (60 seconds / 4.8 seconds) * 4 workers = 50 requests/min.
+    time.sleep(4.8)
 
     for attempt in range(retries):
         try:
@@ -382,7 +382,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     Downloads observation data for a taxon as a CSV file.
     Handles pagination for large datasets.
     """
-    time.sleep(3.2)
+    time.sleep(4.8)
     if total_count == 0:
         print(f"Skipping {taxon_filename} (0 observations).")
         return
@@ -434,7 +434,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                     break
 
                 params['id_above'] = last_id
-                time.sleep(3.2)
+                time.sleep(4.8)
                 response = session.get(base_url, params=params, timeout=60)
                 response.raise_for_status()
                 
