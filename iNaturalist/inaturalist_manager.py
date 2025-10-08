@@ -342,7 +342,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     
     print(f"Downloading {total_count} observations for {taxon_filename} to {file_path}...")
 
-    base_url = "https://api.inaturalist.org/v1/observations.csv"
+    base_url = "https://www.inaturalist.org/observations.csv"
     params = {
         'taxon_id': taxon_id,
         'order': 'asc',
