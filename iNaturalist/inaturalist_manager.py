@@ -168,9 +168,9 @@ def get_observation_count(taxon_id):
     retries = 3
     timeout = 30
 
-    # Sleep to stay under the API rate limit (100 reqs/min) with 2 workers.
-    # (60 seconds / 1.2 seconds) * 2 workers = 100 requests/min.
-    time.sleep(1.2)
+    # Sleep to stay under the API rate limit (100 reqs/min) with 4 workers.
+    # (60 seconds / 2.4 seconds) * 4 workers = 100 requests/min.
+    time.sleep(2.4)
 
     for attempt in range(retries):
         try:
@@ -219,7 +219,7 @@ def fetch_and_update_counts(node):
         taxon['count'] = get_observation_count(taxon['taxon_id'])
         return f"Updated {taxon['filename']}"
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = [executor.submit(_fetch_worker, taxon) for taxon in all_taxons]
         for future in futures:
             try:
@@ -382,7 +382,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     Downloads observation data for a taxon as a CSV file.
     Handles pagination for large datasets.
     """
-    time.sleep(1)
+    time.sleep(2.4)
     if total_count == 0:
         print(f"Skipping {taxon_filename} (0 observations).")
         return
@@ -434,7 +434,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                     break
 
                 params['id_above'] = last_id
-                time.sleep(1)
+                time.sleep(2.4)
                 response = session.get(base_url, params=params, timeout=60)
                 response.raise_for_status()
                 
@@ -483,7 +483,7 @@ def download_all_taxons(node):
     _collect_download_tasks(node, tasks)
     print(f"Found {len(tasks)} taxons to download.")
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = [executor.submit(download_taxon_csv, *task) for task in tasks]
         for future in futures:
             try:
@@ -527,7 +527,7 @@ def update_changed_taxons(node):
         return
 
     print(f"Found {len(tasks)} taxons to update.")
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = [executor.submit(download_taxon_csv, *task) for task in tasks]
         for future in futures:
             try:
