@@ -431,7 +431,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                 f.write(content)
 
             decoded_content = content.decode('utf-8', errors='ignore').strip()
-            rows = list(csv.reader(io.StringIO(decoded_content)))
+            rows = list(csv.reader(decoded_content.splitlines()))
 
             if len(rows) <= 1: # Only header or empty
                 return
@@ -460,7 +460,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                 if not decoded_content:
                     break
 
-                rows = list(csv.reader(io.StringIO(decoded_content)))
+                rows = list(csv.reader(decoded_content.splitlines()))
                 if not rows:
                     break
 
