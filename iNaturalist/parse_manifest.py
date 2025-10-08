@@ -54,51 +54,54 @@ def parse_manifest(file_path):
                 match = re.match(r'^(#+)\s*(.*)', line)
                 level = len(match.group(1))
                 title = slugify(match.group(2))
+                raw_title = match.group(2)
 
-                # Adjust the path stack to the correct parent level.
-                while path_stack and path_stack[-1][0] >= level:
-                    path_stack.pop()
+                # Only process headings that are not explicitly "Not found", "Unclear", etc.
+                if not any(keyword in raw_title for keyword in ["Not found", "No results found", "Unclear"]):
+                    # Adjust the path stack to the correct parent level.
+                    while path_stack and path_stack[-1][0] >= level:
+                        path_stack.pop()
 
-                # Get the parent dictionary from the stack or use the root.
-                parent_dict = tree
-                if path_stack:
-                    parent_dict = path_stack[-1][1]
+                    # Get the parent dictionary from the stack or use the root.
+                    parent_dict = tree
+                    if path_stack:
+                        parent_dict = path_stack[-1][1]
 
-                # Add the new directory to the tree.
-                if title not in parent_dict:
-                    parent_dict[title] = {}
-                
-                current_dict = parent_dict[title]
-                path_stack.append((level, current_dict))
+                    # Add the new directory to the tree.
+                    if title not in parent_dict:
+                        parent_dict[title] = {}
+                    
+                    current_dict = parent_dict[title]
+                    path_stack.append((level, current_dict))
 
-                # Now, parse all Taxon IDs under this heading until the next heading.
-                taxons = []
-                j = i + 1
-                while j < len(lines) and not lines[j].strip().startswith('#'):
-                    line_text = lines[j].strip()
-                    if "Taxon ID:" in line_text:
-                        # Example: * Dipterocarpus oblongifolius; Taxon ID: 191655
-                        taxon_match = re.search(r'^\*\s*(.*?);.*Taxon ID:\s*(\d+)', line_text)
-                        if taxon_match:
-                            name = taxon_match.group(1).strip()
-                            taxon_id = taxon_match.group(2).strip()
+                    # Now, parse all Taxon IDs under this heading until the next heading.
+                    taxons = []
+                    j = i + 1
+                    while j < len(lines) and not lines[j].strip().startswith('#'):
+                        line_text = lines[j].strip()
+                        if "Taxon ID:" in line_text:
+                            # Example: * Dipterocarpus oblongifolius; Taxon ID: 191655
+                            taxon_match = re.search(r'^\*\s*(.*?);.*Taxon ID:\s*(\d+)', line_text)
+                            if taxon_match:
+                                name = taxon_match.group(1).strip()
+                                taxon_id = taxon_match.group(2).strip()
 
-                            # Clean up the name
-                            name = re.sub(r'\(.*\)', '', name).strip() # remove parenthetical parts
-                            if ':' in name:
-                                name = name.split(':')[-1].strip() # handle common names like "Pokok Ara:"
-                            name = name.replace('_', '') # remove markdown italics
+                                # Clean up the name
+                                name = re.sub(r'\(.*\)', '', name).strip() # remove parenthetical parts
+                                if ':' in name:
+                                    name = name.split(':')[-1].strip() # handle common names like "Pokok Ara:"
+                                name = name.replace('_', '') # remove markdown italics
 
-                            # Apply file naming convention
-                            file_name = name.replace(' ', '-')
-                            
-                            taxons.append(f"{taxon_id}-{file_name}")
-                    j += 1
-                
-                if taxons:
-                    if '__taxons__' not in current_dict:
-                        current_dict['__taxons__'] = []
-                    current_dict['__taxons__'].extend(taxons)
+                                # Apply file naming convention
+                                file_name = name.replace(' ', '-')
+                                
+                                taxons.append(f"{taxon_id}-{file_name}")
+                        j += 1
+                    
+                    if taxons:
+                        if '__taxons__' not in current_dict:
+                            current_dict['__taxons__'] = []
+                        current_dict['__taxons__'].extend(taxons)
             
             # Skip to the next heading.
             j = i + 1
