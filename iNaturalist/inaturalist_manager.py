@@ -165,12 +165,15 @@ def get_observation_count(taxon_id):
         'spam': 'false'
     }
     try:
-        time.sleep(1) # Rate limit API calls
-        response = requests.get(url, params=params, timeout=10)
+        # Sleep to stay under the API rate limit (100 reqs/min) with 2 workers.
+        # (60 seconds / 1.2 seconds) * 2 workers = 100 requests/min.
+        time.sleep(1.2)
+        response = requests.get(url, params=params, timeout=30)
         response.raise_for_status()  # Raise an exception for bad status codes
         data = response.json()
         return data.get('total_results', 'N/A')
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching count for taxon {taxon_id}: {e}")
         return 'Error'
 
 def count_taxons_recursively(node):
