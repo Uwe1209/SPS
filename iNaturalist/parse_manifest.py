@@ -32,12 +32,20 @@ def parse_manifest(file_path):
         if line.startswith('#'):
             # This is a heading line.
 
-            # Look ahead to see if this section contains any Taxon IDs.
+            # Look ahead to see if this section or its subsections contain any Taxon IDs.
             # If not, we skip this heading entirely.
             has_taxon_id = False
+            current_level = len(re.match(r'^(#+)', line).group(1))
             j = i + 1
-            while j < len(lines) and not lines[j].strip().startswith('#'):
-                if "Taxon ID:" in lines[j]:
+            while j < len(lines):
+                next_line = lines[j].strip()
+                if next_line.startswith('#'):
+                    next_level = len(re.match(r'^(#+)', next_line).group(1))
+                    if next_level <= current_level:
+                        # We've reached a sibling or parent heading, so stop lookahead.
+                        break
+                
+                if "Taxon ID:" in next_line:
                     has_taxon_id = True
                     break
                 j += 1
@@ -63,14 +71,28 @@ def parse_manifest(file_path):
                 current_dict = parent_dict[title]
                 path_stack.append((level, current_dict))
 
-                # Now, parse all Taxon IDs under this heading.
+                # Now, parse all Taxon IDs under this heading until the next heading.
                 taxons = []
                 j = i + 1
                 while j < len(lines) and not lines[j].strip().startswith('#'):
-                    if "Taxon ID:" in lines[j]:
-                        taxon_match = re.search(r'Taxon ID: (\d+)', lines[j])
+                    line_text = lines[j].strip()
+                    if "Taxon ID:" in line_text:
+                        # Example: * Dipterocarpus oblongifolius; Taxon ID: 191655
+                        taxon_match = re.search(r'^\*\s*(.*?);.*Taxon ID:\s*(\d+)', line_text)
                         if taxon_match:
-                            taxons.append(taxon_match.group(1))
+                            name = taxon_match.group(1).strip()
+                            taxon_id = taxon_match.group(2).strip()
+
+                            # Clean up the name
+                            name = re.sub(r'\(.*\)', '', name).strip() # remove parenthetical parts
+                            if ':' in name:
+                                name = name.split(':')[-1].strip() # handle common names like "Pokok Ara:"
+                            name = name.replace('_', '') # remove markdown italics
+
+                            # Apply file naming convention
+                            file_name = name.replace(' ', '-')
+                            
+                            taxons.append(f"{taxon_id}-{file_name}")
                     j += 1
                 
                 if taxons:
