@@ -6,6 +6,7 @@ import shutil
 import csv
 import time
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 DOWNLOAD_BASE_PATH = r'C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV\iNaturalist-manager'
 
@@ -164,6 +165,7 @@ def get_observation_count(taxon_id):
         'spam': 'false'
     }
     try:
+        time.sleep(1) # Rate limit API calls
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()  # Raise an exception for bad status codes
         data = response.json()
@@ -181,19 +183,33 @@ def count_taxons_recursively(node):
             count += count_taxons_recursively(child_node)
     return count
 
-def fetch_and_update_counts(node):
-    """
-    Recursively traverses the tree and fetches counts for each taxon.
-    """
+def _collect_taxons_for_update(node, taxon_list):
     if '__taxons__' in node:
-        for taxon in node['__taxons__']:
-            print(f"Fetching count for {taxon['filename']}...")
-            taxon['count'] = get_observation_count(taxon['taxon_id'])
-            time.sleep(1)
-
+        taxon_list.extend(node['__taxons__'])
     for key, child_node in node.items():
         if key != '__taxons__' and isinstance(child_node, dict):
-            fetch_and_update_counts(child_node)
+            _collect_taxons_for_update(child_node, taxon_list)
+
+def fetch_and_update_counts(node):
+    """
+    Traverses the tree, collects all taxons, and fetches their counts using 2 workers.
+    """
+    all_taxons = []
+    _collect_taxons_for_update(node, all_taxons)
+    print(f"Found {len(all_taxons)} taxons to fetch counts for.")
+
+    def _fetch_worker(taxon):
+        print(f"Fetching count for {taxon['filename']}...")
+        taxon['count'] = get_observation_count(taxon['taxon_id'])
+        return f"Updated {taxon['filename']}"
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(_fetch_worker, taxon) for taxon in all_taxons]
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                print(f"A fetch worker failed: {e}")
 
 def print_tree(node, prefix=""):
     """
@@ -368,7 +384,8 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
         'quality_grade': 'any',
         'identifications': 'any',
         'verifiable': 'true',
-        'spam': 'false'
+        'spam': 'false',
+        'per_page': 200
     }
 
     try:
@@ -401,6 +418,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                     break
 
                 params['id_above'] = last_id
+                time.sleep(1)
                 response = session.get(base_url, params=params, timeout=60)
                 response.raise_for_status()
                 
@@ -426,31 +444,39 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     except Exception as e:
         print(f"An unexpected error occurred during download for {taxon_filename}: {e}")
 
-def download_all_taxons(node, current_path_parts=[]):
-    """
-    Recursively traverses the tree and downloads a CSV for every taxon.
-    """
+def _collect_download_tasks(node, tasks, current_path_parts=[]):
     dir_path = os.path.join(DOWNLOAD_BASE_PATH, *current_path_parts)
-
     if '__taxons__' in node:
         for taxon in node['__taxons__']:
             count = taxon.get('count')
             if isinstance(count, int):
-                download_taxon_csv(taxon['taxon_id'], taxon['filename'], dir_path, count)
+                tasks.append((taxon['taxon_id'], taxon['filename'], dir_path, count))
             else:
                 print(f"Skipping download for {taxon['filename']} due to invalid count: {count}. Please fetch counts first.")
-
+    
     for name, child_node in node.items():
         if name != '__taxons__' and isinstance(child_node, dict):
             clean_name = clean_dir_name(name)
-            download_all_taxons(child_node, current_path_parts + [clean_name])
+            _collect_download_tasks(child_node, tasks, current_path_parts + [clean_name])
 
-def update_changed_taxons(node, current_path_parts=[]):
+def download_all_taxons(node):
     """
-    Recursively compares remote and local counts, and downloads updates.
+    Traverses the tree, collects all download tasks, and executes them using 2 workers.
     """
+    tasks = []
+    _collect_download_tasks(node, tasks)
+    print(f"Found {len(tasks)} taxons to download.")
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(download_taxon_csv, *task) for task in tasks]
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                print(f"A download worker failed: {e}")
+
+def _collect_update_tasks(node, tasks, current_path_parts=[]):
     dir_path = os.path.join(DOWNLOAD_BASE_PATH, *current_path_parts)
-
     if '__taxons__' in node:
         for taxon in node['__taxons__']:
             remote_count = taxon.get('count')
@@ -462,15 +488,36 @@ def update_changed_taxons(node, current_path_parts=[]):
             local_count = get_local_count(file_path)
 
             if remote_count != local_count:
-                print(f"Count mismatch for {taxon['filename']}: Local={local_count}, Remote={remote_count}. Updating.")
-                download_taxon_csv(taxon['taxon_id'], taxon['filename'], dir_path, remote_count)
+                print(f"Count mismatch for {taxon['filename']}: Local={local_count}, Remote={remote_count}. Queuing update.")
+                tasks.append((taxon['taxon_id'], taxon['filename'], dir_path, remote_count))
             else:
-                print(f"No changes for {taxon['filename']}. Skipping.")
+                # This can be noisy, so we'll skip printing for matches.
+                pass
 
     for name, child_node in node.items():
         if name != '__taxons__' and isinstance(child_node, dict):
             clean_name = clean_dir_name(name)
-            update_changed_taxons(child_node, current_path_parts + [clean_name])
+            _collect_update_tasks(child_node, tasks, current_path_parts + [clean_name])
+
+def update_changed_taxons(node):
+    """
+    Traverses the tree, collects required updates, and downloads them using 2 workers.
+    """
+    tasks = []
+    _collect_update_tasks(node, tasks)
+    
+    if not tasks:
+        print("All local files are up to date.")
+        return
+
+    print(f"Found {len(tasks)} taxons to update.")
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(download_taxon_csv, *task) for task in tasks]
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                print(f"An update worker failed: {e}")
 
 def compare_counts(node, current_path_parts=[]):
     """
