@@ -4,6 +4,7 @@ import json
 import requests
 import shutil
 import csv
+import time
 from datetime import datetime
 
 DOWNLOAD_BASE_PATH = r'C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV\iNaturalist-manager'
@@ -188,6 +189,7 @@ def fetch_and_update_counts(node):
         for taxon in node['__taxons__']:
             print(f"Fetching count for {taxon['filename']}...")
             taxon['count'] = get_observation_count(taxon['taxon_id'])
+            time.sleep(1)
 
     for key, child_node in node.items():
         if key != '__taxons__' and isinstance(child_node, dict):
@@ -303,6 +305,21 @@ def prune_empty_dirs(node):
     
     return not has_taxons and not has_children
 
+def has_any_integer_counts(node):
+    """
+    Recursively checks if any taxon in the tree has an integer count.
+    """
+    if '__taxons__' in node:
+        if any(isinstance(taxon.get('count'), int) for taxon in node['__taxons__']):
+            return True
+
+    for key, child_node in node.items():
+        if key != '__taxons__' and isinstance(child_node, dict):
+            if has_any_integer_counts(child_node):
+                return True
+    
+    return False
+
 def clear_download_directory():
     """
     Deletes the entire download directory and recreates it.
@@ -333,6 +350,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     Downloads observation data for a taxon as a CSV file.
     Handles pagination for large datasets.
     """
+    time.sleep(1)
     if total_count == 0:
         print(f"Skipping {taxon_filename} (0 observations).")
         return
@@ -524,7 +542,7 @@ def main():
         
         elif choice == '2':
             print("\nDownloading all taxon data...")
-            if not any(isinstance(taxon.get('count'), int) for key in file_tree for node in file_tree[key].values() if isinstance(node, dict) for taxon in node.get('__taxons__',[]) ):
+            if not has_any_integer_counts(file_tree):
                  print("Warning: No counts loaded. Fetching counts first.")
                  fetch_and_update_counts(file_tree)
                  new_counts = extract_counts_from_tree(file_tree)
@@ -544,14 +562,13 @@ def main():
             print("\nUpdate check complete.")
 
         elif choice == '4':
-            print("\nComparing local and remote counts...")
-            fetch_and_update_counts(file_tree) # Always get latest counts for comparison
-            new_counts = extract_counts_from_tree(file_tree)
-            save_counts_cache(cache_path, new_counts)
-
-            print("Comparison Report (mismatches and missing files):")
-            compare_counts(file_tree)
-            print("\nComparison complete.")
+            print("\nComparing local and cached counts...")
+            if not has_any_integer_counts(file_tree):
+                print("Warning: No counts loaded from cache. Please use option '1' to fetch counts first.")
+            else:
+                print("Comparison Report (mismatches and missing files based on cached counts):")
+                compare_counts(file_tree)
+                print("\nComparison complete.")
 
         elif choice == '5':
             print("Exiting.")
