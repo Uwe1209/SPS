@@ -119,13 +119,11 @@ def get_observation_count(taxon_id):
     """
     Fetches the observation count for a given taxon ID from the iNaturalist API.
     """
-    current_year = datetime.now().year
     url = "https://api.inaturalist.org/v1/observations"
     params = {
         'quality_grade': 'any',
         'identifications': 'any',
         'taxon_id': taxon_id,
-        'year': current_year,
         'verifiable': 'true',
         'spam': 'false'
     }
