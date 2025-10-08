@@ -1,5 +1,6 @@
 import re
 import os
+import json
 import requests
 from datetime import datetime
 
@@ -216,6 +217,59 @@ def print_tree(node, prefix=""):
         count_str = taxon.get('count', 'N/A')
         print(f"{prefix}{connector}{taxon['filename']} (Count: {count_str})")
 
+def load_counts_cache(cache_path):
+    """
+    Loads the taxon counts from a JSON cache file.
+    """
+    if not os.path.exists(cache_path):
+        return {}
+    try:
+        with open(cache_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {}
+
+def save_counts_cache(cache_path, counts):
+    """
+    Saves the taxon counts to a JSON cache file.
+    """
+    try:
+        with open(cache_path, 'w', encoding='utf-8') as f:
+            json.dump(counts, f, indent=4)
+        print(f"Counts saved to {cache_path}")
+    except IOError:
+        print(f"Error: Could not save counts to {cache_path}")
+
+def apply_cached_counts(node, cached_counts):
+    """
+    Recursively traverses the tree and applies counts from the cache.
+    """
+    if '__taxons__' in node:
+        for taxon in node['__taxons__']:
+            taxon['count'] = cached_counts.get(taxon['taxon_id'], 'N/A')
+
+    for key, child_node in node.items():
+        if key != '__taxons__' and isinstance(child_node, dict):
+            apply_cached_counts(child_node, cached_counts)
+
+def extract_counts_from_tree(node, counts=None):
+    """
+    Recursively traverses the tree and extracts taxon counts into a dictionary.
+    """
+    if counts is None:
+        counts = {}
+
+    if '__taxons__' in node:
+        for taxon in node['__taxons__']:
+            if 'count' in taxon:
+                counts[taxon['taxon_id']] = taxon['count']
+
+    for key, child_node in node.items():
+        if key != '__taxons__' and isinstance(child_node, dict):
+            extract_counts_from_tree(child_node, counts)
+    
+    return counts
+
 def prune_empty_dirs(node):
     """
     Recursively removes directories that do not contain any taxons or non-empty subdirectories.
@@ -243,18 +297,45 @@ def main():
     Main function to run the script.
     """
     manifest_path = 'iNaturalist/iNaturalist-manifest.md'
+    cache_path = 'iNaturalist/counts_cache.json'
+    
     print(f"Parsing manifest file: {manifest_path}")
     file_tree = parse_manifest(manifest_path)
     
     prune_empty_dirs(file_tree)
 
-    if file_tree:
-        print("Fetching observation counts from iNaturalist API...")
-        fetch_and_update_counts(file_tree)
-        print("\nGenerated directory and file hierarchy:")
-        print_tree(file_tree)
-    else:
+    if not file_tree:
         print("No valid data with Taxon IDs found to generate a hierarchy.")
+        return
+
+    # Load and apply cached counts
+    cached_counts = load_counts_cache(cache_path)
+    apply_cached_counts(file_tree, cached_counts)
+
+    print("\nGenerated directory and file hierarchy:")
+    print_tree(file_tree)
+
+    while True:
+        print("\nOptions:")
+        print("1. Fetch updated counts from iNaturalist API")
+        print("2. Exit")
+        choice = input("Enter your choice (1/2): ")
+
+        if choice == '1':
+            print("\nFetching observation counts from iNaturalist API...")
+            fetch_and_update_counts(file_tree)
+            
+            new_counts = extract_counts_from_tree(file_tree)
+            save_counts_cache(cache_path, new_counts)
+            
+            print("\nUpdated directory and file hierarchy:")
+            print_tree(file_tree)
+            break
+        elif choice == '2':
+            print("Exiting.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
     main()
