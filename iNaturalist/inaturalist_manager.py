@@ -169,9 +169,8 @@ def get_observation_count(taxon_id):
     retries = 3
     timeout = 30
 
-    # Sleep to stay under the API rate limit (~96 reqs/min) with 4 workers.
-    # (60 seconds / 2.5 seconds) * 4 workers = 96 requests/min.
-    time.sleep(2.5)
+    # Sleep to stay under the API rate limit (60 reqs/min).
+    time.sleep(1)
 
     for attempt in range(retries):
         try:
@@ -220,7 +219,7 @@ def fetch_and_update_counts(node):
         taxon['count'] = get_observation_count(taxon['taxon_id'])
         return f"Updated {taxon['filename']}"
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = [executor.submit(_fetch_worker, taxon) for taxon in all_taxons]
         for future in futures:
             try:
@@ -392,10 +391,9 @@ def get_local_count(file_path):
 
 def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     """
-    Downloads observation data for a taxon as a CSV file.
-    Handles pagination for large datasets.
+    Downloads observation data for a taxon as a CSV file, iterating year by year.
+    Handles pagination for large datasets within each year.
     """
-    time.sleep(2.5) # Rate limit, see get_observation_count for details.
     if total_count == 0:
         print(f"Skipping {taxon_filename} (0 observations).")
         return
@@ -406,78 +404,82 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     print(f"Downloading {total_count} observations for {taxon_filename} to {file_path}...")
 
     base_url = "https://www.inaturalist.org/observations.csv"
-    params = {
-        'taxon_id': taxon_id,
-        'order': 'asc',
-        'order_by': 'id',
-        'quality_grade': 'any',
-        'identifications': 'any',
-        'verifiable': 'true',
-        'spam': 'false',
-        'per_page': 200
-    }
+    
+    is_header_written = False
+    total_fetched_for_taxon = 0
+    current_year = datetime.now().year
 
     try:
         with requests.Session() as session:
-            # Initial request to get the first page and headers
-            response = session.get(base_url, params=params, timeout=60)
-            response.raise_for_status()
-            
-            content = response.content
-            if not content:
-                print(f"No content returned for {taxon_filename}. Skipping.")
-                return
-
-            with open(file_path, 'wb') as f:
-                f.write(content)
-
-            # Use csv module to correctly parse and get last ID
-            decoded_content = content.decode('utf-8', errors='ignore').strip()
-            csv_file = io.StringIO(decoded_content)
-            reader = csv.reader(csv_file)
-            rows = list(reader)
-
-            if len(rows) <= 1: # Only header or empty
-                return
-
-            data_rows = rows[1:]
-            last_id = data_rows[-1][0]
-
-            # Paginate if necessary
-            fetched_count = len(data_rows)
-            while True:
-                # Check if we might be done to avoid extra requests
-                if fetched_count >= total_count:
+            # Iterate through years. iNaturalist started in 2008.
+            for year in range(2008, current_year + 1):
+                if total_count > 0 and total_fetched_for_taxon >= total_count:
+                    # Optimization: if we've already downloaded all expected observations, stop checking later years.
+                    print("  All expected observations downloaded, skipping remaining years.")
                     break
 
-                params['id_above'] = last_id
-                time.sleep(2.5) # Rate limit
-                response = session.get(base_url, params=params, timeout=60)
-                response.raise_for_status()
+                last_id = None
                 
-                content = response.content
-                if not content:
-                    break # No more data
+                while True: # Pagination loop for the current year
+                    params = {
+                        'taxon_id': taxon_id,
+                        'd1': f'{year}-01-01',
+                        'd2': f'{year}-12-31',
+                        'order': 'asc',
+                        'order_by': 'id',
+                        'quality_grade': 'any',
+                        'identifications': 'any',
+                        'verifiable': 'true',
+                        'spam': 'false',
+                        'per_page': 200
+                    }
+                    if last_id:
+                        params['id_above'] = last_id
 
-                # The paginated responses do not have a header in this context
-                with open(file_path, 'ab') as f:
-                    f.write(content)
+                    time.sleep(1) # 60 requests per minute
+                    response = session.get(base_url, params=params, timeout=60)
+                    response.raise_for_status()
+                    
+                    content = response.content
+                    if not content.strip():
+                        break # No more data for this year.
 
-                # Use csv module to correctly parse and get last ID
-                decoded_content = content.decode('utf-8', errors='ignore').strip()
-                if not decoded_content:
-                    break
+                    has_header = (last_id is None)
+                    
+                    if not is_header_written:
+                        if not has_header:
+                            print(f"Warning: First data chunk for {taxon_filename} is missing a header. Skipping file write for this chunk.")
+                        else:
+                            with open(file_path, 'wb') as f: # 'wb' truncates the file if it exists
+                                f.write(content)
+                            is_header_written = True
+                    else:
+                        content_to_append = content
+                        if has_header:
+                            try:
+                                first_newline = content.index(b'\n') + 1
+                                content_to_append = content[first_newline:]
+                            except ValueError:
+                                content_to_append = b''
+                        
+                        if content_to_append.strip():
+                            with open(file_path, 'ab') as f:
+                                f.write(content_to_append)
 
-                csv_file = io.StringIO(decoded_content)
-                reader = csv.reader(csv_file)
-                rows = list(reader)
+                    decoded_content = content.decode('utf-8', errors='ignore').strip()
+                    rows = list(csv.reader(io.StringIO(decoded_content)))
+                    data_rows = rows[1:] if has_header else rows
+                    
+                    if not data_rows:
+                        break
 
-                if not rows:
-                    break
+                    total_fetched_for_taxon += len(data_rows)
+                    last_id = data_rows[-1][0]
+                    
+                    print(f"  ... fetched {total_fetched_for_taxon}/{total_count} for {taxon_filename} (Year: {year})")
 
-                fetched_count += len(rows)
-                last_id = rows[-1][0]
-                print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
+                    if len(data_rows) < 200:
+                        break
     
     except requests.exceptions.RequestException as e:
         print(f"Error downloading {taxon_filename}: {e}")
@@ -507,7 +509,7 @@ def download_all_taxons(node):
     _collect_download_tasks(node, tasks)
     print(f"Found {len(tasks)} taxons to download.")
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = [executor.submit(download_taxon_csv, *task) for task in tasks]
         for future in futures:
             try:
@@ -551,7 +553,7 @@ def update_changed_taxons(node):
         return
 
     print(f"Found {len(tasks)} taxons to update.")
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         futures = [executor.submit(download_taxon_csv, *task) for task in tasks]
         for future in futures:
             try:
