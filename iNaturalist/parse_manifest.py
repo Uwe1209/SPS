@@ -1,5 +1,7 @@
 import re
 import os
+import requests
+from datetime import datetime
 
 def slugify(text):
     """
@@ -95,7 +97,7 @@ def parse_manifest(file_path):
                                 # Apply file naming convention
                                 file_name = name.replace(' ', '-')
                                 
-                                taxons.append(f"{taxon_id}-{file_name}")
+                                taxons.append({'filename': f"{taxon_id}-{file_name}", 'taxon_id': taxon_id})
                         j += 1
                     
                     if taxons:
@@ -113,6 +115,41 @@ def parse_manifest(file_path):
     
     return tree
 
+def get_observation_count(taxon_id):
+    """
+    Fetches the observation count for a given taxon ID from the iNaturalist API.
+    """
+    current_year = datetime.now().year
+    url = "https://api.inaturalist.org/v1/observations"
+    params = {
+        'quality_grade': 'any',
+        'identifications': 'any',
+        'taxon_id': taxon_id,
+        'year': current_year,
+        'verifiable': 'true',
+        'spam': 'false'
+    }
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        data = response.json()
+        return data.get('total_results', 'N/A')
+    except requests.exceptions.RequestException:
+        return 'Error'
+
+def fetch_and_update_counts(node):
+    """
+    Recursively traverses the tree and fetches counts for each taxon.
+    """
+    if '__taxons__' in node:
+        for taxon in node['__taxons__']:
+            print(f"Fetching count for {taxon['filename']}...")
+            taxon['count'] = get_observation_count(taxon['taxon_id'])
+
+    for key, child_node in node.items():
+        if key != '__taxons__' and isinstance(child_node, dict):
+            fetch_and_update_counts(child_node)
+
 def print_tree(node, prefix=""):
     """
     Recursively prints the file tree structure to the console.
@@ -122,7 +159,7 @@ def print_tree(node, prefix=""):
     taxons = node.get('__taxons__', [])
 
     dir_items = sorted(dirs.items())
-    taxon_items = sorted(taxons)
+    taxon_items = sorted(taxons, key=lambda x: x['filename'])
     
     total_items = len(dir_items) + len(taxon_items)
     count = 0
@@ -142,18 +179,21 @@ def print_tree(node, prefix=""):
         count += 1
         is_last = count == total_items
         connector = "└── " if is_last else "├── "
-        print(f"{prefix}{connector}{taxon}")
+        count_str = taxon.get('count', 'N/A')
+        print(f"{prefix}{connector}{taxon['filename']} (Count: {count_str})")
 
 def main():
     """
     Main function to run the script.
     """
     manifest_path = 'iNaturalist/iNaturalist-manifest.md'
-    print(f"Parsing manifest file: {manifest_path}\n")
+    print(f"Parsing manifest file: {manifest_path}")
     file_tree = parse_manifest(manifest_path)
     
     if file_tree:
-        print("Generated directory and file hierarchy:")
+        print("Fetching observation counts from iNaturalist API...")
+        fetch_and_update_counts(file_tree)
+        print("\nGenerated directory and file hierarchy:")
         print_tree(file_tree)
     else:
         print("No valid data with Taxon IDs found to generate a hierarchy.")
