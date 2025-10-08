@@ -5,6 +5,7 @@ import requests
 import shutil
 import csv
 import time
+import io
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
@@ -418,16 +419,20 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
             with open(file_path, 'wb') as f:
                 f.write(content)
 
-            # Decode for CSV reader and get last ID
-            lines = content.decode('utf-8', errors='ignore').strip().split('\n')
-            if len(lines) <= 1: # Only header or empty
+            # Use csv module to correctly parse and get last ID
+            decoded_content = content.decode('utf-8', errors='ignore').strip()
+            csv_file = io.StringIO(decoded_content)
+            reader = csv.reader(csv_file)
+            rows = list(reader)
+
+            if len(rows) <= 1: # Only header or empty
                 return
 
-            last_row = list(csv.reader([lines[-1]]))[0]
-            last_id = last_row[0]
+            data_rows = rows[1:]
+            last_id = data_rows[-1][0]
 
             # Paginate if necessary
-            fetched_count = len(lines) - 1
+            fetched_count = len(data_rows)
             while True:
                 # Check if we might be done to avoid extra requests
                 if fetched_count >= total_count:
@@ -446,13 +451,20 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                 with open(file_path, 'ab') as f:
                     f.write(content)
 
-                lines = content.decode('utf-8', errors='ignore').strip().split('\n')
-                if not lines or not lines[0]:
+                # Use csv module to correctly parse and get last ID
+                decoded_content = content.decode('utf-8', errors='ignore').strip()
+                if not decoded_content:
                     break
 
-                fetched_count += len(lines)
-                last_row = list(csv.reader([lines[-1]]))[0]
-                last_id = last_row[0]
+                csv_file = io.StringIO(decoded_content)
+                reader = csv.reader(csv_file)
+                rows = list(reader)
+
+                if not rows:
+                    break
+
+                fetched_count += len(rows)
+                last_id = rows[-1][0]
                 print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
     
     except requests.exceptions.RequestException as e:
