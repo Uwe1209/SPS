@@ -10,6 +10,7 @@ from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 DOWNLOAD_BASE_PATH = r'C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\CSV\iNaturalist-manager'
+IMAGE_DOWNLOAD_BASE_PATH = r'C:\Users\darklorddad\Downloads\Year 3 Semester 1\COS30049 Computing Technology Innovation Project\Project\SPS\iNaturalist\Images'
 
 def clean_dir_name(text):
     """
@@ -613,6 +614,160 @@ def compare_counts(node, current_path_parts=[]):
             clean_name = clean_dir_name(name)
             compare_counts(child_node, current_path_parts + [clean_name])
 
+def _collect_image_tasks():
+    """
+    Scans all CSV files in the download directory and collects image download tasks.
+    """
+    tasks = []
+    print("Scanning CSV files to identify required images...")
+    if not os.path.exists(DOWNLOAD_BASE_PATH):
+        print(f"Error: CSV download directory not found at '{DOWNLOAD_BASE_PATH}'")
+        return []
+
+    for root, _, files in os.walk(DOWNLOAD_BASE_PATH):
+        for file in files:
+            if file.endswith('.csv'):
+                csv_path = os.path.join(root, file)
+                
+                # Determine the corresponding image directory
+                rel_dir = os.path.relpath(root, DOWNLOAD_BASE_PATH)
+                # Handle case where rel_dir is '.' for files in the root
+                if rel_dir == '.':
+                    rel_dir = ''
+                
+                csv_name_no_ext = os.path.splitext(file)[0]
+                image_dir = os.path.join(IMAGE_DOWNLOAD_BASE_PATH, rel_dir, csv_name_no_ext)
+
+                try:
+                    with open(csv_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        reader = csv.reader(f)
+                        try:
+                            header = next(reader)
+                            try:
+                                id_index = header.index('id')
+                                url_index = header.index('image_url')
+                            except ValueError:
+                                # Silently skip files without the required columns
+                                continue
+
+                            for row in reader:
+                                if len(row) > max(id_index, url_index):
+                                    obs_id = row[id_index]
+                                    image_url = row[url_index]
+                                    if image_url:
+                                        # Use observation ID as filename, assuming it's unique
+                                        image_path = os.path.join(image_dir, f"{obs_id}.jpg")
+                                        tasks.append({'url': image_url, 'path': image_path})
+                        except StopIteration:
+                            # Empty file
+                            continue
+                except Exception as e:
+                    print(f"Error reading {csv_path}: {e}")
+
+    print(f"Found {len(tasks)} total images from CSV files.")
+    return tasks
+
+def _download_image_worker(task):
+    """
+    Worker to download a single image.
+    """
+    url = task['url']
+    path = task['path']
+    
+    try:
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        
+        # Download the image
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
+        
+        with open(path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        
+        return True
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to download {url}: {e}")
+        return False
+    except Exception as e:
+        print(f"An error occurred while saving {path}: {e}")
+        return False
+
+def download_all_images():
+    """
+    Clears the image directory and downloads all images from scratch.
+    """
+    if os.path.exists(IMAGE_DOWNLOAD_BASE_PATH):
+        print(f"Clearing image directory: {IMAGE_DOWNLOAD_BASE_PATH}")
+        shutil.rmtree(IMAGE_DOWNLOAD_BASE_PATH)
+    os.makedirs(IMAGE_DOWNLOAD_BASE_PATH, exist_ok=True)
+
+    tasks = _collect_image_tasks()
+    if not tasks:
+        print("No images to download.")
+        return
+
+    print(f"\nStarting full download of {len(tasks)} images...")
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        futures = [executor.submit(_download_image_worker, task) for task in tasks]
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                print(f"An image download worker failed: {e}")
+
+    print("\nImage download process complete.")
+    verify_images()
+
+def update_missing_images():
+    """
+    Downloads only images that are missing from the local directory.
+    """
+    tasks = _collect_image_tasks()
+    if not tasks:
+        print("No image tasks found.")
+        return
+
+    missing_tasks = [task for task in tasks if not os.path.exists(task['path'])]
+
+    if not missing_tasks:
+        print("All images are already present. No update needed.")
+        return
+
+    print(f"\nFound {len(missing_tasks)} missing images. Starting download...")
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        futures = [executor.submit(_download_image_worker, task) for task in missing_tasks]
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                print(f"An image update worker failed: {e}")
+    
+    print("\nImage update process complete.")
+    verify_images()
+
+def verify_images():
+    """
+    Checks local image files against the CSVs and reports any missing images.
+    """
+    tasks = _collect_image_tasks()
+    if not tasks:
+        print("No image tasks found to verify.")
+        return
+
+    print("\nVerifying local images against CSV records...")
+    missing_images = [task['path'] for task in tasks if not os.path.exists(task['path'])]
+
+    if not missing_images:
+        print("Verification complete. All images are present.")
+    else:
+        print(f"Verification complete. Found {len(missing_images)} missing images:")
+        for path in missing_images:
+            print(f"  - {path}")
+    
+    print("\nVerification finished.")
+
 def main():
     """
     Main function to run the script.
@@ -644,8 +799,11 @@ def main():
         print("2. Download all taxon data (clears existing downloads)")
         print("3. Update changed taxon data (downloads new/changed files)")
         print("4. Compare local and remote counts (updates cache)")
-        print("5. Exit")
-        choice = input("Enter your choice (1-5): ")
+        print("5. Download all observation images (clears existing images)")
+        print("6. Update missing observation images")
+        print("7. Verify local images against CSVs")
+        print("8. Exit")
+        choice = input("Enter your choice (1-8): ")
 
         if choice == '1':
             print("\nFetching observation counts from iNaturalist API...")
@@ -691,6 +849,18 @@ def main():
                 print("\nComparison complete.")
 
         elif choice == '5':
+            print("\nDownloading all observation images...")
+            download_all_images()
+
+        elif choice == '6':
+            print("\nUpdating missing observation images...")
+            update_missing_images()
+
+        elif choice == '7':
+            print("\nVerifying local images...")
+            verify_images()
+
+        elif choice == '8':
             print("Exiting.")
             break
         else:
