@@ -429,6 +429,9 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                 print(f"No content returned for {taxon_filename}. Skipping.")
                 return
 
+            # Get header to check against subsequent pages
+            header_line = content.split(b'\n', 1)[0]
+
             with open(file_path, 'wb') as f:
                 f.write(content)
 
@@ -453,11 +456,26 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                 if not content.strip():
                     break # No more data
 
-                # Paginated responses do not have a header
-                with open(file_path, 'ab') as f:
-                    f.write(content)
+                content_to_append = content
+                # The first page has a header. Subsequent pages from the API
+                # are not supposed to, but we will check and remove it if present.
+                if content.startswith(header_line):
+                    first_newline = content.find(b'\n')
+                    if first_newline != -1:
+                        content_to_append = content[first_newline+1:]
+                    else:
+                        # Content is only a header line, so we are done.
+                        break
+                
+                if not content_to_append.strip():
+                    break
 
-                decoded_content = content.decode('utf-8', errors='ignore').strip()
+                # Append the data rows to the file.
+                with open(file_path, 'ab') as f:
+                    f.write(content_to_append)
+
+                # Update the count of fetched rows.
+                decoded_content = content_to_append.decode('utf-8', errors='ignore').strip()
                 if not decoded_content:
                     break
 
