@@ -437,13 +437,12 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                 return
 
             data_rows = rows[1:]
-            last_id = data_rows[-1][0]
-
             fetched_count = len(data_rows)
             print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
 
+            page = 2
             while fetched_count < total_count:
-                params['id_above'] = last_id
+                params['page'] = page
                 time.sleep(1) # Rate limit
                 response = session.get(base_url, params=params, timeout=60)
                 response.raise_for_status()
@@ -465,8 +464,8 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
                     break
 
                 fetched_count += len(rows)
-                last_id = rows[-1][0]
                 print(f"  ... fetched {fetched_count}/{total_count} for {taxon_filename}")
+                page += 1
     
     except requests.exceptions.RequestException as e:
         print(f"Error downloading {taxon_filename}: {e}")
