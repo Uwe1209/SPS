@@ -162,6 +162,7 @@ def get_observation_count(taxon_id):
     params = {
         'quality_grade': 'any',
         'identifications': 'any',
+        'place_id': 7155,
         'taxon_id': taxon_id,
         'verifiable': 'true',
         'spam': 'false'
@@ -406,6 +407,7 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     base_url = "https://www.inaturalist.org/observations.csv"
     params = {
         'taxon_id': taxon_id,
+        'place_id': 7155,
         'order': 'asc',
         'order_by': 'id',
         'quality_grade': 'any',
