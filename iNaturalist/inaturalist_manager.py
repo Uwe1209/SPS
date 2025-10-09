@@ -376,16 +376,20 @@ def clear_download_directory():
 
 def get_local_count(file_path):
     """
-    Counts the number of data rows in a local CSV file, excluding the header.
+    Counts the number of data rows in a local CSV file, excluding the header,
+    correctly handling multi-line fields.
     Returns -1 if file not found or error.
     """
     if not os.path.exists(file_path):
         return -1
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            # -1 for the header, but handle empty file
-            count = sum(1 for _ in f)
-            return count - 1 if count > 0 else 0
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            reader = csv.reader(f)
+            try:
+                next(reader)  # Skip header row
+                return sum(1 for _ in reader)
+            except StopIteration:
+                return 0  # File is empty or contains only a header
     except Exception as e:
         print(f"Error counting lines in {file_path}: {e}")
         return -1
