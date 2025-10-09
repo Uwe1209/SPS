@@ -636,7 +636,7 @@ def _collect_image_tasks():
                     rel_dir = ''
                 
                 csv_name_no_ext = os.path.splitext(file)[0]
-                image_dir = os.path.join(IMAGE_DOWNLOAD_BASE_PATH, rel_dir, csv_name_no_ext)
+                base_image_dir = os.path.join(IMAGE_DOWNLOAD_BASE_PATH, rel_dir, csv_name_no_ext)
 
                 try:
                     with open(csv_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -646,15 +646,22 @@ def _collect_image_tasks():
                             try:
                                 id_index = header.index('id')
                                 url_index = header.index('image_url')
+                                species_index = header.index('scientific_name')
                             except ValueError:
                                 # Silently skip files without the required columns
                                 continue
 
                             for row in reader:
-                                if len(row) > max(id_index, url_index):
+                                if len(row) > max(id_index, url_index, species_index):
                                     obs_id = row[id_index]
                                     image_url = row[url_index]
-                                    if image_url:
+                                    species_name = row[species_index]
+
+                                    if image_url and species_name:
+                                        # Sanitize species name for directory
+                                        species_dir_name = clean_dir_name(species_name)
+                                        image_dir = os.path.join(base_image_dir, species_dir_name)
+                                        
                                         # Use observation ID as filename, assuming it's unique
                                         image_path = os.path.join(image_dir, f"{obs_id}.jpg")
                                         tasks.append({'url': image_url, 'path': image_path})
