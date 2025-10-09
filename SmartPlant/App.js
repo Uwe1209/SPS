@@ -12,6 +12,15 @@ import Setting from "./src/pages/Setting";
 import Saved from "./src/pages/Saved";
 import Notification from "./src/pages/Notification";
 import MapPage from "./src/pages/MapPage";
+import HomepageExpert from "./src/pages/HomepageExpert";
+import HomepageUser from "./src/pages/HomepageUser";
+import PlantDetailUser from "./src/pages/PlantDetailUser";
+import PlantManagementDetail from "./src/pages/PlantManagementDetail";
+import PlantManagementList from "./src/pages/PlantManagementList";
+import PostDetail from "./src/pages/PostDetail";
+import ReportError from "./src/pages/ReportError";
+import TopSuggestions from "./src/pages/TopSuggestions";
+import CreatePost from "./src/pages/CreatePost";
 
 const Stack = createStackNavigator();
 
@@ -28,6 +37,17 @@ export default function App() {
         <Stack.Screen name="identify" component={IdentifyPage} />
         <Stack.Screen name="identify_tips" component={IdentifyTips} />
         <Stack.Screen name="identify_output" component={IdentifyOutput}/>
+        <Stack.Screen name="HomepageExpert" component={HomepageExpert}/>
+        <Stack.Screen name="HomepageUser" component={HomepageUser}/>
+        <Stack.Screen name="PlantDetailUser" component={PlantDetailUser}/>
+        <Stack.Screen name="PlantManagementDetail" component={PlantManagementDetail}/>
+        <Stack.Screen name="PlantManagementList" component={PlantManagementList}/>
+        <Stack.Screen name="PostDetail" component={PostDetail}/>
+        <Stack.Screen name="ReportError" component={ReportError}/>
+        <Stack.Screen name="TopSuggestions" component={TopSuggestions}/>
+        <Stack.Screen name="CreatePost" component={CreatePost}/>
+
+
       </Stack.Navigator>
     </NavigationContainer>
   );
