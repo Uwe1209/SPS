@@ -399,12 +399,19 @@ def download_taxon_csv(taxon_id, taxon_filename, dir_path, total_count):
     Downloads observation data for a taxon as a CSV file.
     Handles pagination for large datasets by fetching all observations.
     """
+    file_path = os.path.join(dir_path, f"{taxon_filename}.csv")
+
     if total_count == 0:
-        print(f"Skipping {taxon_filename} (0 observations).")
+        if os.path.exists(file_path):
+            print(f"Remote count for {taxon_filename} is 0, deleting local file: {file_path}")
+            os.remove(file_path)
+        else:
+            # This case is hit during a full download for a 0-count taxon.
+            # During an update, this case is filtered out before calling this function.
+            print(f"Skipping {taxon_filename} (0 observations).")
         return
 
     os.makedirs(dir_path, exist_ok=True)
-    file_path = os.path.join(dir_path, f"{taxon_filename}.csv")
     
     print(f"Downloading {total_count} observations for {taxon_filename} to {file_path}...")
 
@@ -539,7 +546,13 @@ def _collect_update_tasks(node, tasks, current_path_parts=[]):
             file_path = os.path.join(dir_path, f"{taxon['filename']}.csv")
             local_count = get_local_count(file_path)
 
-            if remote_count != local_count:
+            # A mismatch occurs if counts are different, UNLESS the remote count is 0
+            # and the local file doesn't exist (local_count == -1), which is a correct state.
+            is_mismatch = remote_count != local_count
+            if is_mismatch and remote_count == 0 and local_count == -1:
+                is_mismatch = False
+
+            if is_mismatch:
                 print(f"Count mismatch for {taxon['filename']}: Local={local_count}, Remote={remote_count}. Queuing update.")
                 tasks.append((taxon['taxon_id'], taxon['filename'], dir_path, remote_count))
             else:
