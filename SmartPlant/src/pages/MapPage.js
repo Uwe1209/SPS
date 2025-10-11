@@ -5,8 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import mapStyle from "../../assets/mapStyle.json";
 import markers from "../../assets/marker.json";
-import BottomNav from "../components/Navigation";
-
 
 const { width, height } = Dimensions.get('window');
 
