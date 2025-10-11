@@ -5,8 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import mapStyle from "../../assets/mapStyle.json";
 import markers from "../../assets/marker.json";
-import BottomNav from "../components/Navigation";
-
 
 const { width, height } = Dimensions.get('window');
 
@@ -161,6 +159,35 @@ const MapPage = ({navigation}) => {
   };
 
   const renderBottomSheet = () => {
+    const [isLiked, setIsLiked] = useState(false);
+    const [likeCount, setLikeCount] = useState(42); // 初始点赞数
+    const [showMenu, setShowMenu] = useState(false);
+
+    const handleLike = () => {
+      setIsLiked(!isLiked);
+      setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    };
+
+    const handleMenuPress = () => {
+      setShowMenu(!showMenu);
+    };
+
+    const handleMenuAction = (action) => {
+      setShowMenu(false);
+      // 处理菜单选项
+      switch(action) {
+        case 'more':
+          Alert.alert('More Details', 'Showing more details...');
+          break;
+        case 'report':
+          Alert.alert('Report', 'Reporting this plant...');
+          break;
+        case 'save':
+          Alert.alert('Saved', 'Plant saved to your collection!');
+          break;
+      }
+    };
+
     return (
       <Animated.View 
         style={[styles.bottomSheet, { height: bottomSheetHeight }]}
@@ -176,18 +203,77 @@ const MapPage = ({navigation}) => {
             >
               <View style={styles.markerDetail}>
                 <Text style={styles.markerDetailTitle}>{selectedMarker.title}</Text>
+                
                 <View style={styles.identifiedBy}>
                   <Text style={styles.identifiedText}>Identified by {selectedMarker.identifiedBy}</Text>
                   <Text style={styles.timeText}>{selectedMarker.time}</Text>
                 </View>
+                
                 <Image 
                   source={{ uri: selectedMarker.image }} 
                   style={styles.markerImage}
                   resizeMode="cover"
                 />
+                
                 <Text style={styles.descriptionText}>
                   {selectedMarker.description}
                 </Text>
+                
+                {/* 操作按钮行 - 在描述文字下方 */}
+                <View style={styles.actionRow}>
+                  {/* 左边 - 心形按钮 */}
+                  <TouchableOpacity 
+                    style={styles.likeButton}
+                    onPress={handleLike}
+                  >
+                    <Ionicons 
+                      name={isLiked ? "heart" : "heart-outline"} 
+                      size={24} 
+                      color={isLiked ? "#FF3B30" : "#666"} 
+                    />
+                    <Text style={styles.likeCount}>{likeCount}</Text>
+                  </TouchableOpacity>
+                  
+                  {/* 右边 - 三点菜单 */}
+                  <View style={styles.menuContainer}>
+                    <TouchableOpacity 
+                      style={styles.menuButton}
+                      onPress={handleMenuPress}
+                    >
+                      <Ionicons name="ellipsis-vertical" size={20} color="#666" />
+                    </TouchableOpacity>
+                    
+                    {/* 菜单弹出层 */}
+                    {showMenu && (
+                      <View style={styles.menuOverlay}>
+                        <TouchableOpacity 
+                          style={styles.menuItem}
+                          onPress={() => handleMenuAction('more')}
+                        >
+                          <Ionicons name="information-circle" size={18} color="#666" />
+                          <Text style={styles.menuText}>More details</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity 
+                          style={styles.menuItem}
+                          onPress={() => handleMenuAction('report')}
+                        >
+                          <Ionicons name="flag" size={18} color="#666" />
+                          <Text style={styles.menuText}>Report</Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity 
+                          style={styles.menuItem}
+                          onPress={() => handleMenuAction('save')}
+                        >
+                          <Ionicons name="bookmark" size={18} color="#666" />
+                          <Text style={styles.menuText}>Saved</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                </View>
+                
                 <TouchableOpacity 
                   style={styles.closeButton}
                   onPress={closeMarkerDetail}
@@ -225,6 +311,19 @@ const MapPage = ({navigation}) => {
               </ScrollView>
             </>
           )}
+        </View>
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity 
+            style={styles.homeButton} 
+            onPress={() => navigation.navigate('HomepageUser')}
+          >
+            <Ionicons name="home" size={24} color="#4285F4" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.locationButton} onPress={focusOnUserLocation}>
+            <Ionicons name="locate" size={24} color="#4285F4" />
+          </TouchableOpacity>
         </View>
       </Animated.View>
     );
@@ -294,10 +393,7 @@ const MapPage = ({navigation}) => {
           ))}
         </ScrollView>
       </View>
-      
-      <TouchableOpacity style={styles.locationButton} onPress={focusOnUserLocation}>
-        <Ionicons name="locate" size={24} color="#4285F4" />
-      </TouchableOpacity>
+
 
       {renderBottomSheet()}
 
@@ -484,10 +580,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 10, 
   },
-  locationButton: {
+  buttonsContainer: {
     position: 'absolute',
-    bottom: 120,
     right: 20,
+    top: -130, // 在底部面板上方
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 10, // 两个按钮之间的间距
+  },
+  homeButton: {
     backgroundColor: 'white',
     borderRadius: 30,
     width: 50,
@@ -499,6 +600,64 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+  },
+  locationButton: {
+    backgroundColor: 'white',
+    borderRadius: 30,
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  likeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingTop: '5',
+  },
+  likeCount: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  menuButton: {
+    padding: 5,
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: 40,
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 100,
+    minWidth: 150,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 5,
+  },
+  menuText: {
+    fontSize: 14,
+    color: '#333',
   },
 });
 
