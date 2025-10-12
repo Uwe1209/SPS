@@ -12,6 +12,11 @@ import Setting from "./src/pages/Setting";
 import Saved from "./src/pages/Saved";
 import Notification from "./src/pages/Notification";
 import MapPage from "./src/pages/MapPage";
+import LoginSelection from "./src/pages/LoginSelection";
+import UserLogin from "./src/pages/UserLogin";
+import UserRegister from "./src/pages/UserRegister";
+import AdminLogin from "./src/pages/AdminLogin";
+
 
 const Stack = createStackNavigator();
 
@@ -28,6 +33,10 @@ export default function App() {
         <Stack.Screen name="identify" component={IdentifyPage} />
         <Stack.Screen name="identify_tips" component={IdentifyTips} />
         <Stack.Screen name="identify_output" component={IdentifyOutput}/>
+        <Stack.Screen name="LoginSelection" component={LoginSelection} />
+        <Stack.Screen name="UserLogin" component={UserLogin} />
+        <Stack.Screen name="UserRegister" component={UserRegister} />
+        <Stack.Screen name="AdminLogin" component={AdminLogin} />
       </Stack.Navigator>
     </NavigationContainer>
   );
