@@ -840,6 +840,7 @@ def main():
 
         print("\n[General]")
         print("  9. Exit")
+        print()
         choice = input("Enter your choice (1-9): ")
 
         if choice == '1':
