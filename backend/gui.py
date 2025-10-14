@@ -21,6 +21,16 @@ def main(page: ft.Page):
             load_model_path.value = e.files[0].path
             page.update()
 
+    def on_source_dir_result(e: ft.FilePickerResultEvent):
+        if e.path:
+            source_dir_path.value = e.path
+            page.update()
+
+    def on_dest_dir_result(e: ft.FilePickerResultEvent):
+        if e.path:
+            dest_dir_path.value = e.path
+            page.update()
+
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
         start_button.disabled = True
@@ -58,11 +68,19 @@ def main(page: ft.Page):
     file_picker = ft.FilePicker(on_result=on_dialog_result)
     save_file_picker = ft.FilePicker(on_result=on_save_dialog_result)
     load_file_picker = ft.FilePicker(on_result=on_load_dialog_result)
-    page.overlay.extend([file_picker, save_file_picker, load_file_picker])
+    source_dir_picker = ft.FilePicker(on_result=on_source_dir_result)
+    dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
+    page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
     data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, expand=True)
     save_model_path = ft.TextField(label="Save Model Path", read_only=True, expand=True)
     load_model_path = ft.TextField(label="Load Model Path", read_only=True, expand=True)
+
+    source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True)
+    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True)
+    split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
+    process_start_button = ft.ElevatedButton(text="Start Processing")
+    process_status_text = ft.Text()
 
     model_dropdown = ft.Dropdown(
         label="Select Model",
@@ -136,7 +154,36 @@ def main(page: ft.Page):
             ),
             ft.Tab(
                 text="Process Dataset",
-                content=ft.Text("This is the Process Dataset tab."),
+                content=ft.Column(
+                    [
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Select Source Directory",
+                                    on_click=lambda _: source_dir_picker.get_directory_path(
+                                        dialog_title="Select Source Directory"
+                                    ),
+                                ),
+                                source_dir_path,
+                            ]
+                        ),
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Select Destination Directory",
+                                    on_click=lambda _: dest_dir_picker.get_directory_path(
+                                        dialog_title="Select Destination Directory"
+                                    ),
+                                ),
+                                dest_dir_path,
+                            ]
+                        ),
+                        split_ratio_field,
+                        process_start_button,
+                        process_status_text,
+                    ],
+                    scroll=ft.ScrollMode.ADAPTIVE,
+                ),
             ),
         ],
         expand=1,
