@@ -366,7 +366,7 @@ def main(page: ft.Page):
                                                 result_text,
                                             ],
                                             spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
