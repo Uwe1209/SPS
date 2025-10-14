@@ -81,49 +81,68 @@ def main(page: ft.Page):
     progress_ring = ft.ProgressRing(visible=False)
     result_text = ft.Text()
 
-    page.add(
-        model_dropdown,
-        ft.Row(
-            [
-                ft.ElevatedButton(
-                    "Select Dataset Directory",
-                    on_click=lambda _: file_picker.get_directory_path(
-                        dialog_title="Select Dataset Directory"
-                    ),
+    tabs = ft.Tabs(
+        selected_index=0,
+        animation_duration=300,
+        tabs=[
+            ft.Tab(
+                text="Fine-Tuning",
+                content=ft.Column(
+                    [
+                        model_dropdown,
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Select Dataset Directory",
+                                    on_click=lambda _: file_picker.get_directory_path(
+                                        dialog_title="Select Dataset Directory"
+                                    ),
+                                ),
+                                data_dir_path,
+                            ]
+                        ),
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Save Model As...",
+                                    on_click=lambda _: save_file_picker.save_file(
+                                        dialog_title="Save Model As..."
+                                    ),
+                                ),
+                                save_model_path,
+                            ]
+                        ),
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Load Model From...",
+                                    on_click=lambda _: load_file_picker.pick_files(
+                                        dialog_title="Load Model From...", allow_multiple=False
+                                    ),
+                                ),
+                                load_model_path,
+                            ]
+                        ),
+                        epochs_field,
+                        batch_size_field,
+                        learning_rate_field,
+                        start_button,
+                        status_text,
+                        progress_ring,
+                        result_text,
+                    ],
+                    scroll=ft.ScrollMode.ADAPTIVE,
                 ),
-                data_dir_path,
-            ]
-        ),
-        ft.Row(
-            [
-                ft.ElevatedButton(
-                    "Save Model As...",
-                    on_click=lambda _: save_file_picker.save_file(
-                        dialog_title="Save Model As..."
-                    ),
-                ),
-                save_model_path,
-            ]
-        ),
-        ft.Row(
-            [
-                ft.ElevatedButton(
-                    "Load Model From...",
-                    on_click=lambda _: load_file_picker.pick_files(
-                        dialog_title="Load Model From...", allow_multiple=False
-                    ),
-                ),
-                load_model_path,
-            ]
-        ),
-        epochs_field,
-        batch_size_field,
-        learning_rate_field,
-        start_button,
-        status_text,
-        progress_ring,
-        result_text,
+            ),
+            ft.Tab(
+                text="Process Dataset",
+                content=ft.Text("This is the Process Dataset tab."),
+            ),
+        ],
+        expand=1,
     )
+
+    page.add(tabs)
     page.update()
 
 if __name__ == "__main__":
