@@ -56,6 +56,7 @@ def main(page: ft.Page):
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread."""
         process_start_button.disabled = True
+        process_status_text.visible = True
         process_status_text.value = "Processing dataset..."
         page.update()
 
@@ -98,6 +99,7 @@ def main(page: ft.Page):
         progress_ring.visible = True
         status_text.value = "Fine-tuning in progress..."
         result_text.value = ""
+        result_text.visible = False
         page.update()
 
         settings = {
@@ -118,6 +120,7 @@ def main(page: ft.Page):
             except Exception as ex:
                 result_text.value = f"An error occurred: {ex}"
             
+            result_text.visible = True
             start_button.disabled = False
             progress_ring.visible = False
             status_text.value = ""
@@ -155,6 +158,7 @@ def main(page: ft.Page):
         height=100,
         border_width=0.5,
         border_color=ft.Colors.GREY_500,
+        visible=False,
     )
 
     model_dropdown = ft.Dropdown(
@@ -190,6 +194,7 @@ def main(page: ft.Page):
         height=100,
         border_width=0.5,
         border_color=ft.Colors.GREY_500,
+        visible=False,
     )
 
     tabs = ft.Tabs(
