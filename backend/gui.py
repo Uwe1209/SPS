@@ -1,7 +1,7 @@
 import flet as ft
 import threading
-from finetune import main as finetune_main
-from process_dataset import process_dataset
+from core.finetune import main as finetune_main
+from core.process_dataset import process_dataset
 
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
