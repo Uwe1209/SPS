@@ -12,7 +12,7 @@ num_classes = 12
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load model (ResNet18)
-model = resnet18(pretrained=False)
+model = resnet18(weights=None)
 model.fc = nn.Linear(model.fc.in_features, num_classes)
 
 # Load checkpoint
