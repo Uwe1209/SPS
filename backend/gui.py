@@ -1,6 +1,7 @@
 import flet as ft
 import threading
 from finetune import main as finetune_main
+from process_dataset import process_dataset
 
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
@@ -30,6 +31,45 @@ def main(page: ft.Page):
         if e.path:
             dest_dir_path.value = e.path
             page.update()
+
+    def start_processing(e):
+        """Callback to start the dataset processing in a separate thread."""
+        process_start_button.disabled = True
+        process_status_text.value = "Processing dataset..."
+        page.update()
+
+        source_dir = source_dir_path.value
+        dest_dir = dest_dir_path.value
+        try:
+            split_ratio = float(split_ratio_field.value)
+        except (ValueError, TypeError):
+            process_status_text.value = "Invalid split ratio. Please enter a number between 0 and 1."
+            process_start_button.disabled = False
+            page.update()
+            return
+
+        def progress_callback(message):
+            process_status_text.value = message
+            page.update()
+
+        def run_processing():
+            """Target function for the processing thread."""
+            try:
+                process_dataset(
+                    source_dir=source_dir,
+                    dest_dir=dest_dir,
+                    split_ratio=split_ratio,
+                    progress_callback=progress_callback
+                )
+                progress_callback("Dataset processing finished successfully.")
+            except Exception as ex:
+                progress_callback(f"An error occurred: {ex}")
+            
+            process_start_button.disabled = False
+            page.update()
+
+        thread = threading.Thread(target=run_processing)
+        thread.start()
 
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
@@ -79,7 +119,7 @@ def main(page: ft.Page):
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
-    process_start_button = ft.ElevatedButton(text="Start Processing")
+    process_start_button = ft.ElevatedButton(text="Start Processing", on_click=start_processing)
     process_status_text = ft.Text()
 
     model_dropdown = ft.Dropdown(
