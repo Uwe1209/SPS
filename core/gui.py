@@ -14,6 +14,7 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     WIDGET_HEIGHT = 56
+    BUTTON_HEIGHT = 54
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
@@ -134,7 +135,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-        height=WIDGET_HEIGHT,
+        height=BUTTON_HEIGHT,
     )
     process_status_text = ft.Text()
 
@@ -160,7 +161,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-        height=WIDGET_HEIGHT,
+        height=BUTTON_HEIGHT,
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
@@ -193,7 +194,7 @@ def main(page: ft.Page):
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=WIDGET_HEIGHT,
+                                                            height=BUTTON_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -211,7 +212,7 @@ def main(page: ft.Page):
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=WIDGET_HEIGHT,
+                                                            height=BUTTON_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -290,7 +291,7 @@ def main(page: ft.Page):
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=WIDGET_HEIGHT,
+                                                            height=BUTTON_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -308,7 +309,7 @@ def main(page: ft.Page):
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=WIDGET_HEIGHT,
+                                                            height=BUTTON_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -326,7 +327,7 @@ def main(page: ft.Page):
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=WIDGET_HEIGHT,
+                                                            height=BUTTON_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
