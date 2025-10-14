@@ -148,7 +148,13 @@ def main(page: ft.Page):
         style=action_button_style,
         height=WIDGET_HEIGHT,
     )
-    process_status_text = ft.Text()
+    process_status_text = ft.TextField(
+        read_only=True,
+        multiline=True,
+        height=100,
+        border_width=0.5,
+        border_color=ft.Colors.GREY_500,
+    )
 
     model_dropdown = ft.Dropdown(
         label="Select Model",
@@ -177,7 +183,13 @@ def main(page: ft.Page):
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
-    result_text = ft.Text()
+    result_text = ft.TextField(
+        read_only=True,
+        multiline=True,
+        height=100,
+        border_width=0.5,
+        border_color=ft.Colors.GREY_500,
+    )
 
     tabs = ft.Tabs(
         selected_index=0,
