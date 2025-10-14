@@ -13,6 +13,8 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
+    WIDGET_HEIGHT = 56
+
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
             data_dir_path.value = e.path
@@ -118,13 +120,13 @@ def main(page: ft.Page):
     dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
     page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
-    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5)
-    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5)
-    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5)
+    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5, height=WIDGET_HEIGHT)
+    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5, height=WIDGET_HEIGHT)
+    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5, height=WIDGET_HEIGHT)
 
-    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5)
-    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5)
-    split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
+    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=WIDGET_HEIGHT)
+    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=WIDGET_HEIGHT)
+    split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=WIDGET_HEIGHT)
     process_start_button = ft.ElevatedButton(
         text="Run Processing",
         on_click=start_processing,
@@ -132,7 +134,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-        height=56,
+        height=WIDGET_HEIGHT,
     )
     process_status_text = ft.Text()
 
@@ -148,9 +150,9 @@ def main(page: ft.Page):
         border_color=ft.Colors.GREY_500,
         focused_border_color=ft.Colors.GREEN_700,
     )
-    epochs_field = ft.TextField(label="Number of Epochs", value="25")
-    batch_size_field = ft.TextField(label="Batch Size", value="32")
-    learning_rate_field = ft.TextField(label="Learning Rate", value="0.001")
+    epochs_field = ft.TextField(label="Number of Epochs", value="25", height=WIDGET_HEIGHT)
+    batch_size_field = ft.TextField(label="Batch Size", value="32", height=WIDGET_HEIGHT)
+    learning_rate_field = ft.TextField(label="Learning Rate", value="0.001", height=WIDGET_HEIGHT)
     start_button = ft.ElevatedButton(
         text="Run Fine-Tuning",
         on_click=start_finetuning,
@@ -158,7 +160,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-        height=56,
+        height=WIDGET_HEIGHT,
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
@@ -188,7 +190,7 @@ def main(page: ft.Page):
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
                                                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                    height=56,
+                                                    height=WIDGET_HEIGHT,
                                                 ),
                                                 source_dir_path,
                                                 ft.ElevatedButton(
@@ -200,7 +202,7 @@ def main(page: ft.Page):
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
                                                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                    height=56,
+                                                    height=WIDGET_HEIGHT,
                                                 ),
                                                 dest_dir_path,
                                             ],
@@ -272,7 +274,7 @@ def main(page: ft.Page):
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
                                                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                    height=56,
+                                                    height=WIDGET_HEIGHT,
                                                 ),
                                                 data_dir_path,
                                                 ft.ElevatedButton(
@@ -284,7 +286,7 @@ def main(page: ft.Page):
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
                                                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                    height=56,
+                                                    height=WIDGET_HEIGHT,
                                                 ),
                                                 save_model_path,
                                                 ft.ElevatedButton(
@@ -296,7 +298,7 @@ def main(page: ft.Page):
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
                                                     style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                    height=56,
+                                                    height=WIDGET_HEIGHT,
                                                 ),
                                                 load_model_path,
                                                 ft.Divider(),
