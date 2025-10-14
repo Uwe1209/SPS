@@ -161,6 +161,7 @@ def main(page: ft.Page):
         border_radius=8,
         border_color=ft.Colors.GREY_500,
         focused_border_color=ft.Colors.GREEN_700,
+        expand=True,
     )
     epochs_field = ft.TextField(label="Number of Epochs", value="25", height=WIDGET_HEIGHT)
     batch_size_field = ft.TextField(label="Batch Size", value="32", height=WIDGET_HEIGHT)
