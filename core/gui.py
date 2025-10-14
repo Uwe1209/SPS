@@ -189,92 +189,101 @@ def main(page: ft.Page):
                     content=ft.Container(
                         content=ft.Column(
                             [
-                                ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Directories", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Row(
-                                                    [
-                                                        source_dir_path,
-                                                        ft.ElevatedButton(
-                                                            "Select Source",
-                                                            icon=ft.Icons.FOLDER_OPEN,
-                                                            on_click=lambda _: source_dir_picker.get_directory_path(
-                                                                dialog_title="Select Source Directory"
+                                ft.Container(
+                                    content=ft.Card(
+                                        content=ft.Container(
+                                            content=ft.Column(
+                                                [
+                                                    ft.Text("Directories", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Row(
+                                                        [
+                                                            source_dir_path,
+                                                            ft.ElevatedButton(
+                                                                "Select Source",
+                                                                icon=ft.Icons.FOLDER_OPEN,
+                                                                on_click=lambda _: source_dir_picker.get_directory_path(
+                                                                    dialog_title="Select Source Directory"
+                                                                ),
+                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                color=ft.Colors.WHITE,
+                                                                style=beside_button_style,
+                                                                width=BUTTON_WIDTH,
+                                                                height=WIDGET_HEIGHT,
                                                             ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            width=BUTTON_WIDTH,
-                                                            height=WIDGET_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                                ft.Row(
-                                                    [
-                                                        dest_dir_path,
-                                                        ft.ElevatedButton(
-                                                            "Select Destination",
-                                                            icon=ft.Icons.FOLDER_OPEN,
-                                                            on_click=lambda _: dest_dir_picker.get_directory_path(
-                                                                dialog_title="Select Destination Directory"
+                                                        ],
+                                                        spacing=10,
+                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    ),
+                                                    ft.Row(
+                                                        [
+                                                            dest_dir_path,
+                                                            ft.ElevatedButton(
+                                                                "Select Destination",
+                                                                icon=ft.Icons.FOLDER_OPEN,
+                                                                on_click=lambda _: dest_dir_picker.get_directory_path(
+                                                                    dialog_title="Select Destination Directory"
+                                                                ),
+                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                color=ft.Colors.WHITE,
+                                                                style=beside_button_style,
+                                                                width=BUTTON_WIDTH,
+                                                                height=WIDGET_HEIGHT,
                                                             ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            width=BUTTON_WIDTH,
-                                                            height=WIDGET_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                                        ],
+                                                        spacing=10,
+                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    ),
+                                                ],
+                                                spacing=10,
+                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                            ),
+                                            padding=ft.padding.all(15)
                                         ),
-                                        padding=ft.padding.all(15)
+                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                        width=800,
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
+                                    alignment=ft.alignment.center
                                 ),
-                                ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Settings", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                split_ratio_field,
-                                            ],
-                                            spacing=10
+                                ft.Container(
+                                    content=ft.Card(
+                                        content=ft.Container(
+                                            content=ft.Column(
+                                                [
+                                                    ft.Text("Settings", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    split_ratio_field,
+                                                ],
+                                                spacing=10
+                                            ),
+                                            padding=ft.padding.all(15)
                                         ),
-                                        padding=ft.padding.all(15)
+                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                        width=800,
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
+                                    alignment=ft.alignment.center
                                 ),
-                                ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Actions", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                process_start_button,
-                                                process_status_text,
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                ft.Container(
+                                    content=ft.Card(
+                                        content=ft.Container(
+                                            content=ft.Column(
+                                                [
+                                                    ft.Text("Actions", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    process_start_button,
+                                                    process_status_text,
+                                                ],
+                                                spacing=10,
+                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                            ),
+                                            padding=ft.padding.all(15)
                                         ),
-                                        padding=ft.padding.all(15)
+                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                        width=800,
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
+                                    alignment=ft.alignment.center
                                 ),
                             ],
                             spacing=20,
                             scroll=ft.ScrollMode.ADAPTIVE,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
                     ),
                     padding=ft.padding.all(20),
@@ -287,106 +296,112 @@ def main(page: ft.Page):
                     content=ft.Container(
                         content=ft.Column(
                             [
-                                ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Configuration", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Text("Model & Data", style=ft.TextThemeStyle.TITLE_SMALL),
-                                                model_dropdown,
-                                                ft.Row(
-                                                    [
-                                                        data_dir_path,
-                                                        ft.ElevatedButton(
-                                                            "Select Dataset",
-                                                            icon=ft.Icons.FOLDER_OPEN,
-                                                            on_click=lambda _: file_picker.get_directory_path(
-                                                                dialog_title="Select Dataset Directory"
+                                ft.Container(
+                                    content=ft.Card(
+                                        content=ft.Container(
+                                            content=ft.Column(
+                                                [
+                                                    ft.Text("Configuration", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Text("Model & Data", style=ft.TextThemeStyle.TITLE_SMALL),
+                                                    model_dropdown,
+                                                    ft.Row(
+                                                        [
+                                                            data_dir_path,
+                                                            ft.ElevatedButton(
+                                                                "Select Dataset",
+                                                                icon=ft.Icons.FOLDER_OPEN,
+                                                                on_click=lambda _: file_picker.get_directory_path(
+                                                                    dialog_title="Select Dataset Directory"
+                                                                ),
+                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                color=ft.Colors.WHITE,
+                                                                style=beside_button_style,
+                                                                width=BUTTON_WIDTH,
+                                                                height=WIDGET_HEIGHT,
                                                             ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            width=BUTTON_WIDTH,
-                                                            height=WIDGET_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                                ft.Row(
-                                                    [
-                                                        save_model_path,
-                                                        ft.ElevatedButton(
-                                                            "Set Save Path",
-                                                            icon=ft.Icons.SAVE,
-                                                            on_click=lambda _: save_file_picker.save_file(
-                                                                dialog_title="Save Model As..."
+                                                        ],
+                                                        spacing=10,
+                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    ),
+                                                    ft.Row(
+                                                        [
+                                                            save_model_path,
+                                                            ft.ElevatedButton(
+                                                                "Set Save Path",
+                                                                icon=ft.Icons.SAVE,
+                                                                on_click=lambda _: save_file_picker.save_file(
+                                                                    dialog_title="Save Model As..."
+                                                                ),
+                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                color=ft.Colors.WHITE,
+                                                                style=beside_button_style,
+                                                                width=BUTTON_WIDTH,
+                                                                height=WIDGET_HEIGHT,
                                                             ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            width=BUTTON_WIDTH,
-                                                            height=WIDGET_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                                ft.Row(
-                                                    [
-                                                        load_model_path,
-                                                        ft.ElevatedButton(
-                                                            "Select Model File",
-                                                            icon=ft.Icons.UPLOAD_FILE,
-                                                            on_click=lambda _: load_file_picker.pick_files(
-                                                                dialog_title="Load Model From...", allow_multiple=False
+                                                        ],
+                                                        spacing=10,
+                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    ),
+                                                    ft.Row(
+                                                        [
+                                                            load_model_path,
+                                                            ft.ElevatedButton(
+                                                                "Select Model File",
+                                                                icon=ft.Icons.UPLOAD_FILE,
+                                                                on_click=lambda _: load_file_picker.pick_files(
+                                                                    dialog_title="Load Model From...", allow_multiple=False
+                                                                ),
+                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                color=ft.Colors.WHITE,
+                                                                style=beside_button_style,
+                                                                width=BUTTON_WIDTH,
+                                                                height=WIDGET_HEIGHT,
                                                             ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            width=BUTTON_WIDTH,
-                                                            height=WIDGET_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                                ft.Divider(),
-                                                ft.Text("Hyperparameters", style=ft.TextThemeStyle.TITLE_SMALL),
-                                                epochs_field,
-                                                batch_size_field,
-                                                learning_rate_field,
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                                        ],
+                                                        spacing=10,
+                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    ),
+                                                    ft.Divider(),
+                                                    ft.Text("Hyperparameters", style=ft.TextThemeStyle.TITLE_SMALL),
+                                                    epochs_field,
+                                                    batch_size_field,
+                                                    learning_rate_field,
+                                                ],
+                                                spacing=10,
+                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                            ),
+                                            padding=ft.padding.all(15)
                                         ),
-                                        padding=ft.padding.all(15)
+                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                        width=800,
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
+                                    alignment=ft.alignment.center
                                 ),
-                                ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Training", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                start_button,
-                                                status_text,
-                                                progress_ring,
-                                                result_text,
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                ft.Container(
+                                    content=ft.Card(
+                                        content=ft.Container(
+                                            content=ft.Column(
+                                                [
+                                                    ft.Text("Training", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    start_button,
+                                                    status_text,
+                                                    progress_ring,
+                                                    result_text,
+                                                ],
+                                                spacing=10,
+                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                            ),
+                                            padding=ft.padding.all(15)
                                         ),
-                                        padding=ft.padding.all(15)
+                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                        width=800,
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
+                                    alignment=ft.alignment.center
                                 ),
                             ],
                             spacing=20,
                             scroll=ft.ScrollMode.ADAPTIVE,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
                     ),
                     padding=ft.padding.all(20),
