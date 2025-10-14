@@ -1,6 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator  } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicato, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import { addPlantIdentify } from '../firebase/plant_identify/addPlantIdentify.js';
+import { uploadImage } from '../firebase/plant_identify/uploadImage.js';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+
+import * as Location from 'expo-location'; //getting current device location
+import * as ImagePicker from 'expo-image-picker'; // for picking images with EXIF
 
 export default function ResultScreen() {
   const route = useRoute();
@@ -33,7 +39,7 @@ export default function ResultScreen() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://172.17.18.208:3000/heatmap", {
+      const response = await fetch("http://10.69.215.149:3000/heatmap", {
         method: "POST",
         headers: { "Content-Type": "multipart/form-data" },
         body: formData,
@@ -55,17 +61,100 @@ export default function ResultScreen() {
     }
   };
 
+  const handleUploadConfirmation = () => {
+    if (prediction[0].confidence >= 0.7) {
+      Alert.alert(
+        "Upload Permission Request",
+        "Do you give us permission to upload the plant image and info into our database?",
+        [
+          {
+            text: "NO",
+            onPress: () => {
+              navigation.goBack();
+              console.log("User refuse to upload");
+            },
+            style: "cancel", // also fixed typo here
+          },
+          {
+            text: "Upload",
+            onPress: () => uploadDataToDatabase(),
+          },
+        ]
+      );
+    } else {
+      console.log("Confidence too low. Skip the uploading process.");
+      navigation.goBack();
+    }
 
+  };
+
+ 
+  function dmsToDecimal(dms, ref) {
+    const [deg, min, sec] = dms.map(parseFloat);
+    let dec = deg + min / 60 + sec / 3600;
+    if (ref === 'S' || ref === 'W') dec = -dec;
+    return dec;
+  }
+
+  const uploadDataToDatabase = async () => {
+    try {
+      let latitude = null;
+      let longitude = null;
+
+      // Try to extract location from EXIF (if imageURI is from picker with exif)
+      try {
+        const exifResult = await ImagePicker.getExifAsync(imageURI);
+        if (exifResult && exifResult.GPSLatitude && exifResult.GPSLongitude) {
+          latitude = exifResult.GPSLatitude;
+          longitude = exifResult.GPSLongitude;
+          console.log('Got GPS from EXIF:', latitude, longitude);
+        }
+      } catch (e) {
+        console.log('No EXIF location found, fallback to device location...');
+      }
+
+      //Fallback — get current device location   (needa fix later, what if they upload the image at home)
+      if (!latitude || !longitude) {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({});
+          latitude = loc.coords.latitude;
+          longitude = loc.coords.longitude;
+          console.log('Got GPS from device:', latitude, longitude);
+        } else {
+          console.log('Location permission denied.');
+        }
+      }
+
+      //Upload image to storage
+      const downloadURL = await uploadImage(imageURI, prediction[0].class);
+      console.log('Added to storage with URL:', downloadURL);
+
+      //Uplaod info to firestore
+      const plantData = {
+        plant_species:prediction[0].class,
+        ai_score: prediction[0].confidence,
+        createdAt: serverTimestamp(),
+        ImageURL: downloadURL,
+        coordinate: {latitude:latitude, longitude:longitude},
+       
+      };
+
+      try {
+        const docId = await addPlantIdentify(plantData);
+        console.log('Added to Firestore with ID:', docId);
+        navigation.navigate("MapPage")
+      } catch (error) {
+        console.error('Error adding plant:', error);
+      }
+
+    } catch (error) {
+      console.log("Image upload failed:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/* Image Preview Box */}
-      {/* <View style={styles.imageBox}>
-        <Image source={{ uri: imageURI }} style={styles.image} />
-        <TouchableOpacity style={styles.iconButton}>
-          <View style={styles.circle} onLongPress={constructHeatmap}/>
-        </TouchableOpacity>
-      </View> */}
       <View style={styles.imageBox}>
         {loading && (
           <View style={styles.loadingOverlay}>
@@ -99,23 +188,34 @@ export default function ResultScreen() {
       <Text style={styles.title}>AI Identification Result</Text>
 
       {/* Top 3 Results */}
-      <FlatList
-        data={prediction || []}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <View style={styles.resultCard}>
-            <Text style={styles.resultRank}>#{index + 1}</Text>
-            <Text style={styles.resultLabel}>{item.class}</Text>
-            <Text style={styles.resultValue}>
-              {(item.confidence * 100).toFixed(2)}%
-            </Text>
-          </View>
-        )}
-        contentContainerStyle={styles.resultsContainer}
-      />
+      {prediction && prediction.length > 0 && prediction[0].confidence >= 0.7 ? (
+        <FlatList
+          data={prediction}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <View style={styles.resultCard}>
+              <Text style={styles.resultRank}>#{index + 1}</Text>
+              <Text style={styles.resultLabel}>{item.class}</Text>
+              <Text style={styles.resultValue}>
+                {(item.confidence * 100).toFixed(2)}%
+              </Text>
+            </View>
+          )}
+          contentContainerStyle={styles.resultsContainer}
+        />
+      ) : (
+
+        <View style={styles.lowConfidenceContainer}>
+          <Text style={styles.lowConfidenceText}>
+            The confidence score is too low.
+            Our team will send this case to an expert for verification.
+          </Text>
+        </View>
+      )}
+
 
       {/* Done Button */}
-      <TouchableOpacity style={styles.doneButton} onPress={() => navigation.goBack()}>
+      <TouchableOpacity style={styles.doneButton} onPress={handleUploadConfirmation}>
         <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>Done</Text>
       </TouchableOpacity>
     </View>
@@ -175,7 +275,7 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   resultRank: {
-    color: "white", // gold for ranking
+    color: "white",
     fontWeight: "bold",
     marginBottom: 4,
   },
@@ -199,14 +299,26 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   loadingOverlay: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        zIndex: 1000,
-    },
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    zIndex: 1000,
+  },
+  lowConfidenceContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  lowConfidenceText: {
+    fontSize: 16,
+    color: "gray",
+    textAlign: "center",
+    fontStyle: "italic",
+  },
+
 });
