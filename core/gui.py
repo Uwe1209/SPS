@@ -15,6 +15,7 @@ def main(page: ft.Page):
 
     WIDGET_HEIGHT = 56
     BUTTON_HEIGHT = 54
+    BUTTON_WIDTH = 180
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
@@ -195,6 +196,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                             height=BUTTON_HEIGHT,
+                                                            width=BUTTON_WIDTH,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -213,6 +215,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                             height=BUTTON_HEIGHT,
+                                                            width=BUTTON_WIDTH,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -292,6 +295,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                             height=BUTTON_HEIGHT,
+                                                            width=BUTTON_WIDTH,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -310,6 +314,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                             height=BUTTON_HEIGHT,
+                                                            width=BUTTON_WIDTH,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -328,6 +333,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                             height=BUTTON_HEIGHT,
+                                                            width=BUTTON_WIDTH,
                                                         ),
                                                     ],
                                                     spacing=10,
