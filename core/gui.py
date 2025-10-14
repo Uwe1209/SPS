@@ -24,7 +24,7 @@ def main(page: ft.Page):
 
     beside_button_style = ft.ButtonStyle(
         shape=ft.RoundedRectangleBorder(radius=8),
-        padding=ft.padding.symmetric(vertical=16)
+        padding=ft.padding.symmetric(vertical=15)
     )
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
