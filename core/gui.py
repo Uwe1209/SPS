@@ -131,7 +131,8 @@ def main(page: ft.Page):
         icon=ft.Icons.PLAY_ARROW,
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+        height=56,
     )
     process_status_text = ft.Text()
 
@@ -156,7 +157,8 @@ def main(page: ft.Page):
         icon=ft.Icons.MODEL_TRAINING,
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+        height=56,
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
@@ -185,7 +187,8 @@ def main(page: ft.Page):
                                                     ),
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
-                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+                                                    height=56,
                                                 ),
                                                 source_dir_path,
                                                 ft.ElevatedButton(
@@ -196,7 +199,8 @@ def main(page: ft.Page):
                                                     ),
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
-                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+                                                    height=56,
                                                 ),
                                                 dest_dir_path,
                                             ],
@@ -267,7 +271,8 @@ def main(page: ft.Page):
                                                     ),
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
-                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+                                                    height=56,
                                                 ),
                                                 data_dir_path,
                                                 ft.ElevatedButton(
@@ -278,7 +283,8 @@ def main(page: ft.Page):
                                                     ),
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
-                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+                                                    height=56,
                                                 ),
                                                 save_model_path,
                                                 ft.ElevatedButton(
@@ -289,7 +295,8 @@ def main(page: ft.Page):
                                                     ),
                                                     bgcolor=ft.Colors.GREEN_700,
                                                     color=ft.Colors.WHITE,
-                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), height=56),
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+                                                    height=56,
                                                 ),
                                                 load_model_path,
                                                 ft.Divider(),
