@@ -272,7 +272,8 @@ def main(page: ft.Page):
                                         elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
                                         width=800,
                                     ),
-                                    alignment=ft.alignment.center
+                                    alignment=ft.alignment.center,
+                                    padding=ft.padding.only(top=20),
                                 ),
                                 ft.Container(
                                     content=ft.Card(
