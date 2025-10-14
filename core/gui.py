@@ -120,7 +120,7 @@ def main(page: ft.Page):
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
-    process_start_button = ft.ElevatedButton(text="Start Processing", on_click=start_processing, icon=ft.icons.PLAY_ARROW)
+    process_start_button = ft.ElevatedButton(text="Start Processing", on_click=start_processing, icon=ft.Icons.PLAY_ARROW)
     process_status_text = ft.Text()
 
     model_dropdown = ft.Dropdown(
@@ -135,7 +135,7 @@ def main(page: ft.Page):
     epochs_field = ft.TextField(label="Number of Epochs", value="25")
     batch_size_field = ft.TextField(label="Batch Size", value="32")
     learning_rate_field = ft.TextField(label="Learning Rate", value="0.001")
-    start_button = ft.ElevatedButton(text="Start Fine-Tuning", on_click=start_finetuning, icon=ft.icons.MODEL_TRAINING)
+    start_button = ft.ElevatedButton(text="Start Fine-Tuning", on_click=start_finetuning, icon=ft.Icons.MODEL_TRAINING)
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
     result_text = ft.Text()
@@ -158,7 +158,7 @@ def main(page: ft.Page):
                                                 [
                                                     ft.ElevatedButton(
                                                         "Select Source Directory",
-                                                        icon=ft.icons.FOLDER_OPEN,
+                                                        icon=ft.Icons.FOLDER_OPEN,
                                                         on_click=lambda _: source_dir_picker.get_directory_path(
                                                             dialog_title="Select Source Directory"
                                                         ),
@@ -170,7 +170,7 @@ def main(page: ft.Page):
                                                 [
                                                     ft.ElevatedButton(
                                                         "Select Destination Directory",
-                                                        icon=ft.icons.FOLDER_OPEN,
+                                                        icon=ft.Icons.FOLDER_OPEN,
                                                         on_click=lambda _: dest_dir_picker.get_directory_path(
                                                             dialog_title="Select Destination Directory"
                                                         ),
@@ -234,7 +234,7 @@ def main(page: ft.Page):
                                                 [
                                                     ft.ElevatedButton(
                                                         "Select Dataset Directory",
-                                                        icon=ft.icons.FOLDER_OPEN,
+                                                        icon=ft.Icons.FOLDER_OPEN,
                                                         on_click=lambda _: file_picker.get_directory_path(
                                                             dialog_title="Select Dataset Directory"
                                                         ),
@@ -246,7 +246,7 @@ def main(page: ft.Page):
                                                 [
                                                     ft.ElevatedButton(
                                                         "Save Model As...",
-                                                        icon=ft.icons.SAVE,
+                                                        icon=ft.Icons.SAVE,
                                                         on_click=lambda _: save_file_picker.save_file(
                                                             dialog_title="Save Model As..."
                                                         ),
@@ -258,7 +258,7 @@ def main(page: ft.Page):
                                                 [
                                                     ft.ElevatedButton(
                                                         "Load Model From...",
-                                                        icon=ft.icons.UPLOAD_FILE,
+                                                        icon=ft.Icons.UPLOAD_FILE,
                                                         on_click=lambda _: load_file_picker.pick_files(
                                                             dialog_title="Load Model From...", allow_multiple=False
                                                         ),
