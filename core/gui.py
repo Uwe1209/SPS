@@ -13,7 +13,7 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    WIDGET_HEIGHT = 56
+    WIDGET_HEIGHT = 60
     BUTTON_WIDTH = 180
 
     # Define button styles for consistent appearance
@@ -146,6 +146,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=action_button_style,
+        height=WIDGET_HEIGHT,
     )
     process_status_text = ft.Text()
 
@@ -171,6 +172,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=action_button_style,
+        height=WIDGET_HEIGHT,
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
@@ -204,6 +206,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=beside_button_style,
                                                             width=BUTTON_WIDTH,
+                                                            height=WIDGET_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -222,6 +225,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=beside_button_style,
                                                             width=BUTTON_WIDTH,
+                                                            height=WIDGET_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -301,6 +305,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=beside_button_style,
                                                             width=BUTTON_WIDTH,
+                                                            height=WIDGET_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -319,6 +324,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=beside_button_style,
                                                             width=BUTTON_WIDTH,
+                                                            height=WIDGET_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
@@ -337,6 +343,7 @@ def main(page: ft.Page):
                                                             color=ft.Colors.WHITE,
                                                             style=beside_button_style,
                                                             width=BUTTON_WIDTH,
+                                                            height=WIDGET_HEIGHT,
                                                         ),
                                                     ],
                                                     spacing=10,
