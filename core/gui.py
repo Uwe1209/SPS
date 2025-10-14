@@ -9,7 +9,7 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.window_min_width = 600
     page.window_min_height = 800
-    page.padding = 20
+    page.padding = 0
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
@@ -298,7 +298,6 @@ def main(page: ft.Page):
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
                     ),
-                    padding=ft.padding.all(20),
                     alignment=ft.alignment.top_center,
                 ),
             ),
@@ -416,7 +415,6 @@ def main(page: ft.Page):
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
                     ),
-                    padding=ft.padding.all(20),
                     alignment=ft.alignment.top_center,
                 ),
             ),
