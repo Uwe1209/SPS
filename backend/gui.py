@@ -1,6 +1,6 @@
 import flet as ft
 import threading
-from backend.finetune import main as finetune_main
+from finetune import main as finetune_main
 
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
