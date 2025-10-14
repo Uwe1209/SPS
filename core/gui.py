@@ -189,7 +189,7 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
                                 ),
                                 ft.Card(
                                     content=ft.Container(
@@ -202,7 +202,7 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
                                 ),
                                 ft.Card(
                                     content=ft.Container(
@@ -217,7 +217,7 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
                                 ),
                             ],
                             spacing=20,
@@ -289,7 +289,7 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
                                 ),
                                 ft.Card(
                                     content=ft.Container(
@@ -306,7 +306,7 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
                                 ),
                             ],
                             spacing=20,
