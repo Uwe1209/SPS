@@ -261,7 +261,7 @@ def main(page: ft.Page):
                                                 process_status_text,
                                             ],
                                             spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -373,7 +373,7 @@ def main(page: ft.Page):
                                                 result_text,
                                             ],
                                             spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
