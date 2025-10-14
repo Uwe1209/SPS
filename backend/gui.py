@@ -35,6 +35,9 @@ def main(page: ft.Page):
                 data_dir_path,
             ]
         ),
+        ft.TextField(label="Number of Epochs"),
+        ft.TextField(label="Batch Size"),
+        ft.TextField(label="Learning Rate"),
     )
     page.update()
 
