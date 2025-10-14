@@ -14,7 +14,7 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     WIDGET_HEIGHT = 56
-    BUTTON_HEIGHT = 54
+    BUTTON_HEIGHT = 50
     BUTTON_WIDTH = 180
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
