@@ -13,7 +13,8 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    WIDGET_HEIGHT = 45
+    TEXT_FIELD_HEIGHT = 45
+    BUTTON_HEIGHT = 45
     BUTTON_WIDTH = 180
 
     # Define button styles for consistent appearance
@@ -132,13 +133,13 @@ def main(page: ft.Page):
     dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
     page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
-    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5, height=WIDGET_HEIGHT, expand=True)
-    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5, height=WIDGET_HEIGHT, expand=True)
-    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5, height=WIDGET_HEIGHT, expand=True)
+    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
+    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
+    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
 
-    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=WIDGET_HEIGHT, expand=True)
-    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=WIDGET_HEIGHT, expand=True)
-    split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=WIDGET_HEIGHT)
+    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
+    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
+    split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
     process_start_button = ft.ElevatedButton(
         text="Run Processing",
         on_click=start_processing,
@@ -146,7 +147,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=action_button_style,
-        height=WIDGET_HEIGHT,
+        height=BUTTON_HEIGHT,
     )
     process_status_text = ft.TextField(
         read_only=True,
@@ -169,9 +170,9 @@ def main(page: ft.Page):
         focused_border_color=ft.Colors.GREEN_700,
         expand=True,
     )
-    epochs_field = ft.TextField(label="Number of Epochs", value="25", height=WIDGET_HEIGHT)
-    batch_size_field = ft.TextField(label="Batch Size", value="32", height=WIDGET_HEIGHT)
-    learning_rate_field = ft.TextField(label="Learning Rate", value="0.001", height=WIDGET_HEIGHT)
+    epochs_field = ft.TextField(label="Number of Epochs", value="25", height=TEXT_FIELD_HEIGHT)
+    batch_size_field = ft.TextField(label="Batch Size", value="32", height=TEXT_FIELD_HEIGHT)
+    learning_rate_field = ft.TextField(label="Learning Rate", value="0.001", height=TEXT_FIELD_HEIGHT)
     start_button = ft.ElevatedButton(
         text="Run Fine-Tuning",
         on_click=start_finetuning,
@@ -179,7 +180,7 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
         style=action_button_style,
-        height=WIDGET_HEIGHT,
+        height=BUTTON_HEIGHT,
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
@@ -220,7 +221,7 @@ def main(page: ft.Page):
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
-                                                                height=WIDGET_HEIGHT,
+                                                                height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
                                                         spacing=10,
@@ -239,7 +240,7 @@ def main(page: ft.Page):
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
-                                                                height=WIDGET_HEIGHT,
+                                                                height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
                                                         spacing=10,
@@ -330,7 +331,7 @@ def main(page: ft.Page):
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
-                                                                height=WIDGET_HEIGHT,
+                                                                height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
                                                         spacing=10,
@@ -349,7 +350,7 @@ def main(page: ft.Page):
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
-                                                                height=WIDGET_HEIGHT,
+                                                                height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
                                                         spacing=10,
@@ -368,7 +369,7 @@ def main(page: ft.Page):
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
-                                                                height=WIDGET_HEIGHT,
+                                                                height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
                                                         spacing=10,
