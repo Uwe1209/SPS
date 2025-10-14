@@ -74,6 +74,10 @@ def main(page: ft.Page):
         ft.TextField(label="Number of Epochs"),
         ft.TextField(label="Batch Size"),
         ft.TextField(label="Learning Rate"),
+        ft.ElevatedButton(text="Start Fine-Tuning"),
+        ft.Text(),
+        ft.ProgressRing(),
+        ft.Text(),
     )
     page.update()
 
