@@ -212,7 +212,7 @@ def main(page: ft.Page):
                                         content=ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Text("Directories", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Text("Directories", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     ft.Row(
                                                         [
                                                             source_dir_path,
@@ -268,7 +268,7 @@ def main(page: ft.Page):
                                         content=ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Text("Settings", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Text("Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     split_ratio_field,
                                                 ],
                                                 spacing=10
@@ -286,7 +286,7 @@ def main(page: ft.Page):
                                         content=ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Text("Actions", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     process_start_button,
                                                     process_status_text,
                                                 ],
@@ -320,8 +320,8 @@ def main(page: ft.Page):
                                         content=ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Text("Configuration", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    ft.Text("Model & Data", style=ft.TextThemeStyle.TITLE_SMALL),
+                                                    ft.Text("Configuration", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Text("Model & Data", theme_style=ft.TextThemeStyle.TITLE_SMALL),
                                                     model_dropdown,
                                                     ft.Row(
                                                         [
@@ -381,7 +381,7 @@ def main(page: ft.Page):
                                                         vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                     ),
                                                     ft.Divider(),
-                                                    ft.Text("Hyperparameters", style=ft.TextThemeStyle.TITLE_SMALL),
+                                                    ft.Text("Hyperparameters", theme_style=ft.TextThemeStyle.TITLE_SMALL),
                                                     epochs_field,
                                                     batch_size_field,
                                                     learning_rate_field,
@@ -402,7 +402,7 @@ def main(page: ft.Page):
                                         content=ft.Container(
                                             content=ft.Column(
                                                 [
-                                                    ft.Text("Training", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                    ft.Text("Training", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     start_button,
                                                     status_text,
                                                     progress_ring,
