@@ -5,8 +5,13 @@ from process_dataset import process_dataset
 
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
-    page.title = "Image Classification Finetuner"
-    page.theme_mode = ft.ThemeMode.DARK
+    page.title = "SmartPlant AI Finetuner"
+    page.theme_mode = ft.ThemeMode.LIGHT
+    page.window_min_width = 600
+    page.window_min_height = 800
+    page.padding = 20
+    page.vertical_alignment = ft.MainAxisAlignment.START
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
@@ -113,12 +118,12 @@ def main(page: ft.Page):
     dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
     page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
-    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, expand=True)
-    save_model_path = ft.TextField(label="Save Model Path", read_only=True, expand=True)
-    load_model_path = ft.TextField(label="Load Model Path", read_only=True, expand=True)
+    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, expand=True, border_width=0.5)
+    save_model_path = ft.TextField(label="Save Model Path", read_only=True, expand=True, border_width=0.5)
+    load_model_path = ft.TextField(label="Load Model Path", read_only=True, expand=True, border_width=0.5)
 
-    source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True)
-    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True)
+    source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True, border_width=0.5)
+    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True, border_width=0.5)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
     process_start_button = ft.ElevatedButton(text="Start Processing", on_click=start_processing, icon=ft.Icons.PLAY_ARROW)
     process_status_text = ft.Text()
@@ -147,175 +152,181 @@ def main(page: ft.Page):
             ft.Tab(
                 text="Process Dataset",
                 content=ft.Container(
-                    content=ft.Column(
-                        [
-                            ft.Card(
-                                content=ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Text("Directories", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                            ft.Row(
-                                                [
-                                                    ft.ElevatedButton(
-                                                        "Select Source Directory",
-                                                        icon=ft.Icons.FOLDER_OPEN,
-                                                        on_click=lambda _: source_dir_picker.get_directory_path(
-                                                            dialog_title="Select Source Directory"
+                    content=ft.Container(
+                        content=ft.Column(
+                            [
+                                ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Directories", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Select Source Directory",
+                                                            icon=ft.Icons.FOLDER_OPEN,
+                                                            on_click=lambda _: source_dir_picker.get_directory_path(
+                                                                dialog_title="Select Source Directory"
+                                                            ),
                                                         ),
-                                                    ),
-                                                    source_dir_path,
-                                                ]
-                                            ),
-                                            ft.Row(
-                                                [
-                                                    ft.ElevatedButton(
-                                                        "Select Destination Directory",
-                                                        icon=ft.Icons.FOLDER_OPEN,
-                                                        on_click=lambda _: dest_dir_picker.get_directory_path(
-                                                            dialog_title="Select Destination Directory"
+                                                        source_dir_path,
+                                                    ]
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Select Destination Directory",
+                                                            icon=ft.Icons.FOLDER_OPEN,
+                                                            on_click=lambda _: dest_dir_picker.get_directory_path(
+                                                                dialog_title="Select Destination Directory"
+                                                            ),
                                                         ),
-                                                    ),
-                                                    dest_dir_path,
-                                                ]
-                                            ),
-                                        ],
-                                        spacing=10
+                                                        dest_dir_path,
+                                                    ]
+                                                ),
+                                            ],
+                                            spacing=10
+                                        ),
+                                        padding=ft.padding.all(15)
                                     ),
-                                    padding=ft.padding.all(15)
-                                )
-                            ),
-                            ft.Card(
-                                content=ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Text("Settings", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                            split_ratio_field,
-                                        ],
-                                        spacing=10
+                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                ),
+                                ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Settings", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                split_ratio_field,
+                                            ],
+                                            spacing=10
+                                        ),
+                                        padding=ft.padding.all(15)
                                     ),
-                                    padding=ft.padding.all(15)
-                                )
-                            ),
-                            ft.Card(
-                                content=ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Text("Actions", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                            process_start_button,
-                                            process_status_text,
-                                        ],
-                                        spacing=10,
-                                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                ),
+                                ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Actions", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                process_start_button,
+                                                process_status_text,
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.START,
+                                        ),
+                                        padding=ft.padding.all(15)
                                     ),
-                                    padding=ft.padding.all(15)
-                                )
-                            ),
-                        ],
-                        spacing=20,
-                        scroll=ft.ScrollMode.ADAPTIVE,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                ),
+                            ],
+                            spacing=20,
+                            scroll=ft.ScrollMode.ADAPTIVE,
+                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                        ),
+                        width=800,
                     ),
                     padding=ft.padding.all(20),
-                    alignment=ft.alignment.center,
+                    alignment=ft.alignment.top_center,
                 ),
             ),
             ft.Tab(
                 text="Fine-Tuning",
                 content=ft.Container(
-                    content=ft.Column(
-                        [
-                            ft.Card(
-                                content=ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Text("Model and Data", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                            model_dropdown,
-                                            ft.Row(
-                                                [
-                                                    ft.ElevatedButton(
-                                                        "Select Dataset Directory",
-                                                        icon=ft.Icons.FOLDER_OPEN,
-                                                        on_click=lambda _: file_picker.get_directory_path(
-                                                            dialog_title="Select Dataset Directory"
+                    content=ft.Container(
+                        content=ft.Column(
+                            [
+                                ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Configuration", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Text("Model & Data", style=ft.TextThemeStyle.TITLE_SMALL),
+                                                model_dropdown,
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Select Dataset Directory",
+                                                            icon=ft.Icons.FOLDER_OPEN,
+                                                            on_click=lambda _: file_picker.get_directory_path(
+                                                                dialog_title="Select Dataset Directory"
+                                                            ),
                                                         ),
-                                                    ),
-                                                    data_dir_path,
-                                                ]
-                                            ),
-                                            ft.Row(
-                                                [
-                                                    ft.ElevatedButton(
-                                                        "Save Model As...",
-                                                        icon=ft.Icons.SAVE,
-                                                        on_click=lambda _: save_file_picker.save_file(
-                                                            dialog_title="Save Model As..."
+                                                        data_dir_path,
+                                                    ]
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Save Model As...",
+                                                            icon=ft.Icons.SAVE,
+                                                            on_click=lambda _: save_file_picker.save_file(
+                                                                dialog_title="Save Model As..."
+                                                            ),
                                                         ),
-                                                    ),
-                                                    save_model_path,
-                                                ]
-                                            ),
-                                            ft.Row(
-                                                [
-                                                    ft.ElevatedButton(
-                                                        "Load Model From...",
-                                                        icon=ft.Icons.UPLOAD_FILE,
-                                                        on_click=lambda _: load_file_picker.pick_files(
-                                                            dialog_title="Load Model From...", allow_multiple=False
+                                                        save_model_path,
+                                                    ]
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Load Model From...",
+                                                            icon=ft.Icons.UPLOAD_FILE,
+                                                            on_click=lambda _: load_file_picker.pick_files(
+                                                                dialog_title="Load Model From...", allow_multiple=False
+                                                            ),
                                                         ),
-                                                    ),
-                                                    load_model_path,
-                                                ]
-                                            ),
-                                        ],
-                                        spacing=10
+                                                        load_model_path,
+                                                    ]
+                                                ),
+                                                ft.Divider(),
+                                                ft.Text("Hyperparameters", style=ft.TextThemeStyle.TITLE_SMALL),
+                                                epochs_field,
+                                                batch_size_field,
+                                                learning_rate_field,
+                                            ],
+                                            spacing=10
+                                        ),
+                                        padding=ft.padding.all(15)
                                     ),
-                                    padding=ft.padding.all(15)
-                                )
-                            ),
-                            ft.Card(
-                                content=ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Text("Hyperparameters", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                            epochs_field,
-                                            batch_size_field,
-                                            learning_rate_field,
-                                        ],
-                                        spacing=10
+                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                ),
+                                ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Training", style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                start_button,
+                                                status_text,
+                                                progress_ring,
+                                                result_text,
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.START,
+                                        ),
+                                        padding=ft.padding.all(15)
                                     ),
-                                    padding=ft.padding.all(15)
-                                )
-                            ),
-                            ft.Card(
-                                content=ft.Container(
-                                    content=ft.Column(
-                                        [
-                                            ft.Text("Training", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                            start_button,
-                                            status_text,
-                                            progress_ring,
-                                            result_text,
-                                        ],
-                                        spacing=10,
-                                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                    ),
-                                    padding=ft.padding.all(15)
-                                )
-                            ),
-                        ],
-                        spacing=20,
-                        scroll=ft.ScrollMode.ADAPTIVE,
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                    elevation=2, shape=ft.RoundedRectangleBorder(border_radius=8)
+                                ),
+                            ],
+                            spacing=20,
+                            scroll=ft.ScrollMode.ADAPTIVE,
+                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                        ),
+                        width=800,
                     ),
                     padding=ft.padding.all(20),
-                    alignment=ft.alignment.center,
+                    alignment=ft.alignment.top_center,
                 ),
             ),
         ],
         expand=1,
     )
 
-    page.add(tabs)
+    page.add(
+        ft.Text("SmartPlant AI Finetuner", style=ft.TextThemeStyle.HEADLINE_MEDIUM),
+        tabs
+    )
     page.update()
 
 if __name__ == "__main__":
