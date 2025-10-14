@@ -6,6 +6,7 @@ from core.process_dataset import process_dataset
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
     page.title = "Image Classification Finetuner"
+    page.theme_mode = ft.ThemeMode.DARK
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
@@ -144,6 +145,41 @@ def main(page: ft.Page):
         animation_duration=300,
         tabs=[
             ft.Tab(
+                text="Process Dataset",
+                content=ft.Column(
+                    [
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Select Source Directory",
+                                    on_click=lambda _: source_dir_picker.get_directory_path(
+                                        dialog_title="Select Source Directory"
+                                    ),
+                                ),
+                                source_dir_path,
+                            ]
+                        ),
+                        ft.Row(
+                            [
+                                ft.ElevatedButton(
+                                    "Select Destination Directory",
+                                    on_click=lambda _: dest_dir_picker.get_directory_path(
+                                        dialog_title="Select Destination Directory"
+                                    ),
+                                ),
+                                dest_dir_path,
+                            ]
+                        ),
+                        split_ratio_field,
+                        process_start_button,
+                        process_status_text,
+                    ],
+                    spacing=15,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    scroll=ft.ScrollMode.ADAPTIVE,
+                ),
+            ),
+            ft.Tab(
                 text="Fine-Tuning",
                 content=ft.Column(
                     [
@@ -189,39 +225,8 @@ def main(page: ft.Page):
                         progress_ring,
                         result_text,
                     ],
-                    scroll=ft.ScrollMode.ADAPTIVE,
-                ),
-            ),
-            ft.Tab(
-                text="Process Dataset",
-                content=ft.Column(
-                    [
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Select Source Directory",
-                                    on_click=lambda _: source_dir_picker.get_directory_path(
-                                        dialog_title="Select Source Directory"
-                                    ),
-                                ),
-                                source_dir_path,
-                            ]
-                        ),
-                        ft.Row(
-                            [
-                                ft.ElevatedButton(
-                                    "Select Destination Directory",
-                                    on_click=lambda _: dest_dir_picker.get_directory_path(
-                                        dialog_title="Select Destination Directory"
-                                    ),
-                                ),
-                                dest_dir_path,
-                            ]
-                        ),
-                        split_ratio_field,
-                        process_start_button,
-                        process_status_text,
-                    ],
+                    spacing=15,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     scroll=ft.ScrollMode.ADAPTIVE,
                 ),
             ),
