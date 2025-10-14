@@ -14,8 +14,18 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     WIDGET_HEIGHT = 56
-    BUTTON_HEIGHT = 50
     BUTTON_WIDTH = 180
+
+    # Define button styles for consistent appearance
+    action_button_style = ft.ButtonStyle(
+        shape=ft.RoundedRectangleBorder(radius=8),
+        padding=ft.padding.symmetric(vertical=16, horizontal=24)
+    )
+
+    beside_button_style = ft.ButtonStyle(
+        shape=ft.RoundedRectangleBorder(radius=8),
+        padding=ft.padding.symmetric(vertical=16)
+    )
 
     def on_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
@@ -135,8 +145,7 @@ def main(page: ft.Page):
         icon=ft.Icons.PLAY_ARROW,
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-        height=BUTTON_HEIGHT,
+        style=action_button_style,
     )
     process_status_text = ft.Text()
 
@@ -161,8 +170,7 @@ def main(page: ft.Page):
         icon=ft.Icons.MODEL_TRAINING,
         bgcolor=ft.Colors.GREEN_700,
         color=ft.Colors.WHITE,
-        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-        height=BUTTON_HEIGHT,
+        style=action_button_style,
     )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
@@ -194,8 +202,7 @@ def main(page: ft.Page):
                                                             ),
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=BUTTON_HEIGHT,
+                                                            style=beside_button_style,
                                                             width=BUTTON_WIDTH,
                                                         ),
                                                     ],
@@ -213,8 +220,7 @@ def main(page: ft.Page):
                                                             ),
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=BUTTON_HEIGHT,
+                                                            style=beside_button_style,
                                                             width=BUTTON_WIDTH,
                                                         ),
                                                     ],
@@ -293,8 +299,7 @@ def main(page: ft.Page):
                                                             ),
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=BUTTON_HEIGHT,
+                                                            style=beside_button_style,
                                                             width=BUTTON_WIDTH,
                                                         ),
                                                     ],
@@ -312,8 +317,7 @@ def main(page: ft.Page):
                                                             ),
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=BUTTON_HEIGHT,
+                                                            style=beside_button_style,
                                                             width=BUTTON_WIDTH,
                                                         ),
                                                     ],
@@ -331,8 +335,7 @@ def main(page: ft.Page):
                                                             ),
                                                             bgcolor=ft.Colors.GREEN_700,
                                                             color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                            height=BUTTON_HEIGHT,
+                                                            style=beside_button_style,
                                                             width=BUTTON_WIDTH,
                                                         ),
                                                     ],
