@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import React from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import BottomNav from "../components/Navigation";
 
+const NAV_HEIGHT = 60;     // from your BottomNav styles
+const NAV_MARGIN_TOP = 150; // from your BottomNav styles
+
 export default function NotificationsScreen({ navigation }) {
-  // simple helpers to render placeholder rows
   const renderRow = (key) => (
     <View key={key} style={styles.row}>
       <View style={styles.leftCircle} />
@@ -14,7 +16,13 @@ export default function NotificationsScreen({ navigation }) {
 
   return (
     <View style={styles.background}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        style={styles.scroller}
+        contentContainerStyle={[
+          styles.container,
+          { paddingBottom: NAV_HEIGHT + 8 }, // room for the bar itself
+        ]}
+      >
         {/* Title */}
         <View style={styles.titleRow}>
           <Text style={styles.title}>Notifications</Text>
@@ -35,8 +43,8 @@ export default function NotificationsScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Section: Past */}
-        <View style={styles.section}>
+        {/* Section: Past (no bottom margin so it hugs the padding) */}
+        <View style={[styles.section, styles.lastSection]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionHeaderText}>Past Notifications</Text>
           </View>
@@ -46,102 +54,61 @@ export default function NotificationsScreen({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Nav */}
+      {/* Fixed Bottom Nav (unchanged) */}
       <BottomNav navigation={navigation} />
-      
     </View>
   );
 }
 
+/* ===== STYLES ===== */
+const GREEN = "#6EA564";
+const BG = "#fefae0";
+
 const styles = StyleSheet.create({
-  /* page */
-  background: {
-    flex: 1,
-    backgroundColor: "#fefae0",
-  },
+  background: { flex: 1, backgroundColor: BG },
+
+  // This negative margin cancels the nav's marginTop=150 gap.
+  scroller: { marginBottom: -NAV_MARGIN_TOP },
+
   container: {
     flexGrow: 1,
-    backgroundColor: "#fefae0",
-    padding: 20,
-    paddingBottom: 60,
+    backgroundColor: BG,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    // paddingBottom is provided dynamically above
   },
 
   /* header */
-  titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 40,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#111",
-  },
-  dots: {
-    marginLeft: "auto",
-    flexDirection: "row",
-    columnGap: 6,
-    paddingRight: 2,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#e5e2db",
-  },
+  titleRow: { flexDirection: "row", alignItems: "center", marginTop: 40, marginBottom: 10 },
+  title: { fontSize: 26, fontWeight: "bold", color: "#111" },
+  dots: { marginLeft: "auto", flexDirection: "row", columnGap: 6, paddingRight: 2 },
+  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#e5e2db" },
 
   /* sections */
-  section: {
-    marginTop: 10,
-    marginBottom: 18,
-  },
+  section: { marginTop: 10, marginBottom: 18 },
+  lastSection: { marginBottom: 0 },
   sectionHeader: {
-    backgroundColor: "#6EA564",
+    backgroundColor: GREEN,
     borderRadius: 16,
     paddingVertical: 8,
     alignItems: "center",
     marginBottom: 12,
   },
-  sectionHeaderText: {
-    color: "#fff",
-    fontWeight: "800",
-  },
+  sectionHeaderText: { color: "#fff", fontWeight: "800" },
 
   /* rows */
-  rowsWrap: {
-    rowGap: 12,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  rowsWrap: { rowGap: 12 },
+  row: { flexDirection: "row", alignItems: "center" },
   leftCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#fff",
-    borderWidth: 1.5,
-    borderColor: "#6EA564",
-    marginRight: 10,
+    width: 36, height: 36, borderRadius: 18, backgroundColor: "#fff",
+    borderWidth: 1.5, borderColor: GREEN, marginRight: 10,
   },
   centerPill: {
-    flex: 1,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: "#fff",
-    borderWidth: 1.5,
-    borderColor: "#6EA564",
+    flex: 1, height: 42, borderRadius: 12, backgroundColor: "#fff",
+    borderWidth: 1.5, borderColor: GREEN,
   },
   rightBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    borderWidth: 1.5,
-    borderColor: "#6EA564",
-    marginLeft: 10,
+    width: 36, height: 36, borderRadius: 8, backgroundColor: "#fff",
+    borderWidth: 1.5, borderColor: GREEN, marginLeft: 10,
   },
-
-
 });
