@@ -13,7 +13,7 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    WIDGET_HEIGHT = 60
+    WIDGET_HEIGHT = 45
     BUTTON_WIDTH = 180
 
     # Define button styles for consistent appearance
