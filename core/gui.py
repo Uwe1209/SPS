@@ -118,12 +118,12 @@ def main(page: ft.Page):
     dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
     page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
-    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, expand=True, border_width=0.5)
-    save_model_path = ft.TextField(label="Save Model Path", read_only=True, expand=True, border_width=0.5)
-    load_model_path = ft.TextField(label="Load Model Path", read_only=True, expand=True, border_width=0.5)
+    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5)
+    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5)
+    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5)
 
-    source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True, border_width=0.5)
-    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True, border_width=0.5)
+    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5)
+    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
     process_start_button = ft.ElevatedButton(
         text="Run Processing",
@@ -177,38 +177,31 @@ def main(page: ft.Page):
                                         content=ft.Column(
                                             [
                                                 ft.Text("Directories", style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Select Source",
-                                                            icon=ft.Icons.FOLDER_OPEN,
-                                                            on_click=lambda _: source_dir_picker.get_directory_path(
-                                                                dialog_title="Select Source Directory"
-                                                            ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                        ),
-                                                        source_dir_path,
-                                                    ]
+                                                ft.ElevatedButton(
+                                                    "Select Source",
+                                                    icon=ft.Icons.FOLDER_OPEN,
+                                                    on_click=lambda _: source_dir_picker.get_directory_path(
+                                                        dialog_title="Select Source Directory"
+                                                    ),
+                                                    bgcolor=ft.Colors.GREEN_700,
+                                                    color=ft.Colors.WHITE,
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                 ),
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Select Destination",
-                                                            icon=ft.Icons.FOLDER_OPEN,
-                                                            on_click=lambda _: dest_dir_picker.get_directory_path(
-                                                                dialog_title="Select Destination Directory"
-                                                            ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                        ),
-                                                        dest_dir_path,
-                                                    ]
+                                                source_dir_path,
+                                                ft.ElevatedButton(
+                                                    "Select Destination",
+                                                    icon=ft.Icons.FOLDER_OPEN,
+                                                    on_click=lambda _: dest_dir_picker.get_directory_path(
+                                                        dialog_title="Select Destination Directory"
+                                                    ),
+                                                    bgcolor=ft.Colors.GREEN_700,
+                                                    color=ft.Colors.WHITE,
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                 ),
+                                                dest_dir_path,
                                             ],
-                                            spacing=10
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -236,7 +229,7 @@ def main(page: ft.Page):
                                                 process_status_text,
                                             ],
                                             spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.START,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -266,58 +259,47 @@ def main(page: ft.Page):
                                                 ft.Text("Configuration", style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Text("Model & Data", style=ft.TextThemeStyle.TITLE_SMALL),
                                                 model_dropdown,
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Select Dataset",
-                                                            icon=ft.Icons.FOLDER_OPEN,
-                                                            on_click=lambda _: file_picker.get_directory_path(
-                                                                dialog_title="Select Dataset Directory"
-                                                            ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                        ),
-                                                        data_dir_path,
-                                                    ]
+                                                ft.ElevatedButton(
+                                                    "Select Dataset",
+                                                    icon=ft.Icons.FOLDER_OPEN,
+                                                    on_click=lambda _: file_picker.get_directory_path(
+                                                        dialog_title="Select Dataset Directory"
+                                                    ),
+                                                    bgcolor=ft.Colors.GREEN_700,
+                                                    color=ft.Colors.WHITE,
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                 ),
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Set Save Path",
-                                                            icon=ft.Icons.SAVE,
-                                                            on_click=lambda _: save_file_picker.save_file(
-                                                                dialog_title="Save Model As..."
-                                                            ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                        ),
-                                                        save_model_path,
-                                                    ]
+                                                data_dir_path,
+                                                ft.ElevatedButton(
+                                                    "Set Save Path",
+                                                    icon=ft.Icons.SAVE,
+                                                    on_click=lambda _: save_file_picker.save_file(
+                                                        dialog_title="Save Model As..."
+                                                    ),
+                                                    bgcolor=ft.Colors.GREEN_700,
+                                                    color=ft.Colors.WHITE,
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                 ),
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Select Model File",
-                                                            icon=ft.Icons.UPLOAD_FILE,
-                                                            on_click=lambda _: load_file_picker.pick_files(
-                                                                dialog_title="Load Model From...", allow_multiple=False
-                                                            ),
-                                                            bgcolor=ft.Colors.GREEN_700,
-                                                            color=ft.Colors.WHITE,
-                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
-                                                        ),
-                                                        load_model_path,
-                                                    ]
+                                                save_model_path,
+                                                ft.ElevatedButton(
+                                                    "Select Model File",
+                                                    icon=ft.Icons.UPLOAD_FILE,
+                                                    on_click=lambda _: load_file_picker.pick_files(
+                                                        dialog_title="Load Model From...", allow_multiple=False
+                                                    ),
+                                                    bgcolor=ft.Colors.GREEN_700,
+                                                    color=ft.Colors.WHITE,
+                                                    style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                 ),
+                                                load_model_path,
                                                 ft.Divider(),
                                                 ft.Text("Hyperparameters", style=ft.TextThemeStyle.TITLE_SMALL),
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
                                             ],
-                                            spacing=10
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -334,7 +316,7 @@ def main(page: ft.Page):
                                                 result_text,
                                             ],
                                             spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.START,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
