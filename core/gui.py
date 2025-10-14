@@ -125,7 +125,14 @@ def main(page: ft.Page):
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, expand=True, border_width=0.5)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, expand=True, border_width=0.5)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8")
-    process_start_button = ft.ElevatedButton(text="Start Processing", on_click=start_processing, icon=ft.Icons.PLAY_ARROW)
+    process_start_button = ft.ElevatedButton(
+        text="Run Processing",
+        on_click=start_processing,
+        icon=ft.Icons.PLAY_ARROW,
+        bgcolor=ft.colors.GREEN_700,
+        color=ft.colors.WHITE,
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+    )
     process_status_text = ft.Text()
 
     model_dropdown = ft.Dropdown(
@@ -136,11 +143,21 @@ def main(page: ft.Page):
             ft.dropdown.Option("alexnet"),
             ft.dropdown.Option("googlenet"),
         ],
+        border_radius=8,
+        border_color=ft.colors.GREY_500,
+        focused_border_color=ft.colors.GREEN_700,
     )
     epochs_field = ft.TextField(label="Number of Epochs", value="25")
     batch_size_field = ft.TextField(label="Batch Size", value="32")
     learning_rate_field = ft.TextField(label="Learning Rate", value="0.001")
-    start_button = ft.ElevatedButton(text="Start Fine-Tuning", on_click=start_finetuning, icon=ft.Icons.MODEL_TRAINING)
+    start_button = ft.ElevatedButton(
+        text="Run Fine-Tuning",
+        on_click=start_finetuning,
+        icon=ft.Icons.MODEL_TRAINING,
+        bgcolor=ft.colors.GREEN_700,
+        color=ft.colors.WHITE,
+        style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
+    )
     status_text = ft.Text()
     progress_ring = ft.ProgressRing(visible=False)
     result_text = ft.Text()
@@ -163,11 +180,14 @@ def main(page: ft.Page):
                                                 ft.Row(
                                                     [
                                                         ft.ElevatedButton(
-                                                            "Select Source Directory",
+                                                            "Select Source",
                                                             icon=ft.Icons.FOLDER_OPEN,
                                                             on_click=lambda _: source_dir_picker.get_directory_path(
                                                                 dialog_title="Select Source Directory"
                                                             ),
+                                                            bgcolor=ft.colors.GREEN_700,
+                                                            color=ft.colors.WHITE,
+                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                         ),
                                                         source_dir_path,
                                                     ]
@@ -175,11 +195,14 @@ def main(page: ft.Page):
                                                 ft.Row(
                                                     [
                                                         ft.ElevatedButton(
-                                                            "Select Destination Directory",
+                                                            "Select Destination",
                                                             icon=ft.Icons.FOLDER_OPEN,
                                                             on_click=lambda _: dest_dir_picker.get_directory_path(
                                                                 dialog_title="Select Destination Directory"
                                                             ),
+                                                            bgcolor=ft.colors.GREEN_700,
+                                                            color=ft.colors.WHITE,
+                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                         ),
                                                         dest_dir_path,
                                                     ]
@@ -246,11 +269,14 @@ def main(page: ft.Page):
                                                 ft.Row(
                                                     [
                                                         ft.ElevatedButton(
-                                                            "Select Dataset Directory",
+                                                            "Select Dataset",
                                                             icon=ft.Icons.FOLDER_OPEN,
                                                             on_click=lambda _: file_picker.get_directory_path(
                                                                 dialog_title="Select Dataset Directory"
                                                             ),
+                                                            bgcolor=ft.colors.GREEN_700,
+                                                            color=ft.colors.WHITE,
+                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                         ),
                                                         data_dir_path,
                                                     ]
@@ -258,11 +284,14 @@ def main(page: ft.Page):
                                                 ft.Row(
                                                     [
                                                         ft.ElevatedButton(
-                                                            "Save Model As...",
+                                                            "Set Save Path",
                                                             icon=ft.Icons.SAVE,
                                                             on_click=lambda _: save_file_picker.save_file(
                                                                 dialog_title="Save Model As..."
                                                             ),
+                                                            bgcolor=ft.colors.GREEN_700,
+                                                            color=ft.colors.WHITE,
+                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                         ),
                                                         save_model_path,
                                                     ]
@@ -270,11 +299,14 @@ def main(page: ft.Page):
                                                 ft.Row(
                                                     [
                                                         ft.ElevatedButton(
-                                                            "Load Model From...",
+                                                            "Select Model File",
                                                             icon=ft.Icons.UPLOAD_FILE,
                                                             on_click=lambda _: load_file_picker.pick_files(
                                                                 dialog_title="Load Model From...", allow_multiple=False
                                                             ),
+                                                            bgcolor=ft.colors.GREEN_700,
+                                                            color=ft.colors.WHITE,
+                                                            style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8)),
                                                         ),
                                                         load_model_path,
                                                     ]
@@ -324,7 +356,6 @@ def main(page: ft.Page):
     )
 
     page.add(
-        ft.Text("SmartPlant AI Finetuner", style=ft.TextThemeStyle.HEADLINE_MEDIUM),
         tabs
     )
     page.update()
