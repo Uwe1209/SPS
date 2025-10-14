@@ -238,7 +238,8 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
                                 ft.Card(
                                     content=ft.Container(
@@ -251,7 +252,8 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
                                 ft.Card(
                                     content=ft.Container(
@@ -266,15 +268,14 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
                             ],
                             spacing=20,
                             scroll=ft.ScrollMode.ADAPTIVE,
-                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                            tight=True,
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
-                        width=800,
                     ),
                     padding=ft.padding.all(20),
                     alignment=ft.alignment.top_center,
@@ -361,7 +362,8 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
                                 ft.Card(
                                     content=ft.Container(
@@ -378,15 +380,14 @@ def main(page: ft.Page):
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8)
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
                             ],
                             spacing=20,
                             scroll=ft.ScrollMode.ADAPTIVE,
-                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                            tight=True,
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
-                        width=800,
                     ),
                     padding=ft.padding.all(20),
                     alignment=ft.alignment.top_center,
