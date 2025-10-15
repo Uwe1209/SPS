@@ -321,7 +321,6 @@ def main(page: ft.Page):
                             scroll=ft.ScrollMode.ADAPTIVE,
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
-                ),
             ),
             ft.Tab(
                 text="Fine-Tuning",
@@ -433,7 +432,6 @@ def main(page: ft.Page):
                             scroll=ft.ScrollMode.ADAPTIVE,
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
-                ),
             ),
         ],
         expand=1,
