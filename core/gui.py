@@ -112,8 +112,8 @@ def main(page: ft.Page):
                 cancel_button.visible = False
                 page.update()
 
-        thread = threading.Thread(target=run_processing)
-        thread.start()
+        processing_thread = threading.Thread(target=run_processing)
+        processing_thread.start()
 
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
@@ -171,8 +171,8 @@ def main(page: ft.Page):
                 cancel_button.visible = False
                 page.update()
 
-        thread = threading.Thread(target=run_finetuning, args=(settings,))
-        thread.start()
+        finetuning_thread = threading.Thread(target=run_finetuning, args=(settings,))
+        finetuning_thread.start()
 
     file_picker = ft.FilePicker(on_result=on_dialog_result)
     save_file_picker = ft.FilePicker(on_result=on_save_dialog_result)
@@ -236,8 +236,8 @@ def main(page: ft.Page):
             toast_container.visible = True
             page.update()
 
-            thread = threading.Thread(target=run_clear_dataset_thread)
-            thread.start()
+            clear_thread = threading.Thread(target=run_clear_dataset_thread)
+            clear_thread.start()
         else:
             # First click: ask for confirmation
             clear_dataset_button.text = "Confirm Clear?"
