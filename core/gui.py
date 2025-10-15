@@ -228,9 +228,9 @@ def main(page: ft.Page):
         ],
         actions_alignment=ft.MainAxisAlignment.END,
     )
+    page.dialog = dialog
 
     def confirm_clear_dataset(e):
-        page.dialog = dialog
         dialog.open = True
         page.update()
 
