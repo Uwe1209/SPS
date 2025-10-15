@@ -243,6 +243,25 @@ def main(page: ft.Page):
         toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
         toast_hide_timer.start()
 
+    def reset_clear_button():
+        """Resets the clear button to its original state."""
+        nonlocal clear_confirmation_timer
+        if clear_confirmation_timer:
+            clear_confirmation_timer.cancel()
+            clear_confirmation_timer = None
+        
+        clear_dataset_button.text = "Clear Processed Dataset"
+        clear_dataset_button.bgcolor = ft.Colors.RED_700
+        page.update()
+
+    def on_page_click(e):
+        """Cancels clear confirmation if a click occurs outside the button."""
+        if clear_confirmation_timer and clear_confirmation_timer.is_alive():
+            if e.control != clear_dataset_button:
+                reset_clear_button()
+
+    page.on_click = on_page_click
+
     def confirm_clear_dataset(e):
         """Handles the two-stage confirmation for clearing the dataset."""
         nonlocal clear_confirmation_timer
@@ -272,15 +291,8 @@ def main(page: ft.Page):
             clear_dataset_button.text = "Confirm Clear?"
             clear_dataset_button.bgcolor = ft.Colors.ORANGE_700
             page.update()
-
-            def reset_button():
-                nonlocal clear_confirmation_timer
-                clear_dataset_button.text = "Clear Processed Dataset"
-                clear_dataset_button.bgcolor = ft.Colors.RED_700
-                clear_confirmation_timer = None
-                page.update()
             
-            clear_confirmation_timer = threading.Timer(5.0, reset_button)
+            clear_confirmation_timer = threading.Timer(5.0, reset_clear_button)
             clear_confirmation_timer.start()
 
     clear_dataset_button = ft.ElevatedButton(
