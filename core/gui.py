@@ -121,17 +121,21 @@ def main(page: ft.Page):
 
         def run_finetuning(settings_dict):
             """Target function for the training thread."""
+            epoch_message = ""
             def progress_callback(message):
+                nonlocal epoch_message
                 if message.strip() == '-' * 10:
                     return
                 
-                toast_text.value = message
-                
-                match = re.search(r"Epoch (\d+)/(\d+)", message)
-                if match:
-                    current_epoch = int(match.group(1))
-                    total_epochs = int(match.group(2)) + 1
+                epoch_match = re.search(r"Epoch (\d+)/(\d+)", message)
+                if epoch_match:
+                    epoch_message = message
+                    toast_text.value = message
+                    current_epoch = int(epoch_match.group(1))
+                    total_epochs = int(epoch_match.group(2)) + 1
                     toast_progress_bar.value = (current_epoch + 1) / total_epochs
+                else:
+                    toast_text.value = f"{epoch_message}: {message}" if epoch_message else message
 
                 page.update()
 

@@ -110,7 +110,8 @@ def main(args, progress_callback=None):
             running_loss = 0.0
             running_corrects = 0
 
-            for inputs, labels in dataloaders[phase]:
+            num_batches = len(dataloaders[phase])
+            for i, (inputs, labels) in enumerate(dataloaders[phase]):
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
@@ -124,6 +125,9 @@ def main(args, progress_callback=None):
                     if phase == 'train':
                         loss.backward()
                         optimizer.step()
+
+                if phase == 'train' and num_batches > 10 and (i + 1) % (num_batches // 10) == 0:
+                    log(f'Processing batch {i+1}/{num_batches}')
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
