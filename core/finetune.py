@@ -4,6 +4,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, models, transforms
+from PIL import ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def main(args, progress_callback=None):
     """Main function to run the fine-tuning script."""
