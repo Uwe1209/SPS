@@ -1,5 +1,6 @@
 import flet as ft
 import threading
+import re
 from finetune import main as finetune_main
 from process_dataset import process_dataset
 
@@ -56,8 +57,10 @@ def main(page: ft.Page):
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread."""
         process_start_button.disabled = True
-        process_status_text.visible = True
-        process_status_text.value = "Processing dataset..."
+        toast_text.value = "Processing dataset..."
+        toast_progress_bar.visible = False
+        toast_progress_ring.visible = True
+        toast_container.visible = True
         page.update()
 
         source_dir = source_dir_path.value
@@ -65,13 +68,15 @@ def main(page: ft.Page):
         try:
             split_ratio = float(split_ratio_field.value)
         except (ValueError, TypeError):
-            process_status_text.value = "Invalid split ratio. Please enter a number between 0 and 1."
+            toast_text.value = "Invalid split ratio. Please enter a number between 0 and 1."
+            toast_progress_ring.visible = False
+            toast_container.visible = True
             process_start_button.disabled = False
             page.update()
             return
 
         def progress_callback(message):
-            process_status_text.value = message
+            toast_text.value = message
             page.update()
 
         def run_processing():
@@ -88,6 +93,7 @@ def main(page: ft.Page):
                 progress_callback(f"An error occurred: {ex}")
             
             process_start_button.disabled = False
+            toast_progress_ring.visible = False
             page.update()
 
         thread = threading.Thread(target=run_processing)
@@ -96,8 +102,11 @@ def main(page: ft.Page):
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
         start_button.disabled = True
-        result_text.value = ""
-        result_text.visible = True
+        toast_text.value = "Starting fine-tuning..."
+        toast_progress_ring.visible = False
+        toast_progress_bar.value = 0
+        toast_progress_bar.visible = True
+        toast_container.visible = True
         page.update()
 
         settings = {
@@ -113,17 +122,24 @@ def main(page: ft.Page):
         def run_finetuning(settings_dict):
             """Target function for the training thread."""
             def progress_callback(message):
-                current_text = result_text.value
-                result_text.value = f"{current_text}\n{message}" if current_text else message
+                toast_text.value = message
+                
+                match = re.search(r"Epoch (\d+)/(\d+)", message)
+                if match:
+                    current_epoch = int(match.group(1))
+                    total_epochs = int(match.group(2)) + 1
+                    toast_progress_bar.value = (current_epoch + 1) / total_epochs
+
                 page.update()
 
             try:
                 final_accuracy = finetune_main(settings_dict, progress_callback=progress_callback)
-                progress_callback(f"Final validation accuracy: {final_accuracy:.4f}")
+                progress_callback(f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}")
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
             
             start_button.disabled = False
+            toast_progress_bar.visible = False
             page.update()
 
         thread = threading.Thread(target=run_finetuning, args=(settings,))
@@ -152,14 +168,6 @@ def main(page: ft.Page):
         style=action_button_style,
         height=BUTTON_HEIGHT,
     )
-    process_status_text = ft.TextField(
-        read_only=True,
-        multiline=True,
-        height=100,
-        border_width=0.5,
-        border_color=ft.Colors.GREY_500,
-        visible=False,
-    )
 
     model_dropdown = ft.Dropdown(
         label="Select Model",
@@ -186,13 +194,24 @@ def main(page: ft.Page):
         style=action_button_style,
         height=BUTTON_HEIGHT,
     )
-    result_text = ft.TextField(
-        read_only=True,
-        multiline=True,
-        height=100,
-        border_width=0.5,
-        border_color=ft.Colors.GREY_500,
+    toast_text = ft.Text(color=ft.colors.WHITE)
+    toast_progress_bar = ft.ProgressBar(visible=False, color=ft.colors.GREEN_400, bgcolor=ft.colors.GREY_400)
+    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.colors.GREEN_400, bgcolor=ft.colors.GREY_400)
+
+    toast_container = ft.Container(
+        content=ft.Column([
+            toast_text,
+            toast_progress_bar,
+            toast_progress_ring,
+        ], spacing=10),
+        bgcolor=ft.colors.GREY_800,
+        padding=15,
+        border_radius=10,
+        right=20,
+        bottom=20,
         visible=False,
+        width=400,
+        animate_opacity=300,
     )
 
     tabs = ft.Tabs(
@@ -285,7 +304,6 @@ def main(page: ft.Page):
                                                 [
                                                     ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     process_start_button,
-                                                    process_status_text,
                                                 ],
                                                 spacing=10,
                                                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -402,7 +420,6 @@ def main(page: ft.Page):
                                                 [
                                                     ft.Text("Training", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     start_button,
-                                                    result_text,
                                                 ],
                                                 spacing=10,
                                                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -429,7 +446,10 @@ def main(page: ft.Page):
     )
 
     page.add(
-        tabs
+        ft.Stack([
+            tabs,
+            toast_container,
+        ])
     )
     page.update()
 
