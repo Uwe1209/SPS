@@ -277,7 +277,6 @@ def main(page: ft.Page):
                                         width=800,
                                     ),
                                     alignment=ft.alignment.center,
-                                    padding=ft.padding.only(top=20),
                                 ),
                                 ft.Container(
                                     content=ft.Card(
@@ -297,7 +296,7 @@ def main(page: ft.Page):
                                         width=800,
                                     ),
                                     alignment=ft.alignment.center,
-                                    padding=ft.padding.only(top=20, bottom=20),
+                                    padding=ft.padding.only(bottom=20),
                                 ),
                             ],
                             spacing=20,
@@ -414,7 +413,7 @@ def main(page: ft.Page):
                                         width=800,
                                     ),
                                     alignment=ft.alignment.center,
-                                    padding=ft.padding.only(top=20, bottom=20),
+                                    padding=ft.padding.only(bottom=20),
                                 ),
                             ],
                             spacing=20,
