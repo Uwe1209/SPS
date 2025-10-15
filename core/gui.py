@@ -122,6 +122,9 @@ def main(page: ft.Page):
         def run_finetuning(settings_dict):
             """Target function for the training thread."""
             def progress_callback(message):
+                if message.strip() == '-' * 10:
+                    return
+                
                 toast_text.value = message
                 
                 match = re.search(r"Epoch (\d+)/(\d+)", message)
