@@ -190,13 +190,16 @@ def main(page: ft.Page):
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
     def clear_dataset(e):
         dialog.open = False
-        toast_text.value = "Clearing processed dataset..."
-        toast_progress_ring.visible = True
-        toast_progress_bar.visible = False
-        toast_container.visible = True
         page.update()
 
         def run_clear_dataset():
+            # Show "Clearing..." message from the thread
+            toast_text.value = "Clearing processed dataset..."
+            toast_progress_ring.visible = True
+            toast_progress_bar.visible = False
+            toast_container.visible = True
+            page.update()
+
             dest_dir = dest_dir_path.value
             if not dest_dir:
                 toast_text.value = "Destination directory not set."
