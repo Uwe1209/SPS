@@ -75,24 +75,32 @@ def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=Non
         random.shuffle(images)
 
         # Split into train and val.
-        split_point = int(num_images * split_ratio)
-        train_images = images[:split_point]
-        val_images = images[split_point:]
+        if num_images == 1:
+            train_images = images
+            val_images = []
+        else:
+            split_point = int(num_images * split_ratio)
+            if split_point == 0:
+                split_point = 1
+            if split_point == num_images:
+                split_point = num_images - 1
+            train_images = images[:split_point]
+            val_images = images[split_point:]
 
-        # Create destination class directories.
-        (train_dest_path / class_name).mkdir()
-        (val_dest_path / class_name).mkdir()
+        # Create destination class directories and copy files.
+        if train_images:
+            (train_dest_path / class_name).mkdir()
+            if progress_callback:
+                progress_callback(f'Copying {len(train_images)} training images for class {class_name}...')
+            for img in train_images:
+                shutil.copy(img, train_dest_path / class_name / img.name)
 
-        # Copy files and report progress.
-        if progress_callback and train_images:
-            progress_callback(f'Copying {len(train_images)} training images for class {class_name}...')
-        for img in train_images:
-            shutil.copy(img, train_dest_path / class_name / img.name)
-
-        if progress_callback and val_images:
-            progress_callback(f'Copying {len(val_images)} validation images for class {class_name}...')
-        for img in val_images:
-            shutil.copy(img, val_dest_path / class_name / img.name)
+        if val_images:
+            (val_dest_path / class_name).mkdir()
+            if progress_callback:
+                progress_callback(f'Copying {len(val_images)} validation images for class {class_name}...')
+            for img in val_images:
+                shutil.copy(img, val_dest_path / class_name / img.name)
 
     # Final progress message.
     if progress_callback:
