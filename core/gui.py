@@ -169,7 +169,6 @@ def main(page: ft.Page):
             ft.dropdown.Option("alexnet"),
             ft.dropdown.Option("googlenet"),
         ],
-        height=TEXT_FIELD_HEIGHT,
         border_radius=8,
         border_color=ft.Colors.GREY_500,
         focused_border_color=ft.Colors.GREEN_700,
