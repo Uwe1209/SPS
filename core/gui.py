@@ -189,6 +189,8 @@ def main(page: ft.Page):
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
 
+    clear_confirmation_timer = None
+
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory."""
         dest_dir = dest_dir_path.value
@@ -216,11 +218,18 @@ def main(page: ft.Page):
         toast_progress_ring.visible = False
         page.update()
 
-    def on_dialog_dismiss(e):
-        """Handles the dialog dismiss event to trigger the clear operation."""
-        if page.session.get("clear_confirmed"):
-            page.session.set("clear_confirmed", False)  # Reset flag
+    def confirm_clear_dataset(e):
+        """Handles the two-stage confirmation for clearing the dataset."""
+        nonlocal clear_confirmation_timer
 
+        if clear_confirmation_timer and clear_confirmation_timer.is_alive():
+            # Second click: confirmation received
+            clear_confirmation_timer.cancel()
+            clear_confirmation_timer = None
+            
+            clear_dataset_button.text = "Clear Processed Dataset"
+            clear_dataset_button.bgcolor = ft.Colors.RED_700
+            
             toast_text.value = "Clearing processed dataset..."
             toast_progress_ring.visible = True
             toast_progress_bar.visible = False
@@ -229,34 +238,21 @@ def main(page: ft.Page):
 
             thread = threading.Thread(target=run_clear_dataset_thread)
             thread.start()
+        else:
+            # First click: ask for confirmation
+            clear_dataset_button.text = "Confirm Clear?"
+            clear_dataset_button.bgcolor = ft.Colors.ORANGE_700
+            page.update()
 
-    def clear_dataset_confirmed(e):
-        """Sets a flag and closes the dialog when deletion is confirmed."""
-        page.session.set("clear_confirmed", True)
-        dialog.open = False
-        page.update()
-
-    def close_dialog(e):
-        """Closes the dialog without taking action."""
-        dialog.open = False
-        page.update()
-
-    dialog = ft.AlertDialog(
-        modal=True,
-        title=ft.Text("Confirm Deletion"),
-        content=ft.Text("Are you sure you want to clear the processed dataset directory? This action cannot be undone."),
-        actions=[
-            ft.TextButton("Yes", on_click=clear_dataset_confirmed),
-            ft.TextButton("No", on_click=close_dialog),
-        ],
-        actions_alignment=ft.MainAxisAlignment.END,
-        on_dismiss=on_dialog_dismiss,
-    )
-    page.dialog = dialog
-
-    def confirm_clear_dataset(e):
-        dialog.open = True
-        page.update()
+            def reset_button():
+                nonlocal clear_confirmation_timer
+                clear_dataset_button.text = "Clear Processed Dataset"
+                clear_dataset_button.bgcolor = ft.Colors.RED_700
+                clear_confirmation_timer = None
+                page.update()
+            
+            clear_confirmation_timer = threading.Timer(5.0, reset_button)
+            clear_confirmation_timer.start()
 
     clear_dataset_button = ft.ElevatedButton(
         "Clear Processed Dataset",
