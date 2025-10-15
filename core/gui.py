@@ -216,6 +216,8 @@ def main(page: ft.Page):
         animate_opacity=300,
     )
 
+    page.overlay.append(toast_container)
+
     tabs = ft.Tabs(
         selected_index=0,
         animation_duration=300,
@@ -444,10 +446,7 @@ def main(page: ft.Page):
     )
 
     page.add(
-        ft.Stack([
-            tabs,
-            toast_container,
-        ])
+        tabs
     )
     page.update()
 
