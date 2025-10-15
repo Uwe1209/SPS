@@ -198,14 +198,21 @@ def main(page: ft.Page):
             page.update()
             return
         
+        train_path = os.path.join(dest_dir, 'train')
+        val_path = os.path.join(dest_dir, 'val')
+        
         try:
-            train_path = os.path.join(dest_dir, 'train')
-            val_path = os.path.join(dest_dir, 'val')
             if os.path.exists(train_path):
                 shutil.rmtree(train_path)
             if os.path.exists(val_path):
                 shutil.rmtree(val_path)
-            toast_text.value = "Processed dataset cleared successfully."
+            
+            # Verify deletion
+            if os.path.exists(train_path) or os.path.exists(val_path):
+                 toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
+            else:
+                toast_text.value = "Processed dataset cleared successfully."
+
         except Exception as ex:
             toast_text.value = f"Error clearing dataset: {ex}"
         
