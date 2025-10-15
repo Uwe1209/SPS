@@ -19,6 +19,7 @@ def main(args, progress_callback=None):
 
     log("Starting fine-tuning...")
     
+    cancel_event = args.get('cancel_event')
     data_dir = args['data_dir']
     model_name = args.get('model_name', 'resnet18')
     num_epochs = args.get('num_epochs', 25)
@@ -98,6 +99,9 @@ def main(args, progress_callback=None):
     final_epoch_val_acc = 0.0
 
     for epoch in range(num_epochs):
+        if cancel_event and cancel_event.is_set():
+            log("Fine-tuning cancelled.")
+            return final_epoch_val_acc
         log(f'Epoch {epoch}/{num_epochs - 1}')
         log('-' * 10)
 
@@ -112,6 +116,9 @@ def main(args, progress_callback=None):
 
             num_batches = len(dataloaders[phase])
             for i, (inputs, labels) in enumerate(dataloaders[phase]):
+                if cancel_event and cancel_event.is_set():
+                    log("Fine-tuning cancelled.")
+                    return final_epoch_val_acc
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 

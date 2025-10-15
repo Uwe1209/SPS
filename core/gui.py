@@ -1,8 +1,13 @@
 import flet as ft
 import threading
 import re
+import json
+import shutil
+import os
 from finetune import main as finetune_main
 from process_dataset import process_dataset
+
+cancel_event = threading.Event()
 
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
@@ -56,6 +61,9 @@ def main(page: ft.Page):
 
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread."""
+        cancel_event.clear()
+        cancel_button.visible = True
+        cancel_button.disabled = False
         process_start_button.disabled = True
         toast_text.value = "Processing dataset..."
         toast_progress_bar.visible = False
@@ -86,21 +94,27 @@ def main(page: ft.Page):
                     source_dir=source_dir,
                     dest_dir=dest_dir,
                     split_ratio=split_ratio,
-                    progress_callback=progress_callback
+                    progress_callback=progress_callback,
+                    cancel_event=cancel_event
                 )
-                progress_callback("Dataset processing finished successfully.")
+                if not cancel_event.is_set():
+                    progress_callback("Dataset processing finished successfully.")
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
-            
-            process_start_button.disabled = False
-            toast_progress_ring.visible = False
-            page.update()
+            finally:
+                process_start_button.disabled = False
+                toast_progress_ring.visible = False
+                cancel_button.visible = False
+                page.update()
 
         thread = threading.Thread(target=run_processing)
         thread.start()
 
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
+        cancel_event.clear()
+        cancel_button.visible = True
+        cancel_button.disabled = False
         start_button.disabled = True
         toast_text.value = "Starting fine-tuning..."
         toast_progress_ring.visible = False
@@ -117,6 +131,7 @@ def main(page: ft.Page):
             'learning_rate': float(learning_rate_field.value) if learning_rate_field.value else 0.001,
             'load_path': load_model_path.value or None,
             'save_path': save_model_path.value or None,
+            'cancel_event': cancel_event,
         }
 
         def run_finetuning(settings_dict):
@@ -141,13 +156,15 @@ def main(page: ft.Page):
 
             try:
                 final_accuracy = finetune_main(settings_dict, progress_callback=progress_callback)
-                progress_callback(f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}")
+                if not cancel_event.is_set():
+                    progress_callback(f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}")
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
-            
-            start_button.disabled = False
-            toast_progress_bar.visible = False
-            page.update()
+            finally:
+                start_button.disabled = False
+                toast_progress_bar.visible = False
+                cancel_button.visible = False
+                page.update()
 
         thread = threading.Thread(target=run_finetuning, args=(settings,))
         thread.start()
@@ -166,6 +183,62 @@ def main(page: ft.Page):
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
+    def clear_dataset(e):
+        dialog.open = False
+        page.update()
+        dest_dir = dest_dir_path.value
+        if not dest_dir:
+            toast_text.value = "Destination directory not set."
+            toast_container.visible = True
+            page.update()
+            return
+        
+        try:
+            train_path = os.path.join(dest_dir, 'train')
+            val_path = os.path.join(dest_dir, 'val')
+            if os.path.exists(train_path):
+                shutil.rmtree(train_path)
+            if os.path.exists(val_path):
+                shutil.rmtree(val_path)
+            toast_text.value = "Processed dataset cleared successfully."
+        except Exception as ex:
+            toast_text.value = f"Error clearing dataset: {ex}"
+        
+        toast_progress_ring.visible = False
+        toast_progress_bar.visible = False
+        toast_container.visible = True
+        page.update()
+
+    def close_dialog(e):
+        dialog.open = False
+        page.update()
+
+    dialog = ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Confirm Deletion"),
+        content=ft.Text("Are you sure you want to clear the processed dataset directory? This action cannot be undone."),
+        actions=[
+            ft.TextButton("Yes", on_click=clear_dataset),
+            ft.TextButton("No", on_click=close_dialog),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
+    )
+
+    def confirm_clear_dataset(e):
+        page.dialog = dialog
+        dialog.open = True
+        page.update()
+
+    clear_dataset_button = ft.ElevatedButton(
+        "Clear Processed Dataset",
+        on_click=confirm_clear_dataset,
+        icon=ft.Icons.DELETE_FOREVER,
+        bgcolor=ft.Colors.RED_700,
+        color=ft.Colors.WHITE,
+        style=action_button_style,
+        height=BUTTON_HEIGHT,
+    )
+
     process_start_button = ft.ElevatedButton(
         text="Run Processing",
         on_click=start_processing,
@@ -207,11 +280,20 @@ def main(page: ft.Page):
     toast_progress_bar = ft.ProgressBar(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
     toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
 
+    def cancel_operation(e):
+        toast_text.value = "Cancelling..."
+        cancel_button.disabled = True
+        page.update()
+        cancel_event.set()
+
+    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, visible=False, bgcolor=ft.Colors.RED, color=ft.Colors.WHITE)
+
     toast_container = ft.Container(
         content=ft.Column([
             toast_text,
             toast_progress_bar,
             toast_progress_ring,
+            cancel_button,
         ], spacing=10),
         bgcolor=ft.Colors.GREY_800,
         padding=15,
@@ -314,6 +396,7 @@ def main(page: ft.Page):
                                                 [
                                                     ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     process_start_button,
+                                                    clear_dataset_button,
                                                 ],
                                                 spacing=10,
                                                 horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -451,6 +534,34 @@ def main(page: ft.Page):
         ],
         expand=1,
     )
+
+    APP_SETTINGS_KEY = "app_settings"
+
+    controls_to_save = {
+        "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
+        "split_ratio_field": split_ratio_field, "data_dir_path": data_dir_path,
+        "save_model_path": save_model_path, "load_model_path": load_model_path,
+        "model_dropdown": model_dropdown, "epochs_field": epochs_field,
+        "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
+    }
+
+    def save_inputs(e=None):
+        settings = {key: control.value for key, control in controls_to_save.items()}
+        page.client_storage.set(APP_SETTINGS_KEY, json.dumps(settings))
+
+    def load_inputs():
+        settings_str = page.client_storage.get(APP_SETTINGS_KEY)
+        if settings_str:
+            settings = json.loads(settings_str)
+            for key, control in controls_to_save.items():
+                if key in settings:
+                    control.value = settings[key]
+            page.update()
+
+    for control in controls_to_save.values():
+        control.on_change = save_inputs
+
+    load_inputs()
 
     page.add(
         tabs

@@ -3,7 +3,7 @@ import shutil
 import random
 import pathlib
 
-def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=None):
+def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=None, cancel_event=None):
     """
     Processes an image dataset by splitting it into training and validation sets.
 
@@ -52,6 +52,9 @@ def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=Non
 
     # Process each class directory.
     for class_dir in class_dirs:
+        if cancel_event and cancel_event.is_set():
+            progress_callback("Processing cancelled.")
+            return
         class_name = class_dir.name
 
         if class_name in processed_class_names:
@@ -93,6 +96,9 @@ def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=Non
             if progress_callback:
                 progress_callback(f'Copying {len(train_images)} training images for class {class_name}...')
             for img in train_images:
+                if cancel_event and cancel_event.is_set():
+                    progress_callback("Processing cancelled.")
+                    return
                 shutil.copy(img, train_dest_path / class_name / img.name)
 
         if val_images:
@@ -100,6 +106,9 @@ def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=Non
             if progress_callback:
                 progress_callback(f'Copying {len(val_images)} validation images for class {class_name}...')
             for img in val_images:
+                if cancel_event and cancel_event.is_set():
+                    progress_callback("Processing cancelled.")
+                    return
                 shutil.copy(img, val_dest_path / class_name / img.name)
 
     # Final progress message.
