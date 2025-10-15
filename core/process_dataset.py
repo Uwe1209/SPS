@@ -23,18 +23,20 @@ def process_dataset(source_dir, dest_dir, split_ratio=0.8, progress_callback=Non
     dest_path = pathlib.Path(dest_dir)
     image_extensions = {'.jpg', '.jpeg', '.png'}
 
-    # Ensure the destination directory is created and clean it if it contains old data.
+    # Ensure the destination directory exists.
     dest_path.mkdir(parents=True, exist_ok=True)
     train_dest_path = dest_path / 'train'
     val_dest_path = dest_path / 'val'
 
-    if train_dest_path.exists():
-        shutil.rmtree(train_dest_path)
-    if val_dest_path.exists():
-        shutil.rmtree(val_dest_path)
-    
-    train_dest_path.mkdir()
-    val_dest_path.mkdir()
+    # Check if destination directories already contain data.
+    if (train_dest_path.exists() and any(train_dest_path.iterdir())) or \
+       (val_dest_path.exists() and any(val_dest_path.iterdir())):
+        if progress_callback:
+            progress_callback("Destination directory is not empty. Please clear it first using the 'Clear Processed Dataset' button.")
+        return
+
+    train_dest_path.mkdir(exist_ok=True)
+    val_dest_path.mkdir(exist_ok=True)
 
     # Recursively scan for directories with images.
     all_dirs = [d for d in source_path.rglob('*') if d.is_dir()]

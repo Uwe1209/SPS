@@ -38,26 +38,31 @@ def main(page: ft.Page):
         if e.path:
             data_dir_path.value = e.path
             page.update()
+            save_inputs()
 
     def on_save_dialog_result(e: ft.FilePickerResultEvent):
         if e.path:
             save_model_path.value = e.path
             page.update()
+            save_inputs()
 
     def on_load_dialog_result(e: ft.FilePickerResultEvent):
         if e.files:
             load_model_path.value = e.files[0].path
             page.update()
+            save_inputs()
 
     def on_source_dir_result(e: ft.FilePickerResultEvent):
         if e.path:
             source_dir_path.value = e.path
             page.update()
+            save_inputs()
 
     def on_dest_dir_result(e: ft.FilePickerResultEvent):
         if e.path:
             dest_dir_path.value = e.path
             page.update()
+            save_inputs()
 
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread."""
