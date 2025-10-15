@@ -5,9 +5,16 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, models, transforms
 
-def main(args):
+def main(args, progress_callback=None):
     """Main function to run the fine-tuning script."""
-    print("Starting fine-tuning...")
+    
+    def log(message):
+        if progress_callback:
+            progress_callback(message)
+        else:
+            print(message)
+
+    log("Starting fine-tuning...")
     
     data_dir = args['data_dir']
     model_name = args.get('model_name', 'resnet18')
@@ -81,8 +88,8 @@ def main(args):
     final_epoch_val_acc = 0.0
 
     for epoch in range(num_epochs):
-        print(f'Epoch {epoch}/{num_epochs - 1}')
-        print('-' * 10)
+        log(f'Epoch {epoch}/{num_epochs - 1}')
+        log('-' * 10)
 
         for phase in ['train', 'val']:
             if phase == 'train':
@@ -114,7 +121,7 @@ def main(args):
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+            log(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
             if phase == 'val':
                 final_epoch_val_acc = epoch_acc.item()
@@ -123,7 +130,7 @@ def main(args):
     if save_path:
         torch.save(model.state_dict(), save_path)
 
-    print("Fine-tuning finished.")
+    log("Fine-tuning finished.")
     
     # 10. Return the final validation accuracy.
     return final_epoch_val_acc

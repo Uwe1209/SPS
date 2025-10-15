@@ -96,10 +96,8 @@ def main(page: ft.Page):
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
         start_button.disabled = True
-        progress_ring.visible = True
-        status_text.value = "Fine-tuning in progress..."
         result_text.value = ""
-        result_text.visible = False
+        result_text.visible = True
         page.update()
 
         settings = {
@@ -114,16 +112,18 @@ def main(page: ft.Page):
 
         def run_finetuning(settings_dict):
             """Target function for the training thread."""
+            def progress_callback(message):
+                current_text = result_text.value
+                result_text.value = f"{current_text}\n{message}" if current_text else message
+                page.update()
+
             try:
-                final_accuracy = finetune_main(settings_dict)
-                result_text.value = f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}"
+                final_accuracy = finetune_main(settings_dict, progress_callback=progress_callback)
+                progress_callback(f"Final validation accuracy: {final_accuracy:.4f}")
             except Exception as ex:
-                result_text.value = f"An error occurred: {ex}"
+                progress_callback(f"An error occurred: {ex}")
             
-            result_text.visible = True
             start_button.disabled = False
-            progress_ring.visible = False
-            status_text.value = ""
             page.update()
 
         thread = threading.Thread(target=run_finetuning, args=(settings,))
@@ -186,8 +186,6 @@ def main(page: ft.Page):
         style=action_button_style,
         height=BUTTON_HEIGHT,
     )
-    status_text = ft.Text()
-    progress_ring = ft.ProgressRing(visible=False)
     result_text = ft.TextField(
         read_only=True,
         multiline=True,
@@ -404,8 +402,6 @@ def main(page: ft.Page):
                                                 [
                                                     ft.Text("Training", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                     start_button,
-                                                    status_text,
-                                                    progress_ring,
                                                     result_text,
                                                 ],
                                                 spacing=10,
