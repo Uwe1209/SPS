@@ -8,6 +8,16 @@ from finetune import main as finetune_main
 from process_dataset import process_dataset
 
 cancel_event = threading.Event()
+toast_hide_timer = None
+
+def hide_toast(page: ft.Page):
+    """Hides the toast notification."""
+    # The toast container is the last overlay.
+    if page.overlay:
+        toast_container = page.overlay[-1]
+        if isinstance(toast_container, ft.Container):
+            toast_container.visible = False
+            page.update()
 
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
@@ -66,6 +76,9 @@ def main(page: ft.Page):
 
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread."""
+        global toast_hide_timer
+        if toast_hide_timer:
+            toast_hide_timer.cancel()
         cancel_event.clear()
         cancel_button.visible = True
         cancel_button.disabled = False
@@ -111,12 +124,18 @@ def main(page: ft.Page):
                 toast_progress_ring.visible = False
                 cancel_button.visible = False
                 page.update()
+                global toast_hide_timer
+                toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
+                toast_hide_timer.start()
 
         processing_thread = threading.Thread(target=run_processing)
         processing_thread.start()
 
     def start_finetuning(e):
         """Callback to start the fine-tuning process in a separate thread."""
+        global toast_hide_timer
+        if toast_hide_timer:
+            toast_hide_timer.cancel()
         cancel_event.clear()
         cancel_button.visible = True
         cancel_button.disabled = False
@@ -170,6 +189,9 @@ def main(page: ft.Page):
                 toast_progress_bar.visible = False
                 cancel_button.visible = False
                 page.update()
+                global toast_hide_timer
+                toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
+                toast_hide_timer.start()
 
         finetuning_thread = threading.Thread(target=run_finetuning, args=(settings,))
         finetuning_thread.start()
@@ -217,6 +239,9 @@ def main(page: ft.Page):
         
         toast_progress_ring.visible = False
         page.update()
+        global toast_hide_timer
+        toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
+        toast_hide_timer.start()
 
     def confirm_clear_dataset(e):
         """Handles the two-stage confirmation for clearing the dataset."""
@@ -226,6 +251,10 @@ def main(page: ft.Page):
             # Second click: confirmation received
             clear_confirmation_timer.cancel()
             clear_confirmation_timer = None
+
+            global toast_hide_timer
+            if toast_hide_timer:
+                toast_hide_timer.cancel()
             
             clear_dataset_button.text = "Clear Processed Dataset"
             clear_dataset_button.bgcolor = ft.Colors.RED_700
@@ -301,7 +330,7 @@ def main(page: ft.Page):
         style=action_button_style,
         height=BUTTON_HEIGHT,
     )
-    toast_text = ft.Text(color=ft.Colors.WHITE)
+    toast_text = ft.Text(color=ft.Colors.WHITE, expand=True)
     toast_progress_bar = ft.ProgressBar(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
     toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
 
@@ -311,14 +340,17 @@ def main(page: ft.Page):
         page.update()
         cancel_event.set()
 
-    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, visible=False, bgcolor=ft.Colors.RED, color=ft.Colors.WHITE)
+    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, visible=False, bgcolor=ft.Colors.RED, color=ft.Colors.WHITE, expand=True)
 
     toast_container = ft.Container(
         content=ft.Column([
-            toast_text,
+            ft.Row(
+                [toast_text, toast_progress_ring],
+                spacing=10,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
             toast_progress_bar,
-            toast_progress_ring,
-            cancel_button,
+            ft.Row([cancel_button]),
         ], spacing=10),
         bgcolor=ft.Colors.GREY_800,
         padding=15,
