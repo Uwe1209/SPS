@@ -176,6 +176,8 @@ def main(page: ft.Page):
             ft.dropdown.Option("vgg16"),
             ft.dropdown.Option("alexnet"),
             ft.dropdown.Option("googlenet"),
+            ft.dropdown.Option("mobilenet_v2"),
+            ft.dropdown.Option("mobilenet_v3_large"),
         ],
         border_radius=8,
         border_color=ft.Colors.GREY_500,

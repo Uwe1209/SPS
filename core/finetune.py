@@ -63,6 +63,10 @@ def main(args, progress_callback=None):
         model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
     elif model_name == 'googlenet':
         model = models.googlenet(weights=models.GoogLeNet_Weights.DEFAULT)
+    elif model_name == 'mobilenet_v2':
+        model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
+    elif model_name == 'mobilenet_v3_large':
+        model = models.mobilenet_v3_large(weights=models.MobileNet_V3_Large_Weights.DEFAULT)
     else:
         raise ValueError(f"Model {model_name} not supported.")
 
@@ -77,6 +81,9 @@ def main(args, progress_callback=None):
     elif 'alexnet' in model_name or 'vgg' in model_name:
         num_ftrs = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(num_ftrs, num_classes)
+    elif 'mobilenet' in model_name:
+        num_ftrs = model.classifier[-1].in_features
+        model.classifier[-1] = nn.Linear(num_ftrs, num_classes)
 
     model = model.to(device)
 
