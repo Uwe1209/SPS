@@ -17,6 +17,7 @@ import LoginSelection from "./src/pages/LoginSelection";
 import UserLogin from "./src/pages/UserLogin";
 import UserRegister from "./src/pages/UserRegister";
 import AdminLogin from "./src/pages/AdminLogin";
+import Introduction from "./src/pages/Introduction";
 
 
 const Stack = createStackNavigator();
@@ -24,7 +25,7 @@ const Stack = createStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginSelection" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Introduction" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="MyProfile" component={MyProfile} />
         <Stack.Screen name="MapPage" component={MapPage} />
@@ -38,6 +39,7 @@ export default function App() {
         <Stack.Screen name="UserLogin" component={UserLogin} />
         <Stack.Screen name="UserRegister" component={UserRegister} />
         <Stack.Screen name="AdminLogin" component={AdminLogin} />
+        <Stack.Screen name="Introduction" component={Introduction} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,0 +1,71 @@
+### Strategy for Acquiring a Botanical Image Dataset in Sarawak
+
+Date: 22nd of September, 2025
+
+---
+
+### 1. Executive Summary
+
+This report summarizes the strategy for acquiring a comprehensive plant image dataset for all flora in Sarawak, intended to support the "SmartPlant Sarawak" project. The core challenge identified is that no single, complete dataset exists. Therefore, a multi-faceted approach is required, combining data from various digital platforms, institutional archives, and academic publications.
+
+The recommended strategy involves a four-phase framework. The initial phase focuses on aggregating all publicly available data from global repositories like the Global Biodiversity Information Facility (GBIF) and citizen science platforms such as iNaturalist. This is followed by a phase of formal engagement with key Sarawak government agencies, namely the Forest Department Sarawak (FDS) and the Sarawak Biodiversity Centre (SBC), to gain access to authoritative, non-public data, including the state's primary herbarium database (BRAHMS).
+
+Subsequent phases will address data gaps through targeted fieldwork and potential digitization projects. The final phase involves the critical work of curating, verifying, and structuring the integrated dataset for use in training an Artificial Intelligence (AI) model. This strategic approach ensures the development of a robust, taxonomically accurate, and ethically managed dataset that will be a cornerstone of the project's success and a valuable asset for conservation in Sarawak.
+
+---
+
+### 2. The Data Acquisition Challenge and Project Context
+
+The "SmartPlant Sarawak" initiative aims to develop an AI-powered mobile application for plant identification and conservation. The success of this application is entirely dependent on the quality and comprehensiveness of the underlying image dataset used to train its AI model.
+
+The botanical data landscape for Sarawak is highly fragmented. Relevant data is distributed across numerous sources, including local government bodies, international academic institutions, global digital repositories, and citizen science platforms. A successful acquisition strategy must therefore navigate this complex landscape to aggregate and synthesize information from these disparate sources.
+
+---
+
+### 3. Key Data Sources and Repositories
+
+#### 3.1. Publicly Available Digital Datasets
+
+##### 3.1.1. Global Biodiversity Information Facility (GBIF)
+This is the most important starting point. As a major international data aggregator, GBIF provides access to tens of thousands of georeferenced plant records from Sarawak, contributed by hundreds of different institutions and projects. Data can be filtered by location and for records that contain images.
+
+##### 3.1.2. Citizen Science Platforms
+These platforms are the largest source of modern, in-situ photographs of living plants.
+*   **iNaturalist:** This platform provides a vast collection of user-submitted, georeferenced photos. For data quality, it is recommended to filter for "Research-Grade" observations, which have been vetted by the platform's community.
+*   **Pl@ntNet:** As a platform focused specifically on plant identification, its dataset is highly relevant and of high quality. Its data is also accessible through GBIF.
+
+#### 3.2. Authoritative Institutional and Reference Sources
+
+##### 3.2.1. The Sarawak Herbarium (SAR)
+Managed by the Forest Department Sarawak (FDS), the herbarium is the state's ultimate authoritative repository, holding approximately 300,000 preserved plant specimens. Its digital data is stored in the Botanical Research and Herbarium Management System (BRAHMS). However, there is no public-facing online portal for this database; access requires a formal request to the FDS.
+
+##### 3.2.2. International Herbaria
+Many historical specimens from Sarawak are held in international institutions that are now digitizing their collections. Key sources include:
+*   **Royal Botanic Gardens, Kew (RBGK):** Holds extensive and historically significant collections from Borneo, which are being made available online.
+*   **Harvard University Herbaria:** Provides online access to its specimen database, which includes numerous collections from Sarawak.
+
+##### 3.2.3. National Portals and Published Literature
+*   **Malaysia Biodiversity Information System (MyBIS):** This is the country's official biodiversity repository. While not a primary source of images, it is the most authoritative source for compiling a master species checklist for Sarawak, which is essential for guiding the data collection process.
+*   **"Tree Flora of Sabah and Sarawak":** This multi-volume scientific publication is the most systematic documentation of the region's tree species and serves as a foundational taxonomic reference.
+
+---
+
+### 4. Strategic Recommendations
+
+#### 4.1. Phased Approach
+A phased approach is recommended to systematically build the dataset:
+*   **Phase 1: Aggregation and Scoping.** Begin by downloading all publicly available data from GBIF and iNaturalist. Concurrently, compile a master species checklist from MyBIS and the "Tree Flora of Sabah and Sarawak" to conduct a gap analysis.
+*   **Phase 2: Institutional Engagement.** Initiate formal, diplomatic approaches to the Forest Department Sarawak and the Sarawak Biodiversity Centre to request access to their restricted data holdings.
+*   **Phase 3: Targeted Data Generation.** Based on the gap analysis, commission targeted fieldwork to photograph under-represented or missing species.
+*   **Phase 4: Curation and Verification.** Integrate all data sources, perform rigorous taxonomic verification against authoritative references, implement ethical safeguards, and structure the final dataset for AI training.
+
+#### 4.2. Ethical Considerations
+A critical step in the curation process must be the protection of sensitive species. The precise GPS coordinates for any plant on IUCN Red Lists or local protected lists must be obscured or generalized to a lower resolution. This mitigates the risk of the data being used for illegal poaching, a known issue with public biodiversity platforms.
+
+---
+
+### 5. Conclusion
+
+The creation of a comprehensive plant image dataset for Sarawak is a complex but essential undertaking for the "SmartPlant Sarawak" project. The strategy outlined in this report, which combines large-scale harvesting of public data with formal engagement of local institutions, provides a clear and achievable path forward.
+
+Success will depend on a hybrid approach: using the volume of citizen science data as the foundation for AI training, while leveraging the taxonomic authority of institutional data from the Sarawak Herbarium and published literature for verification and enrichment. By following this strategic framework, the project can build a world-class dataset that will not only power its application but also serve as a lasting digital asset for the conservation of Sarawak's unique botanical heritage.

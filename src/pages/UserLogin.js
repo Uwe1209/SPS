@@ -1,26 +1,96 @@
 import React from "react";
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { Alert } from "react-native";
-import { loginUser } from "../firebase/login_register/user_login";
+import { StyleSheet, Text, View, Button, Image, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { loginWithEmail, saveBiometric, loginWithGoogle, loginWithFacebook } from "../firebase/login_register/user_login";
+import * as WebBrowser from "expo-web-browser";
+import * as Google from "expo-auth-session/providers/google";
+import * as Facebook from "expo-auth-session/providers/facebook";
+import Recaptcha from "react-native-recaptcha-that-works";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function UserLogin({navigation}){
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
+  // Recaptcha Setup
+  const recaptchaRef = React.useRef();
+  const [showCaptcha, setShowCaptcha] = React.useState(false);
+
+  // your site key & base URL (registered in reCAPTCHA console)
+  const SITE_KEY = "6LeViOkrAAAAAHFmBLtVJO5pc3VaeC6OINL3ThsB";   // from Google reCAPTCHA
+  const BASE_URL = "https://smartplantsarawak.com";  // use your domain or localhost for testing
+
+  const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
+    androidClientId: "521669272766-f7jvvkdvski00tt3t4u84b8hmgv2eehr.apps.googleusercontent.com",
+    iosClientId: "521669272766-kusmfbsh1muk77326qhcok00bh80km1t.apps.googleusercontent.com",
+    webClientId: "521669272766-ppbcskhou545io4ec701j844mmmu98oh.apps.googleusercontent.com",
+  });
+
+  const [fbRequest, fbResponse, fbPromptAsync] = Facebook.useAuthRequest({
+    clientId: "2896449453898976",
+  });
+
+  // Handle Google login
+  React.useEffect(function() {
+    if (googleResponse && googleResponse.type === "success") {
+      var id_token = googleResponse.authentication.id_token;
+      loginWithGoogle(id_token).then(function(res) {
+        if (res.success) {
+          Alert.alert("Success", "Welcome " + (res.user.displayName || "user"));
+          navigation.navigate("Profile", { userEmail: res.user.email });
+        } else {
+          Alert.alert("Login Failed", res.error);
+        }
+      });
+    }
+  }, [googleResponse]);
+
+  // Handle Facebook login
+  React.useEffect(function() {
+    if (fbResponse && fbResponse.type === "success") {
+      var access_token = fbResponse.authentication.access_token;
+      loginWithFacebook(access_token).then(function(res) {
+        if (res.success) {
+          Alert.alert("Success", "Welcome " + (res.user.displayName || "user"));
+          navigation.navigate("Profile", { userEmail: res.user.email });
+        } else {
+          Alert.alert("Login Failed", res.error);
+        }
+      });
+    }
+  }, [fbResponse]);
+
   async function handleLogin() {
-    if (email === "" || password === "") {
-      Alert.alert("Error", "Please enter email and password");
+  
+    const result = await loginWithEmail(email, password);
+
+    if (!result.success) {
+      Alert.alert("Error", result.error);
       return;
     }
 
-    const response = await loginUser(email, password);
-    if (response.success) {
-      Alert.alert("Success", "Login successful!");
-      navigation.navigate("Profile"); // ✅ Redirect after login
-    } else {
-      Alert.alert("Login Failed", response.error);
+    setShowCaptcha(true);
+    setTimeout(function() {
+      recaptchaRef.current.open();
+    }, 500);
+  }
+
+  function onCaptchaSuccess(token) {
+    setShowCaptcha(false);
+    if (!token) {
+      Alert.alert("Error", "reCAPTCHA failed. Please try again.");
+      return;
     }
+
+    saveBiometric(email).then(function(res) {
+      if (res.success) {
+        Alert.alert("Success", "Login successful!");
+        navigation.navigate("Profile", { userEmail: email });
+      } else {
+        Alert.alert("Error", res.error);
+      }
+    });
   }
 
   function toSelection(){
@@ -33,13 +103,17 @@ export default function UserLogin({navigation}){
 
   return(
     <ScrollView contentContainerStyle={styles.container}>
+      {showCaptcha && (
+          <Recaptcha style={styles.captcha} ref={recaptchaRef} siteKey={SITE_KEY} baseUrl={BASE_URL} onVerify={onCaptchaSuccess} size="normal" theme="light" retryInterval={3000}></Recaptcha>
+      )}
+
       <TouchableOpacity onPress={toSelection}>
         <Image style={styles.backlogo} source={require('../../assets/backlogo.png')}></Image>
       </TouchableOpacity>
 
-      <Image style={styles.logo_login} source={require('../../assets/test.jpg')} alt="Logo"></Image>
+      <Image style={styles.logo_login1} source={require('../../assets/applogo.png')} alt="Logo"></Image>
 
-      <View style={styles.login_container}>
+      <View style={styles.login_container1}>
         <View style={styles.login_container_text}>
           <Text style={styles.login_title}>Welcome Back</Text>
         </View>
@@ -69,11 +143,11 @@ export default function UserLogin({navigation}){
       <Text style={styles.text_OR}>OR</Text>
 
       <View style={styles.login_method_container}>
-        <TouchableOpacity style={styles.login_method}>
+        <TouchableOpacity style={styles.login_method} onPress={() => googlePromptAsync()}>
           <Text style={styles.login_method_text}>Google</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.login_method}>
+        <TouchableOpacity style={styles.login_method} onPress={() => fbPromptAsync()}>
           <Text style={styles.login_method_text}>Facebook</Text>
         </TouchableOpacity>
       </View>
@@ -145,7 +219,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
 
-  // User Login Page & Admin Register Page
+  // User Login Page & Admin Login Page
   backlogo: {
     width: 40,
     height: 40,
@@ -177,14 +251,22 @@ const styles = StyleSheet.create({
     left: 10,
   },
 
-  logo_login:{
+  logo_login1:{
     width: 100,
     height: 100,
     borderRadius: 50,
     bottom: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.49)", 
+    shadowColor: "#366728ff",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8, // for Android
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.4)",  
   },
 
-  login_container: {
+  login_container1: {
     backgroundColor: '#578C5B',
     padding: 20,
     borderRadius: 20,
@@ -310,4 +392,14 @@ const styles = StyleSheet.create({
   text_agreement_container: {
     alignItems: 'center',
   },
+
+  captcha: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 9999,
+    backgroundColor: "rgba(0,0,0,0.5)", 
+    padding: 20,
+  }
 });
