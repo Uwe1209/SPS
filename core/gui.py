@@ -190,37 +190,36 @@ def main(page: ft.Page):
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
     def clear_dataset(e):
         dialog.open = False
+        toast_text.value = "Clearing processed dataset..."
+        toast_progress_ring.visible = True
+        toast_progress_bar.visible = False
+        toast_container.visible = True
         page.update()
 
         def run_clear_dataset():
             dest_dir = dest_dir_path.value
             if not dest_dir:
                 toast_text.value = "Destination directory not set."
-                toast_container.visible = True
-                page.update()
-                return
-            
-            train_path = os.path.join(dest_dir, 'train')
-            val_path = os.path.join(dest_dir, 'val')
-            
-            try:
-                if os.path.exists(train_path):
-                    shutil.rmtree(train_path)
-                if os.path.exists(val_path):
-                    shutil.rmtree(val_path)
+            else:
+                train_path = os.path.join(dest_dir, 'train')
+                val_path = os.path.join(dest_dir, 'val')
                 
-                # Verify deletion
-                if os.path.exists(train_path) or os.path.exists(val_path):
-                    toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
-                else:
-                    toast_text.value = "Processed dataset cleared successfully."
+                try:
+                    if os.path.exists(train_path):
+                        shutil.rmtree(train_path)
+                    if os.path.exists(val_path):
+                        shutil.rmtree(val_path)
+                    
+                    # Verify deletion
+                    if os.path.exists(train_path) or os.path.exists(val_path):
+                        toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
+                    else:
+                        toast_text.value = "Processed dataset cleared successfully."
 
-            except Exception as ex:
-                toast_text.value = f"Error clearing dataset: {ex}"
+                except Exception as ex:
+                    toast_text.value = f"Error clearing dataset: {ex}"
             
             toast_progress_ring.visible = False
-            toast_progress_bar.visible = False
-            toast_container.visible = True
             page.update()
 
         thread = threading.Thread(target=run_clear_dataset)
