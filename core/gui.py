@@ -196,9 +196,9 @@ def main(page: ft.Page):
         style=action_button_style,
         height=BUTTON_HEIGHT,
     )
-    toast_text = ft.Text(color=ft.colors.WHITE)
-    toast_progress_bar = ft.ProgressBar(visible=False, color=ft.colors.GREEN_400, bgcolor=ft.colors.GREY_400)
-    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.colors.GREEN_400, bgcolor=ft.colors.GREY_400)
+    toast_text = ft.Text(color=ft.Colors.WHITE)
+    toast_progress_bar = ft.ProgressBar(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
+    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
 
     toast_container = ft.Container(
         content=ft.Column([
@@ -206,7 +206,7 @@ def main(page: ft.Page):
             toast_progress_bar,
             toast_progress_ring,
         ], spacing=10),
-        bgcolor=ft.colors.GREY_800,
+        bgcolor=ft.Colors.GREY_800,
         padding=15,
         border_radius=10,
         right=20,
