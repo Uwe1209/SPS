@@ -13,8 +13,8 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    TEXT_FIELD_HEIGHT =40
-    BUTTON_HEIGHT =40
+    TEXT_FIELD_HEIGHT =48
+    BUTTON_HEIGHT =48
     BUTTON_WIDTH = 180
 
     # Define button styles for consistent appearance
