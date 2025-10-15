@@ -222,9 +222,10 @@ def main(page: ft.Page):
         tabs=[
             ft.Tab(
                 text="Process Dataset",
-                content=ft.Column(
-                    [
-                        ft.Container(
+                content=ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Container(
                                     content=ft.Card(
                                         content=ft.Container(
                                             content=ft.Column(
@@ -321,12 +322,15 @@ def main(page: ft.Page):
                             scroll=ft.ScrollMode.ADAPTIVE,
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
+                    alignment=ft.alignment.top_center,
+                ),
             ),
             ft.Tab(
                 text="Fine-Tuning",
-                content=ft.Column(
-                    [
-                        ft.Container(
+                content=ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Container(
                                     content=ft.Card(
                                         content=ft.Container(
                                             content=ft.Column(
@@ -432,6 +436,8 @@ def main(page: ft.Page):
                             scroll=ft.ScrollMode.ADAPTIVE,
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
+                    alignment=ft.alignment.top_center,
+                ),
             ),
         ],
         expand=1,
