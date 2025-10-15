@@ -188,44 +188,56 @@ def main(page: ft.Page):
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
-    def clear_dataset(e):
-        dialog.open = False
-        toast_text.value = "Clearing processed dataset..."
-        toast_progress_ring.visible = True
-        toast_progress_bar.visible = False
-        toast_container.visible = True
+
+    def run_clear_dataset_thread():
+        """Background thread to clear the dataset directory."""
+        dest_dir = dest_dir_path.value
+        if not dest_dir:
+            toast_text.value = "Destination directory not set."
+        else:
+            train_path = os.path.join(dest_dir, 'train')
+            val_path = os.path.join(dest_dir, 'val')
+            
+            try:
+                if os.path.exists(train_path):
+                    shutil.rmtree(train_path)
+                if os.path.exists(val_path):
+                    shutil.rmtree(val_path)
+                
+                # Verify deletion
+                if os.path.exists(train_path) or os.path.exists(val_path):
+                    toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
+                else:
+                    toast_text.value = "Processed dataset cleared successfully."
+
+            except Exception as ex:
+                toast_text.value = f"Error clearing dataset: {ex}"
+        
+        toast_progress_ring.visible = False
         page.update()
 
-        def run_clear_dataset():
-            dest_dir = dest_dir_path.value
-            if not dest_dir:
-                toast_text.value = "Destination directory not set."
-            else:
-                train_path = os.path.join(dest_dir, 'train')
-                val_path = os.path.join(dest_dir, 'val')
-                
-                try:
-                    if os.path.exists(train_path):
-                        shutil.rmtree(train_path)
-                    if os.path.exists(val_path):
-                        shutil.rmtree(val_path)
-                    
-                    # Verify deletion
-                    if os.path.exists(train_path) or os.path.exists(val_path):
-                        toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
-                    else:
-                        toast_text.value = "Processed dataset cleared successfully."
+    def on_dialog_dismiss(e):
+        """Handles the dialog dismiss event to trigger the clear operation."""
+        if page.session.get("clear_confirmed"):
+            page.session.set("clear_confirmed", False)  # Reset flag
 
-                except Exception as ex:
-                    toast_text.value = f"Error clearing dataset: {ex}"
-            
-            toast_progress_ring.visible = False
+            toast_text.value = "Clearing processed dataset..."
+            toast_progress_ring.visible = True
+            toast_progress_bar.visible = False
+            toast_container.visible = True
             page.update()
 
-        thread = threading.Thread(target=run_clear_dataset)
-        thread.start()
+            thread = threading.Thread(target=run_clear_dataset_thread)
+            thread.start()
+
+    def clear_dataset_confirmed(e):
+        """Sets a flag and closes the dialog when deletion is confirmed."""
+        page.session.set("clear_confirmed", True)
+        dialog.open = False
+        page.update()
 
     def close_dialog(e):
+        """Closes the dialog without taking action."""
         dialog.open = False
         page.update()
 
@@ -234,10 +246,11 @@ def main(page: ft.Page):
         title=ft.Text("Confirm Deletion"),
         content=ft.Text("Are you sure you want to clear the processed dataset directory? This action cannot be undone."),
         actions=[
-            ft.TextButton("Yes", on_click=clear_dataset),
+            ft.TextButton("Yes", on_click=clear_dataset_confirmed),
             ft.TextButton("No", on_click=close_dialog),
         ],
         actions_alignment=ft.MainAxisAlignment.END,
+        on_dismiss=on_dialog_dismiss,
     )
     page.dialog = dialog
 
