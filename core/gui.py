@@ -129,11 +129,14 @@ def main(page: ft.Page):
             train_ratio = float(train_ratio_field.value)
             val_ratio = float(val_ratio_field.value)
             test_ratio = float(test_ratio_field.value)
+            resolution = int(resolution_field.value)
 
             if not (0 <= train_ratio <= 100 and 0 <= val_ratio <= 100 and 0 <= test_ratio <= 100):
                 raise ValueError("Ratios must be between 0 and 100")
             if train_ratio + val_ratio + test_ratio > 100:
                 raise ValueError("The sum of ratios cannot exceed 100")
+            if not resolution > 0:
+                raise ValueError("Resolution must be a positive number")
 
         except (ValueError, TypeError) as ex:
             if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex) or "positive number" in str(ex):
@@ -163,6 +166,7 @@ def main(page: ft.Page):
                     train_ratio=train_ratio / 100.0,
                     val_ratio=val_ratio / 100.0,
                     test_ratio=test_ratio / 100.0,
+                    resolution=resolution,
                     progress_callback=progress_callback,
                     cancel_event=cancel_event
                 )
