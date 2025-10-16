@@ -32,7 +32,6 @@ def main(page: ft.Page):
 
     TEXT_FIELD_HEIGHT =48
     BUTTON_HEIGHT =48
-    BUTTON_WIDTH = 180
 
     # Define button styles for consistent appearance
     action_button_style = ft.ButtonStyle(
@@ -438,7 +437,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                width=BUTTON_WIDTH,
+                                                                expand=0.3,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -457,7 +456,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                width=BUTTON_WIDTH,
+                                                                expand=0.3,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -546,7 +545,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                width=BUTTON_WIDTH,
+                                                                expand=0.3,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -565,7 +564,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                width=BUTTON_WIDTH,
+                                                                expand=0.3,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -584,7 +583,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                width=BUTTON_WIDTH,
+                                                                expand=0.3,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
