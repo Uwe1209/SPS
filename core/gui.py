@@ -237,12 +237,12 @@ def main(page: ft.Page):
     dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
     page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
-    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
-    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
-    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
+    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=4)
+    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=4)
+    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=4)
 
-    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
-    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=True)
+    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=4)
+    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=4)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
 
     clear_confirmation_timer = None
@@ -437,7 +437,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                expand=0.3,
+                                                                expand=1,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -456,7 +456,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                expand=0.3,
+                                                                expand=1,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -545,7 +545,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                expand=0.3,
+                                                                expand=1,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -564,7 +564,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                expand=0.3,
+                                                                expand=1,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
@@ -583,7 +583,7 @@ def main(page: ft.Page):
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
-                                                                expand=0.3,
+                                                                expand=1,
                                                                 height=BUTTON_HEIGHT,
                                                             ),
                                                         ],
