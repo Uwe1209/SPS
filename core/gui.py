@@ -126,9 +126,20 @@ def main(page: ft.Page):
         source_dir = source_dir_path.value
         dest_dir = dest_dir_path.value
         try:
-            split_ratio = float(split_ratio_field.value)
-        except (ValueError, TypeError):
-            toast_text.value = "Invalid split ratio. Please enter a number between 0 and 1."
+            train_ratio = float(train_ratio_field.value)
+            val_ratio = float(val_ratio_field.value)
+            test_ratio = float(test_ratio_field.value)
+
+            if not (0 <= train_ratio <= 100 and 0 <= val_ratio <= 100 and 0 <= test_ratio <= 100):
+                raise ValueError("Ratios must be between 0 and 100.")
+            if train_ratio + val_ratio + test_ratio > 100:
+                raise ValueError("The sum of ratios cannot exceed 100.")
+
+        except (ValueError, TypeError) as ex:
+            if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex):
+                toast_text.value = str(ex)
+            else:
+                toast_text.value = "Invalid ratios. Please enter numbers for train, validation, and test ratios."
             toast_progress_ring.visible = False
             toast_container.visible = True
             process_start_button.disabled = False
@@ -145,7 +156,9 @@ def main(page: ft.Page):
                 process_dataset(
                     source_dir=source_dir,
                     dest_dir=dest_dir,
-                    split_ratio=split_ratio,
+                    train_ratio=train_ratio / 100.0,
+                    val_ratio=val_ratio / 100.0,
+                    test_ratio=test_ratio / 100.0,
                     progress_callback=progress_callback,
                     cancel_event=cancel_event
                 )
@@ -243,7 +256,9 @@ def main(page: ft.Page):
 
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
-    split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
+    train_ratio_field = ft.TextField(label="Train Ratio (%)", value="80", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    val_ratio_field = ft.TextField(label="Validation Ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    test_ratio_field = ft.TextField(label="Test Ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory."""
@@ -253,15 +268,18 @@ def main(page: ft.Page):
         else:
             train_path = os.path.join(dest_dir, 'train')
             val_path = os.path.join(dest_dir, 'val')
+            test_path = os.path.join(dest_dir, 'test')
             
             try:
                 if os.path.exists(train_path):
                     shutil.rmtree(train_path)
                 if os.path.exists(val_path):
                     shutil.rmtree(val_path)
+                if os.path.exists(test_path):
+                    shutil.rmtree(test_path)
                 
                 # Verify deletion
-                if os.path.exists(train_path) or os.path.exists(val_path):
+                if os.path.exists(train_path) or os.path.exists(val_path) or os.path.exists(test_path):
                     toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
                 else:
                     toast_text.value = "Processed dataset cleared successfully."
@@ -443,7 +461,14 @@ def main(page: ft.Page):
                                             content=ft.Column(
                                                 [
                                                     ft.Text("Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    split_ratio_field,
+                                                    ft.Row(
+                                                        [
+                                                            train_ratio_field,
+                                                            val_ratio_field,
+                                                            test_ratio_field,
+                                                        ],
+                                                        spacing=10,
+                                                    ),
                                                 ],
                                                 spacing=10
                                             ),
@@ -659,7 +684,7 @@ def main(page: ft.Page):
 
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
-        "split_ratio_field": split_ratio_field, "data_dir_path": data_dir_path,
+        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "data_dir_path": data_dir_path,
         "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_dropdown": model_dropdown, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
