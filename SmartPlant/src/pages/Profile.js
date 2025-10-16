@@ -1,7 +1,41 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
 import BottomNav from "../components/Navigation";
+import { getFullProfile } from "../firebase/UserProfile/UserUpdate";
 
-export default function ProfileScreen({ navigation }) {   
+export default function ProfileScreen({ navigation, route }) {
+  // Extracting email and updated profile info 
+  const { userEmail } = route.params || {};
+  //const emailToUse = userEmail;
+  // Determine which email to fetch
+  const emailToUse = userEmail|| "ally@gmail.com";
+  const [profile, setProfile] = useState(null);
+
+  // Fetch profile info from Firebase
+  useEffect(() => {
+    if (!emailToUse) {
+      Alert.alert("Error", "No email provided. Please log in.");
+      return;
+    }
+    const fetchProfile = async () => {
+      try {
+        const data = await getFullProfile(emailToUse);
+        setProfile(data);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+    fetchProfile();
+  }, [userEmail]);
+
+  if (!profile) {
+    return (
+      <View style={styles.loadingstyle}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.background}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -10,17 +44,17 @@ export default function ProfileScreen({ navigation }) {
         {/* Profile Image */}
         <View style={styles.profileContainer}>
           <Image
-            source={require("../../assets/user2.png")}
+            source={profile.profile_pic ? { uri: profile.profile_pic } : require("../../assets/user2.png")}
             style={styles.profileImage}
           />
-          <Text style={styles.username}>LiYing</Text>
+          <Text style={styles.username}>{profile.full_name}</Text>
         </View>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
           <TouchableOpacity 
             style={styles.menuItem} 
-            onPress={() => navigation.navigate("MyProfile")} 
+            onPress={() => navigation.navigate("MyProfile", { userEmail: emailToUse })}
           >
             <Text style={styles.menuText}>My Profile</Text>
             <Text style={styles.arrow}>›</Text>
@@ -113,5 +147,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
   },
+  loadingstyle:{
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center"
+  }
 });
 
