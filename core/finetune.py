@@ -9,7 +9,7 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def main(args, progress_callback=None):
-    """Main function to run the fine-tuning script."""
+    """Main function to run the fine-tuning script"""
     
     def log(message):
         if progress_callback:
@@ -17,7 +17,7 @@ def main(args, progress_callback=None):
         else:
             print(message)
 
-    log("Starting fine-tuning...")
+    log("Starting fine-tuning")
     
     cancel_event = args.get('cancel_event')
     data_dir = args['data_dir']
@@ -72,7 +72,7 @@ def main(args, progress_callback=None):
     elif model_name == 'mobilenet_v3_large':
         model = models.mobilenet_v3_large(weights=models.MobileNet_V3_Large_Weights.DEFAULT)
     else:
-        raise ValueError(f"Model {model_name} not supported.")
+        raise ValueError(f"Model {model_name} not supported")
 
     # 5. If a load_path is provided, load the model state
     if load_path:
@@ -100,7 +100,7 @@ def main(args, progress_callback=None):
 
     for epoch in range(num_epochs):
         if cancel_event and cancel_event.is_set():
-            log("Fine-tuning cancelled.")
+            log("Fine-tuning cancelled")
             return final_epoch_val_acc
         log(f'Epoch {epoch}/{num_epochs - 1}')
         log('-' * 10)
@@ -117,7 +117,7 @@ def main(args, progress_callback=None):
             num_batches = len(dataloaders[phase])
             for i, (inputs, labels) in enumerate(dataloaders[phase]):
                 if cancel_event and cancel_event.is_set():
-                    log("Fine-tuning cancelled.")
+                    log("Fine-tuning cancelled")
                     return final_epoch_val_acc
                 inputs = inputs.to(device)
                 labels = labels.to(device)
@@ -151,21 +151,21 @@ def main(args, progress_callback=None):
     if save_path:
         torch.save(model.state_dict(), save_path)
 
-    log("Fine-tuning finished.")
+    log("Fine-tuning finished")
     
-    # 10. Return the final validation accuracy.
+    # 10. Return the final validation accuracy
     return final_epoch_val_acc
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Fine-tune a model on a new dataset.')
+    parser = argparse.ArgumentParser(description='Fine-tune a model on a new dataset')
     
-    parser.add_argument('--data_dir', type=str, required=True, help='Path to the dataset directory.')
-    parser.add_argument('--model_name', type=str, default='resnet18', help='Name of the model to fine-tune (e.g., resnet18, vgg16).')
-    parser.add_argument('--num_epochs', type=int, default=25, help='Number of epochs to train for.')
-    parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training.')
-    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer.')
-    parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from.')
-    parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state.')
+    parser.add_argument('--data_dir', type=str, required=True, help='Path to the dataset directory')
+    parser.add_argument('--model_name', type=str, default='resnet18', help='Name of the model to fine-tune (e.g., resnet18, vgg16)')
+    parser.add_argument('--num_epochs', type=int, default=25, help='Number of epochs to train for')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
+    parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
+    parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
 
     args = parser.parse_args()
     main(vars(args))

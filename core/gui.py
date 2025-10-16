@@ -11,8 +11,8 @@ cancel_event = threading.Event()
 toast_hide_timer = None
 
 def hide_toast(page: ft.Page):
-    """Hides the toast notification."""
-    # The toast container is the last overlay.
+    """Hides the toast notification"""
+    # The toast container is the last overlay
     if page.overlay:
         toast_container = page.overlay[-1]
         if isinstance(toast_container, ft.Container):
@@ -20,7 +20,7 @@ def hide_toast(page: ft.Page):
             page.update()
 
 def main(page: ft.Page):
-    """Main function for the Flet GUI."""
+    """Main function for the Flet GUI"""
     page.title = "SmartPlant AI Finetuner"
     page.theme_mode = ft.ThemeMode.DARK
     page.window_min_width = 600
@@ -75,7 +75,7 @@ def main(page: ft.Page):
             save_inputs()
 
     def show_test_toast(text=None, ring=False, bar=False, button=False):
-        """Helper to show toast for UI testing."""
+        """Helper to show toast for UI testing"""
         global toast_hide_timer
         if toast_hide_timer:
             toast_hide_timer.cancel()
@@ -100,16 +100,16 @@ def main(page: ft.Page):
         show_test_toast()
 
     def on_toast_with_text(e):
-        show_test_toast(text="This is a toast with text.")
+        show_test_toast(text="This is a toast with text")
 
     def on_toast_with_loading_and_text(e):
-        show_test_toast(text="Loading...", ring=True)
+        show_test_toast(text="Loading", ring=True)
 
     def on_toast_with_loading_text_and_button(e):
-        show_test_toast(text="Long process...", bar=True, button=True)
+        show_test_toast(text="Long process", bar=True, button=True)
 
     def start_processing(e):
-        """Callback to start the dataset processing in a separate thread."""
+        """Callback to start the dataset processing in a separate thread"""
         global toast_hide_timer
         if toast_hide_timer:
             toast_hide_timer.cancel()
@@ -117,7 +117,7 @@ def main(page: ft.Page):
         cancel_button_row.visible = True
         cancel_button.disabled = False
         process_start_button.disabled = True
-        toast_text.value = "Processing dataset..."
+        toast_text.value = "Processing dataset"
         toast_progress_bar.visible = False
         toast_progress_ring.visible = True
         toast_container.visible = True
@@ -131,15 +131,15 @@ def main(page: ft.Page):
             test_ratio = float(test_ratio_field.value)
 
             if not (0 <= train_ratio <= 100 and 0 <= val_ratio <= 100 and 0 <= test_ratio <= 100):
-                raise ValueError("Ratios must be between 0 and 100.")
+                raise ValueError("Ratios must be between 0 and 100")
             if train_ratio + val_ratio + test_ratio > 100:
-                raise ValueError("The sum of ratios cannot exceed 100.")
+                raise ValueError("The sum of ratios cannot exceed 100")
 
         except (ValueError, TypeError) as ex:
             if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex):
                 toast_text.value = str(ex)
             else:
-                toast_text.value = "Invalid ratios. Please enter numbers for train, validation, and test ratios."
+                toast_text.value = "Invalid ratios Please enter numbers for train, validation, and test ratios"
             toast_progress_ring.visible = False
             toast_container.visible = True
             process_start_button.disabled = False
@@ -151,7 +151,7 @@ def main(page: ft.Page):
             page.update()
 
         def run_processing():
-            """Target function for the processing thread."""
+            """Target function for the processing thread"""
             try:
                 process_dataset(
                     source_dir=source_dir,
@@ -163,7 +163,7 @@ def main(page: ft.Page):
                     cancel_event=cancel_event
                 )
                 if not cancel_event.is_set():
-                    progress_callback("Dataset processing finished successfully.")
+                    progress_callback("Dataset processing finished successfully")
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
             finally:
@@ -179,7 +179,7 @@ def main(page: ft.Page):
         processing_thread.start()
 
     def start_finetuning(e):
-        """Callback to start the fine-tuning process in a separate thread."""
+        """Callback to start the fine-tuning process in a separate thread"""
         global toast_hide_timer
         if toast_hide_timer:
             toast_hide_timer.cancel()
@@ -187,7 +187,7 @@ def main(page: ft.Page):
         cancel_button_row.visible = True
         cancel_button.disabled = False
         start_button.disabled = True
-        toast_text.value = "Starting fine-tuning..."
+        toast_text.value = "Starting fine-tuning"
         toast_progress_bar.visible = False
         toast_progress_ring.value = 0
         toast_progress_ring.visible = True
@@ -206,7 +206,7 @@ def main(page: ft.Page):
         }
 
         def run_finetuning(settings_dict):
-            """Target function for the training thread."""
+            """Target function for the training thread"""
             epoch_message = ""
             def progress_callback(message):
                 nonlocal epoch_message
@@ -228,7 +228,7 @@ def main(page: ft.Page):
             try:
                 final_accuracy = finetune_main(settings_dict, progress_callback=progress_callback)
                 if not cancel_event.is_set():
-                    progress_callback(f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}")
+                    progress_callback(f"Fine-tuning finished Final validation accuracy: {final_accuracy:.4f}")
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
             finally:
@@ -261,10 +261,10 @@ def main(page: ft.Page):
     test_ratio_field = ft.TextField(label="Test Ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     def run_clear_dataset_thread():
-        """Background thread to clear the dataset directory."""
+        """Background thread to clear the dataset directory"""
         dest_dir = dest_dir_path.value
         if not dest_dir:
-            toast_text.value = "Destination directory not set."
+            toast_text.value = "Destination directory not set"
         else:
             train_path = os.path.join(dest_dir, 'train')
             val_path = os.path.join(dest_dir, 'val')
@@ -280,9 +280,9 @@ def main(page: ft.Page):
                 
                 # Verify deletion
                 if os.path.exists(train_path) or os.path.exists(val_path) or os.path.exists(test_path):
-                    toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions."
+                    toast_text.value = "Error: Failed to delete dataset directories Please check file permissions"
                 else:
-                    toast_text.value = "Processed dataset cleared successfully."
+                    toast_text.value = "Processed dataset cleared successfully"
 
             except Exception as ex:
                 toast_text.value = f"Error clearing dataset: {ex}"
@@ -294,12 +294,12 @@ def main(page: ft.Page):
         toast_hide_timer.start()
 
     def clear_dataset(e):
-        """Handles clearing the dataset."""
+        """Handles clearing the dataset"""
         global toast_hide_timer
         if toast_hide_timer:
             toast_hide_timer.cancel()
-        
-        toast_text.value = "Clearing processed dataset..."
+    
+        toast_text.value = "Clearing processed dataset"
         toast_progress_ring.visible = True
         toast_progress_bar.visible = False
         toast_container.visible = True
@@ -357,10 +357,10 @@ def main(page: ft.Page):
     )
     toast_text = ft.Text(color=ft.Colors.WHITE, expand=True)
     toast_progress_bar = ft.ProgressBar(visible=False, color=ft.Colors.GREY_500)
-    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREY_500)
+    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREY_500, width=20, height=20)
 
     def cancel_operation(e):
-        toast_text.value = "Cancelling..."
+        toast_text.value = "Cancelling"
         cancel_button.disabled = True
         page.update()
         cancel_event.set()
@@ -500,7 +500,7 @@ def main(page: ft.Page):
                                     padding=ft.padding.only(bottom=20),
                                 ),
                             ],
-                            spacing=20,
+                            spacing=10,
                             scroll=ft.ScrollMode.ADAPTIVE,
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
@@ -614,7 +614,7 @@ def main(page: ft.Page):
                                     padding=ft.padding.only(bottom=20),
                                 ),
                             ],
-                            spacing=20,
+                            spacing=10,
                             scroll=ft.ScrollMode.ADAPTIVE,
                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                         ),
@@ -669,7 +669,7 @@ def main(page: ft.Page):
                                 padding=ft.padding.only(top=20, bottom=20),
                             ),
                         ],
-                        spacing=20,
+                        spacing=10,
                         scroll=ft.ScrollMode.ADAPTIVE,
                         horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                     ),
