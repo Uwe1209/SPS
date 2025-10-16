@@ -136,14 +136,18 @@ def main(page: ft.Page):
                 raise ValueError("The sum of ratios cannot exceed 100")
 
         except (ValueError, TypeError) as ex:
-            if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex):
+            if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex) or "positive number" in str(ex):
                 toast_text.value = str(ex)
             else:
-                toast_text.value = "Invalid ratios. Please enter numbers for train, validation and test ratios"
+                toast_text.value = "Invalid ratios or resolution. Please enter numbers for train, validation, test ratios and resolution"
             toast_progress_ring.visible = False
+            cancel_button_row.visible = False
             toast_container.visible = True
             process_start_button.disabled = False
             page.update()
+            global toast_hide_timer
+            toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
+            toast_hide_timer.start()
             return
 
         def progress_callback(message):
@@ -259,6 +263,7 @@ def main(page: ft.Page):
     train_ratio_field = ft.TextField(label="Train ratio (%)", value="80", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    resolution_field = ft.TextField(label="Resolution (px)", value="224", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory"""
@@ -466,6 +471,7 @@ def main(page: ft.Page):
                                                             train_ratio_field,
                                                             val_ratio_field,
                                                             test_ratio_field,
+                                                            resolution_field,
                                                         ],
                                                         spacing=10,
                                                     ),
@@ -684,7 +690,7 @@ def main(page: ft.Page):
 
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
-        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "data_dir_path": data_dir_path,
+        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "data_dir_path": data_dir_path,
         "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_dropdown": model_dropdown, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,

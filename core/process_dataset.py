@@ -2,8 +2,11 @@ import os
 import shutil
 import random
 import pathlib
+from PIL import Image, ImageFile
 
-def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, progress_callback=None, cancel_event=None):
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, progress_callback=None, cancel_event=None):
     """
     Processes an image dataset by splitting it into training, validation, and test sets
 
@@ -16,6 +19,7 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
         train_ratio (float): The proportion of images for training
         val_ratio (float): The proportion of images for validation
         test_ratio (float): The proportion of images for testing
+        resolution (int, optional): The resolution to resize images to If None, images are not resized
         progress_callback (function, optional): A function to call with progress updates
     """
     if progress_callback:
@@ -107,7 +111,12 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
                 if cancel_event and cancel_event.is_set():
                     progress_callback("Processing cancelled")
                     return
-                shutil.copy(img, train_dest_path / class_name / img.name)
+                if resolution:
+                    with Image.open(img) as image:
+                        image = image.convert('RGB').resize((resolution, resolution))
+                        image.save(train_dest_path / class_name / img.name)
+                else:
+                    shutil.copy(img, train_dest_path / class_name / img.name)
 
         if val_images:
             (val_dest_path / class_name).mkdir()
@@ -117,7 +126,12 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
                 if cancel_event and cancel_event.is_set():
                     progress_callback("Processing cancelled")
                     return
-                shutil.copy(img, val_dest_path / class_name / img.name)
+                if resolution:
+                    with Image.open(img) as image:
+                        image = image.convert('RGB').resize((resolution, resolution))
+                        image.save(val_dest_path / class_name / img.name)
+                else:
+                    shutil.copy(img, val_dest_path / class_name / img.name)
 
         if test_images:
             (test_dest_path / class_name).mkdir()
@@ -127,7 +141,12 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
                 if cancel_event and cancel_event.is_set():
                     progress_callback("Processing cancelled")
                     return
-                shutil.copy(img, test_dest_path / class_name / img.name)
+                if resolution:
+                    with Image.open(img) as image:
+                        image = image.convert('RGB').resize((resolution, resolution))
+                        image.save(test_dest_path / class_name / img.name)
+                else:
+                    shutil.copy(img, test_dest_path / class_name / img.name)
 
     # Final progress message
     if progress_callback:
@@ -142,10 +161,11 @@ if __name__ == '__main__':
     parser.add_argument('--train_ratio', type=float, default=0.8, help='Training set ratio')
     parser.add_argument('--val_ratio', type=float, default=0.1, help='Validation set ratio')
     parser.add_argument('--test_ratio', type=float, default=0.1, help='Test set ratio')
+    parser.add_argument('--resolution', type=int, default=None, help='Resolution to resize images to')
     
     args = parser.parse_args()
 
     def print_progress(message):
         print(message)
 
-    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, progress_callback=print_progress)
+    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, progress_callback=print_progress)
