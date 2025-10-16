@@ -148,7 +148,6 @@ def main(page: ft.Page):
             toast_container.visible = True
             process_start_button.disabled = False
             page.update()
-            global toast_hide_timer
             toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
             toast_hide_timer.start()
             return
