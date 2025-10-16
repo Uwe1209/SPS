@@ -86,7 +86,7 @@ def main(page: ft.Page):
         if bar:
             toast_progress_bar.value = None  # Indeterminate
 
-        cancel_button.visible = button
+        cancel_button_row.visible = button
         cancel_button.disabled = not button
 
         toast_container.visible = True
@@ -114,7 +114,7 @@ def main(page: ft.Page):
         if toast_hide_timer:
             toast_hide_timer.cancel()
         cancel_event.clear()
-        cancel_button.visible = True
+        cancel_button_row.visible = True
         cancel_button.disabled = False
         process_start_button.disabled = True
         toast_text.value = "Processing dataset..."
@@ -156,7 +156,7 @@ def main(page: ft.Page):
             finally:
                 process_start_button.disabled = False
                 toast_progress_ring.visible = False
-                cancel_button.visible = False
+                cancel_button_row.visible = False
                 page.update()
                 global toast_hide_timer
                 toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
@@ -171,13 +171,13 @@ def main(page: ft.Page):
         if toast_hide_timer:
             toast_hide_timer.cancel()
         cancel_event.clear()
-        cancel_button.visible = True
+        cancel_button_row.visible = True
         cancel_button.disabled = False
         start_button.disabled = True
         toast_text.value = "Starting fine-tuning..."
-        toast_progress_ring.visible = False
-        toast_progress_bar.value = 0
-        toast_progress_bar.visible = True
+        toast_progress_bar.visible = False
+        toast_progress_ring.value = 0
+        toast_progress_ring.visible = True
         toast_container.visible = True
         page.update()
 
@@ -206,7 +206,7 @@ def main(page: ft.Page):
                     toast_text.value = message
                     current_epoch = int(epoch_match.group(1))
                     total_epochs = int(epoch_match.group(2)) + 1
-                    toast_progress_bar.value = (current_epoch + 1) / total_epochs
+                    toast_progress_ring.value = (current_epoch + 1) / total_epochs
                 else:
                     toast_text.value = f"{epoch_message}: {message}" if epoch_message else message
 
@@ -220,8 +220,8 @@ def main(page: ft.Page):
                 progress_callback(f"An error occurred: {ex}")
             finally:
                 start_button.disabled = False
-                toast_progress_bar.visible = False
-                cancel_button.visible = False
+                toast_progress_ring.visible = False
+                cancel_button_row.visible = False
                 page.update()
                 global toast_hide_timer
                 toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
@@ -244,8 +244,6 @@ def main(page: ft.Page):
     source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
     dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
     split_ratio_field = ft.TextField(label="Train/Validation Split Ratio", value="0.8", height=TEXT_FIELD_HEIGHT)
-
-    clear_confirmation_timer = None
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory."""
@@ -277,61 +275,24 @@ def main(page: ft.Page):
         toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
         toast_hide_timer.start()
 
-    def reset_clear_button():
-        """Resets the clear button to its original state."""
-        nonlocal clear_confirmation_timer
-        if clear_confirmation_timer:
-            clear_confirmation_timer.cancel()
-            clear_confirmation_timer = None
+    def clear_dataset(e):
+        """Handles clearing the dataset."""
+        global toast_hide_timer
+        if toast_hide_timer:
+            toast_hide_timer.cancel()
         
-        clear_dataset_button.text = "Clear Processed Dataset"
-        clear_dataset_button.bgcolor = ft.Colors.GREY_800
+        toast_text.value = "Clearing processed dataset..."
+        toast_progress_ring.visible = True
+        toast_progress_bar.visible = False
+        toast_container.visible = True
         page.update()
 
-    def on_page_click(e):
-        """Cancels clear confirmation if a click occurs outside the button."""
-        if clear_confirmation_timer and clear_confirmation_timer.is_alive():
-            if e.control != clear_dataset_button:
-                reset_clear_button()
-
-    page.on_click = on_page_click
-
-    def confirm_clear_dataset(e):
-        """Handles the two-stage confirmation for clearing the dataset."""
-        nonlocal clear_confirmation_timer
-
-        if clear_confirmation_timer and clear_confirmation_timer.is_alive():
-            # Second click: confirmation received
-            clear_confirmation_timer.cancel()
-            clear_confirmation_timer = None
-
-            global toast_hide_timer
-            if toast_hide_timer:
-                toast_hide_timer.cancel()
-            
-            clear_dataset_button.text = "Clear Processed Dataset"
-            clear_dataset_button.bgcolor = ft.Colors.GREY_800
-            
-            toast_text.value = "Clearing processed dataset..."
-            toast_progress_ring.visible = True
-            toast_progress_bar.visible = False
-            toast_container.visible = True
-            page.update()
-
-            clear_thread = threading.Thread(target=run_clear_dataset_thread)
-            clear_thread.start()
-        else:
-            # First click: ask for confirmation
-            clear_dataset_button.text = "Confirm Clear?"
-            clear_dataset_button.bgcolor = ft.Colors.GREY_700
-            page.update()
-            
-            clear_confirmation_timer = threading.Timer(5.0, reset_clear_button)
-            clear_confirmation_timer.start()
+        clear_thread = threading.Thread(target=run_clear_dataset_thread)
+        clear_thread.start()
 
     clear_dataset_button = ft.ElevatedButton(
         "Clear Processed Dataset",
-        on_click=confirm_clear_dataset,
+        on_click=clear_dataset,
         icon=ft.Icons.DELETE_FOREVER,
         bgcolor=ft.Colors.GREY_800,
         color=ft.Colors.WHITE,
@@ -386,7 +347,8 @@ def main(page: ft.Page):
         page.update()
         cancel_event.set()
 
-    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, visible=False, bgcolor=ft.Colors.GREY_800, color=ft.Colors.WHITE, expand=True)
+    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, bgcolor=ft.Colors.GREY_800, color=ft.Colors.WHITE, expand=True)
+    cancel_button_row = ft.Row([cancel_button], visible=False)
 
     toast_container = ft.Container(
         content=ft.Column([
@@ -396,7 +358,7 @@ def main(page: ft.Page):
                 vertical_alignment=ft.CrossAxisAlignment.CENTER,
             ),
             toast_progress_bar,
-            ft.Row([cancel_button]),
+            cancel_button_row,
         ], spacing=10),
         bgcolor=ft.Colors.GREY_900,
         padding=15,
