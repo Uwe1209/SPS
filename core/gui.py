@@ -74,6 +74,40 @@ def main(page: ft.Page):
             page.update()
             save_inputs()
 
+    def show_test_toast(text=None, ring=False, bar=False, button=False):
+        """Helper to show toast for UI testing."""
+        global toast_hide_timer
+        if toast_hide_timer:
+            toast_hide_timer.cancel()
+        
+        toast_text.value = text or ""
+        toast_progress_ring.visible = ring
+        toast_progress_bar.visible = bar
+        if bar:
+            toast_progress_bar.value = None  # Indeterminate
+
+        cancel_button.visible = button
+        cancel_button.disabled = not button
+
+        toast_container.visible = True
+        page.update()
+
+        if not button:  # Auto-hide if there's no cancel button
+            toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
+            toast_hide_timer.start()
+
+    def on_toast_only(e):
+        show_test_toast()
+
+    def on_toast_with_text(e):
+        show_test_toast(text="This is a toast with text.")
+
+    def on_toast_with_loading_and_text(e):
+        show_test_toast(text="Loading...", ring=True)
+
+    def on_toast_with_loading_text_and_button(e):
+        show_test_toast(text="Long process...", bar=True, button=True)
+
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread."""
         global toast_hide_timer
@@ -599,6 +633,61 @@ def main(page: ft.Page):
                         ),
                     alignment=ft.alignment.top_center,
                 ),
+            ),
+            ft.Tab(
+                text="UI Testing",
+                content=ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Toast Tests", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.ElevatedButton(
+                                                    "Show Toast Only",
+                                                    on_click=on_toast_only,
+                                                    style=action_button_style,
+                                                    height=BUTTON_HEIGHT,
+                                                ),
+                                                ft.ElevatedButton(
+                                                    "Show Toast with Text",
+                                                    on_click=on_toast_with_text,
+                                                    style=action_button_style,
+                                                    height=BUTTON_HEIGHT,
+                                                ),
+                                                ft.ElevatedButton(
+                                                    "Show Toast with Loading and Text",
+                                                    on_click=on_toast_with_loading_and_text,
+                                                    style=action_button_style,
+                                                    height=BUTTON_HEIGHT,
+                                                ),
+                                                ft.ElevatedButton(
+                                                    "Show Toast with Loading, Text, and Button",
+                                                    on_click=on_toast_with_loading_text_and_button,
+                                                    style=action_button_style,
+                                                    height=BUTTON_HEIGHT,
+                                                ),
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                                padding=ft.padding.only(top=20, bottom=20),
+                            ),
+                        ],
+                        spacing=20,
+                        scroll=ft.ScrollMode.ADAPTIVE,
+                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                    ),
+                    alignment=ft.alignment.top_center,
+                )
             ),
         ],
         expand=1,
