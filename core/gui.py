@@ -285,7 +285,7 @@ def main(page: ft.Page):
             clear_confirmation_timer = None
         
         clear_dataset_button.text = "Clear Processed Dataset"
-        clear_dataset_button.bgcolor = ft.Colors.RED_700
+        clear_dataset_button.bgcolor = ft.Colors.RED_900
         page.update()
 
     def on_page_click(e):
@@ -310,7 +310,7 @@ def main(page: ft.Page):
                 toast_hide_timer.cancel()
             
             clear_dataset_button.text = "Clear Processed Dataset"
-            clear_dataset_button.bgcolor = ft.Colors.RED_700
+            clear_dataset_button.bgcolor = ft.Colors.RED_900
             
             toast_text.value = "Clearing processed dataset..."
             toast_progress_ring.visible = True
@@ -323,7 +323,7 @@ def main(page: ft.Page):
         else:
             # First click: ask for confirmation
             clear_dataset_button.text = "Confirm Clear?"
-            clear_dataset_button.bgcolor = ft.Colors.ORANGE_700
+            clear_dataset_button.bgcolor = ft.Colors.ORANGE_900
             page.update()
             
             clear_confirmation_timer = threading.Timer(5.0, reset_clear_button)
@@ -333,7 +333,7 @@ def main(page: ft.Page):
         "Clear Processed Dataset",
         on_click=confirm_clear_dataset,
         icon=ft.Icons.DELETE_FOREVER,
-        bgcolor=ft.Colors.RED_700,
+        bgcolor=ft.Colors.RED_900,
         color=ft.Colors.WHITE,
         style=action_button_style,
         height=BUTTON_HEIGHT,
@@ -343,7 +343,7 @@ def main(page: ft.Page):
         text="Run Processing",
         on_click=start_processing,
         icon=ft.Icons.PLAY_ARROW,
-        bgcolor=ft.Colors.GREEN_700,
+        bgcolor=ft.Colors.GREEN_900,
         color=ft.Colors.WHITE,
         style=action_button_style,
         height=BUTTON_HEIGHT,
@@ -361,7 +361,7 @@ def main(page: ft.Page):
         ],
         border_radius=8,
         border_color=ft.Colors.GREY_700,
-        focused_border_color=ft.Colors.GREEN_700,
+        focused_border_color=ft.Colors.GREEN_900,
         expand=True,
     )
     epochs_field = ft.TextField(label="Number of Epochs", value="25", height=TEXT_FIELD_HEIGHT)
@@ -371,7 +371,7 @@ def main(page: ft.Page):
         text="Run Fine-Tuning",
         on_click=start_finetuning,
         icon=ft.Icons.MODEL_TRAINING,
-        bgcolor=ft.Colors.GREEN_700,
+        bgcolor=ft.Colors.GREEN_900,
         color=ft.Colors.WHITE,
         style=action_button_style,
         height=BUTTON_HEIGHT,
@@ -386,7 +386,7 @@ def main(page: ft.Page):
         page.update()
         cancel_event.set()
 
-    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, visible=False, bgcolor=ft.Colors.RED, color=ft.Colors.WHITE, expand=True)
+    cancel_button = ft.ElevatedButton("Cancel", on_click=cancel_operation, visible=False, bgcolor=ft.Colors.RED_900, color=ft.Colors.WHITE, expand=True)
 
     toast_container = ft.Container(
         content=ft.Column([
@@ -434,7 +434,7 @@ def main(page: ft.Page):
                                                                 on_click=lambda _: source_dir_picker.get_directory_path(
                                                                     dialog_title="Select Source Directory"
                                                                 ),
-                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                bgcolor=ft.Colors.GREEN_900,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
@@ -453,7 +453,7 @@ def main(page: ft.Page):
                                                                 on_click=lambda _: dest_dir_picker.get_directory_path(
                                                                     dialog_title="Select Destination Directory"
                                                                 ),
-                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                bgcolor=ft.Colors.GREEN_900,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
@@ -542,7 +542,7 @@ def main(page: ft.Page):
                                                                 on_click=lambda _: file_picker.get_directory_path(
                                                                     dialog_title="Select Dataset Directory"
                                                                 ),
-                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                bgcolor=ft.Colors.GREEN_900,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
@@ -561,7 +561,7 @@ def main(page: ft.Page):
                                                                 on_click=lambda _: save_file_picker.save_file(
                                                                     dialog_title="Save Model As..."
                                                                 ),
-                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                bgcolor=ft.Colors.GREEN_900,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
@@ -580,7 +580,7 @@ def main(page: ft.Page):
                                                                 on_click=lambda _: load_file_picker.pick_files(
                                                                     dialog_title="Load Model From...", allow_multiple=False
                                                                 ),
-                                                                bgcolor=ft.Colors.GREEN_700,
+                                                                bgcolor=ft.Colors.GREEN_900,
                                                                 color=ft.Colors.WHITE,
                                                                 style=beside_button_style,
                                                                 width=BUTTON_WIDTH,
