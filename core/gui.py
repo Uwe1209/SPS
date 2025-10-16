@@ -21,17 +21,17 @@ def hide_toast(page: ft.Page):
 
 def main(page: ft.Page):
     """Main function for the Flet GUI"""
-    page.title = "SmartPlant AI Finetuner"
+    page.title = "Remapped"
     page.theme_mode = ft.ThemeMode.DARK
-    page.window_min_width = 600
-    page.window_min_height = 800
+    page.window_min_width = 640
+    page.window_min_height = 360
     page.bgcolor = ft.Colors.BLACK
     page.padding = 0
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
-    TEXT_FIELD_HEIGHT =48
-    BUTTON_HEIGHT =48
+    TEXT_FIELD_HEIGHT = 48
+    BUTTON_HEIGHT = 48
 
     # Define button styles for consistent appearance
     action_button_style = ft.ButtonStyle(
@@ -139,7 +139,7 @@ def main(page: ft.Page):
             if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex):
                 toast_text.value = str(ex)
             else:
-                toast_text.value = "Invalid ratios Please enter numbers for train, validation, and test ratios"
+                toast_text.value = "Invalid ratios. Please enter numbers for train, validation and test ratios"
             toast_progress_ring.visible = False
             toast_container.visible = True
             process_start_button.disabled = False
@@ -228,7 +228,7 @@ def main(page: ft.Page):
             try:
                 final_accuracy = finetune_main(settings_dict, progress_callback=progress_callback)
                 if not cancel_event.is_set():
-                    progress_callback(f"Fine-tuning finished Final validation accuracy: {final_accuracy:.4f}")
+                    progress_callback(f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}")
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
             finally:
@@ -250,15 +250,15 @@ def main(page: ft.Page):
     dest_dir_picker = ft.FilePicker(on_result=on_dest_dir_result)
     page.overlay.extend([file_picker, save_file_picker, load_file_picker, source_dir_picker, dest_dir_picker])
 
-    data_dir_path = ft.TextField(label="Dataset Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
-    save_model_path = ft.TextField(label="Save Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
-    load_model_path = ft.TextField(label="Load Model Path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
+    data_dir_path = ft.TextField(label="Dataset directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
+    save_model_path = ft.TextField(label="Save model path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
+    load_model_path = ft.TextField(label="Load model path", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
 
-    source_dir_path = ft.TextField(label="Source Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
-    dest_dir_path = ft.TextField(label="Destination Directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
-    train_ratio_field = ft.TextField(label="Train Ratio (%)", value="80", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
-    val_ratio_field = ft.TextField(label="Validation Ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
-    test_ratio_field = ft.TextField(label="Test Ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    source_dir_path = ft.TextField(label="Source directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
+    dest_dir_path = ft.TextField(label="Destination directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
+    train_ratio_field = ft.TextField(label="Train ratio (%)", value="80", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory"""
@@ -280,7 +280,7 @@ def main(page: ft.Page):
                 
                 # Verify deletion
                 if os.path.exists(train_path) or os.path.exists(val_path) or os.path.exists(test_path):
-                    toast_text.value = "Error: Failed to delete dataset directories Please check file permissions"
+                    toast_text.value = "Error: Failed to delete dataset directories. Please check file permissions"
                 else:
                     toast_text.value = "Processed dataset cleared successfully"
 
@@ -343,11 +343,11 @@ def main(page: ft.Page):
         focused_border_color=ft.Colors.GREY_600,
         expand=True,
     )
-    epochs_field = ft.TextField(label="Number of Epochs", value="25", height=TEXT_FIELD_HEIGHT)
-    batch_size_field = ft.TextField(label="Batch Size", value="32", height=TEXT_FIELD_HEIGHT)
-    learning_rate_field = ft.TextField(label="Learning Rate", value="0.001", height=TEXT_FIELD_HEIGHT)
+    epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
+    batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
+    learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
     start_button = ft.ElevatedButton(
-        text="Run Fine-Tuning",
+        text="Run fine-tuning",
         on_click=start_finetuning,
         icon=ft.Icons.MODEL_TRAINING,
         bgcolor=ft.Colors.GREY_800,
@@ -395,7 +395,7 @@ def main(page: ft.Page):
         animation_duration=300,
         tabs=[
             ft.Tab(
-                text="Process Dataset",
+                text="Process dataset",
                 content=ft.Container(
                     content=ft.Column(
                         [
@@ -409,10 +409,10 @@ def main(page: ft.Page):
                                                         [
                                                             source_dir_path,
                                                             ft.ElevatedButton(
-                                                                "Select Source",
+                                                                "Select source",
                                                                 icon=ft.Icons.FOLDER_OPEN,
                                                                 on_click=lambda _: source_dir_picker.get_directory_path(
-                                                                    dialog_title="Select Source Directory"
+                                                                    dialog_title="Select source directory"
                                                                 ),
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
@@ -428,10 +428,10 @@ def main(page: ft.Page):
                                                         [
                                                             dest_dir_path,
                                                             ft.ElevatedButton(
-                                                                "Select Destination",
+                                                                "Select destination",
                                                                 icon=ft.Icons.FOLDER_OPEN,
                                                                 on_click=lambda _: dest_dir_picker.get_directory_path(
-                                                                    dialog_title="Select Destination Directory"
+                                                                    dialog_title="Select destination directory"
                                                                 ),
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
@@ -508,7 +508,7 @@ def main(page: ft.Page):
                 ),
             ),
             ft.Tab(
-                text="Fine-Tuning",
+                text="Fine-tuning",
                 content=ft.Container(
                     content=ft.Column(
                         [
@@ -518,16 +518,16 @@ def main(page: ft.Page):
                                             content=ft.Column(
                                                 [
                                                     ft.Text("Configuration", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    ft.Text("Model & Data", theme_style=ft.TextThemeStyle.TITLE_SMALL),
+                                                    ft.Text("Model and data", theme_style=ft.TextThemeStyle.TITLE_SMALL),
                                                     model_dropdown,
                                                     ft.Row(
                                                         [
                                                             data_dir_path,
                                                             ft.ElevatedButton(
-                                                                "Select Dataset",
+                                                                "Select dataset",
                                                                 icon=ft.Icons.FOLDER_OPEN,
                                                                 on_click=lambda _: file_picker.get_directory_path(
-                                                                    dialog_title="Select Dataset Directory"
+                                                                    dialog_title="Select dataset directory"
                                                                 ),
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
@@ -543,10 +543,10 @@ def main(page: ft.Page):
                                                         [
                                                             save_model_path,
                                                             ft.ElevatedButton(
-                                                                "Set Save Path",
+                                                                "Set save path",
                                                                 icon=ft.Icons.SAVE,
                                                                 on_click=lambda _: save_file_picker.save_file(
-                                                                    dialog_title="Save Model As..."
+                                                                    dialog_title="Save model as..."
                                                                 ),
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
@@ -562,10 +562,10 @@ def main(page: ft.Page):
                                                         [
                                                             load_model_path,
                                                             ft.ElevatedButton(
-                                                                "Select Model File",
+                                                                "Select model file",
                                                                 icon=ft.Icons.UPLOAD_FILE,
                                                                 on_click=lambda _: load_file_picker.pick_files(
-                                                                    dialog_title="Load Model From...", allow_multiple=False
+                                                                    dialog_title="Load model from...", allow_multiple=False
                                                                 ),
                                                                 bgcolor=ft.Colors.GREY_800,
                                                                 color=ft.Colors.WHITE,
@@ -622,7 +622,7 @@ def main(page: ft.Page):
                 ),
             ),
             ft.Tab(
-                text="UI Testing",
+                text="UI testing",
                 content=ft.Container(
                     content=ft.Column(
                         [
@@ -631,27 +631,27 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
-                                                ft.Text("Toast Tests", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Text("Toast tests", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.ElevatedButton(
-                                                    "Show Toast Only",
+                                                    "Show toast only",
                                                     on_click=on_toast_only,
                                                     style=action_button_style,
                                                     height=BUTTON_HEIGHT,
                                                 ),
                                                 ft.ElevatedButton(
-                                                    "Show Toast with Text",
+                                                    "Show toast with text",
                                                     on_click=on_toast_with_text,
                                                     style=action_button_style,
                                                     height=BUTTON_HEIGHT,
                                                 ),
                                                 ft.ElevatedButton(
-                                                    "Show Toast with Loading and Text",
+                                                    "Show toast with loading and text",
                                                     on_click=on_toast_with_loading_and_text,
                                                     style=action_button_style,
                                                     height=BUTTON_HEIGHT,
                                                 ),
                                                 ft.ElevatedButton(
-                                                    "Show Toast with Loading, Text, and Button",
+                                                    "Show toast with loading, text and button",
                                                     on_click=on_toast_with_loading_text_and_button,
                                                     style=action_button_style,
                                                     height=BUTTON_HEIGHT,
