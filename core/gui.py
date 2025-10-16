@@ -22,7 +22,7 @@ def hide_toast(page: ft.Page):
 def main(page: ft.Page):
     """Main function for the Flet GUI."""
     page.title = "SmartPlant AI Finetuner"
-    page.theme_mode = ft.ThemeMode.LIGHT
+    page.theme_mode = ft.ThemeMode.DARK
     page.window_min_width = 600
     page.window_min_height = 800
     page.padding = 0
@@ -360,7 +360,7 @@ def main(page: ft.Page):
             ft.dropdown.Option("mobilenet_v3_large"),
         ],
         border_radius=8,
-        border_color=ft.Colors.GREY_500,
+        border_color=ft.Colors.GREY_700,
         focused_border_color=ft.Colors.GREEN_700,
         expand=True,
     )
@@ -377,8 +377,8 @@ def main(page: ft.Page):
         height=BUTTON_HEIGHT,
     )
     toast_text = ft.Text(color=ft.Colors.WHITE, expand=True)
-    toast_progress_bar = ft.ProgressBar(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
-    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREEN_400, bgcolor=ft.Colors.GREY_400)
+    toast_progress_bar = ft.ProgressBar(visible=False, color=ft.Colors.GREEN_400)
+    toast_progress_ring = ft.ProgressRing(visible=False, color=ft.Colors.GREEN_400)
 
     def cancel_operation(e):
         toast_text.value = "Cancelling..."
