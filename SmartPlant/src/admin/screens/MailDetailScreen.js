@@ -1,9 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { BackIcon, TrashIcon } from '../Icons';
+import { useAdminContext } from '../AdminContext';
 
 const MailDetailScreen = ({ route, navigation }) => {
     const { mail } = route.params;
+    const { handleDeleteMail } = useAdminContext();
+
+    const onDelete = () => {
+        handleDeleteMail(mail.id);
+        navigation.goBack();
+    };
 
     if (!mail) {
         return (
@@ -23,7 +30,7 @@ const MailDetailScreen = ({ route, navigation }) => {
                     <BackIcon color="#3C3633" />
                 </TouchableOpacity>
                 <View style={{ flex: 1 }} />
-                <TouchableOpacity style={styles.actionButton}>
+                <TouchableOpacity style={styles.actionButton} onPress={onDelete}>
                     <TrashIcon color="#ef4444" />
                 </TouchableOpacity>
             </View>

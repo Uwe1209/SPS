@@ -78,6 +78,11 @@ export const AdminProvider = ({ children }) => {
         showToast("Reply sent!");
     };
 
+    const handleDeleteMail = (id) => {
+        setMails(currentMails => currentMails.filter(m => m.id !== id));
+        showToast("Mail deleted successfully!");
+    };
+
     const value = {
         users,
         mails,
@@ -88,6 +93,7 @@ export const AdminProvider = ({ children }) => {
         handleToggleMailFavourite,
         handleDeleteFeedback,
         handleReplyFeedback,
+        handleDeleteMail,
     };
 
     return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

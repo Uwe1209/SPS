@@ -1,9 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { UserIcon, MailIcon, FeedbackIcon } from '../Icons';
+import { useAdminContext } from '../AdminContext';
 
 const DashboardScreen = ({ navigation }) => {
+    const { users, mails, feedbacks } = useAdminContext();
     const navigate = (screen) => navigation.navigate(screen);
+
+    const unreadMails = mails.filter(m => m.status === 'unread').length;
+    const pendingFeedbacks = feedbacks.length; // Assuming all are pending
 
     return (
         <ScrollView style={styles.container}>
@@ -22,9 +27,9 @@ const DashboardScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.menuTextContainer}>
                         <Text style={styles.menuTitle}>Accounts</Text>
-                        <Text style={styles.menuSubtitle}>99 users</Text>
+                        <Text style={styles.menuSubtitle}>{users.length} users</Text>
                     </View>
-                    <Text style={styles.menuValue}>99</Text>
+                    <Text style={styles.menuValue}>{users.length}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => navigate('MailManagement')} style={styles.menuItem}>
@@ -33,9 +38,9 @@ const DashboardScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.menuTextContainer}>
                         <Text style={styles.menuTitle}>Mailbox</Text>
-                        <Text style={styles.menuSubtitle}>2 unread</Text>
+                        <Text style={styles.menuSubtitle}>{unreadMails} unread</Text>
                     </View>
-                    <Text style={styles.menuValue}>02</Text>
+                    <Text style={styles.menuValue}>{String(unreadMails).padStart(2, '0')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => navigate('FeedbackManagement')} style={styles.menuItem}>
@@ -44,9 +49,9 @@ const DashboardScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.menuTextContainer}>
                         <Text style={styles.menuTitle}>Feedback</Text>
-                        <Text style={styles.menuSubtitle}>2 pending</Text>
+                        <Text style={styles.menuSubtitle}>{pendingFeedbacks} pending</Text>
                     </View>
-                    <Text style={styles.menuValue}>02</Text>
+                    <Text style={styles.menuValue}>{String(pendingFeedbacks).padStart(2, '0')}</Text>
                 </TouchableOpacity>
             </View>
 
