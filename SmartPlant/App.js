@@ -8,6 +8,7 @@ import IdentifyTips from './src/pages/identify_tips';
 import IdentifyOutput from './src/pages/identify_output';
 import Profile from "./src/pages/Profile";
 import MyProfile from "./src/pages/Myprofile";
+import EditProfile from "./src/pages/EditProfile";
 import Setting from "./src/pages/Setting";
 import Saved from "./src/pages/Saved";
 import Notification from "./src/pages/Notification";
@@ -31,6 +32,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="MyProfile" component={MyProfile} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="MapPage" component={MapPage} />
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="Saved" component={Saved} />

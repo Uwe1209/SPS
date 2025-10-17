@@ -74,9 +74,10 @@ const styles = StyleSheet.create({
       marginTop: 30,
   },
   title: { 
-      fontSize: 20, 
-      flex: 1,
+      fontSize: 18, 
       textAlign: "center",
+      width: "80%",
+      marginTop: 30,
   },
   row: {
       flexDirection: "row",
