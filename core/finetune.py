@@ -56,6 +56,7 @@ def main(args, progress_callback=None):
     train_dir_name = args.get('train_dir_name', 'train')
     val_dir_name = args.get('val_dir_name', 'val')
     test_dir_name = args.get('test_dir_name', 'test')
+    device_str = args.get('device', 'auto')
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
@@ -140,7 +141,10 @@ def main(args, progress_callback=None):
     class_names = image_datasets[train_dir_name].classes
     num_classes = len(class_names)
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if device_str == 'auto':
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device(device_str)
     log(f"Using device: {device}")
 
     use_amp = mixed_precision and device.type == 'cuda'
@@ -330,6 +334,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_dir_name', type=str, default='train', help='Name of the training directory')
     parser.add_argument('--val_dir_name', type=str, default='val', help='Name of the validation directory')
     parser.add_argument('--test_dir_name', type=str, default='test', help='Name of the test directory')
+    parser.add_argument('--device', type=str, default='auto', help='Device to use for training (e.g., "cpu", "cuda:0")')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
