@@ -414,22 +414,6 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Directories", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                                padding=ft.padding.only(top=20),
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 ft.Row(
                                                     [
                                                         source_dir_path,
@@ -478,6 +462,7 @@ def main(page: ft.Page):
                                     width=800,
                                 ),
                                 alignment=ft.alignment.center,
+                                padding=ft.padding.only(top=20),
                             ),
                             ft.Container(
                                 content=ft.Card(
@@ -486,21 +471,6 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 ft.Row(
                                                     [
                                                         train_ratio_field,
@@ -527,26 +497,17 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        process_start_button,
+                                                        clear_dataset_button,
+                                                    ],
+                                                    spacing=10,
+                                                    alignment=ft.MainAxisAlignment.CENTER,
+                                                ),
                                             ],
                                             spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Row(
-                                            [
-                                                process_start_button,
-                                                clear_dataset_button,
-                                            ],
-                                            spacing=10,
-                                            alignment=ft.MainAxisAlignment.CENTER,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -594,21 +555,6 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Model and data", theme_style=ft.TextThemeStyle.TITLE_SMALL),
                                                 ft.Divider(),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 model_dropdown,
                                                 ft.Row(
                                                     [
@@ -685,21 +631,6 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Hyperparameters", theme_style=ft.TextThemeStyle.TITLE_SMALL),
                                                 ft.Divider(),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
@@ -721,21 +652,6 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Training", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 start_button,
                                             ],
                                             spacing=10,
@@ -769,22 +685,6 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Toast tests", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                                padding=ft.padding.only(top=20),
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 ft.Row(
                                                     [
                                                         ft.ElevatedButton(
@@ -833,7 +733,7 @@ def main(page: ft.Page):
                                     width=800,
                                 ),
                                 alignment=ft.alignment.center,
-                                padding=ft.padding.only(bottom=20),
+                                padding=ft.padding.only(top=20, bottom=20),
                             ),
                         ],
                         spacing=10,
