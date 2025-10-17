@@ -545,46 +545,6 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
-                                                ft.Row(
-                                                    [
-                                                        ft.Text("Data Augmentation", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                        data_augmentation_switch,
-                                                    ],
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-                                                ),
-                                                ft.Divider(),
-                                                ft.Row(
-                                                    [
-                                                        finetune_seed_field,
-                                                        ft.ElevatedButton(
-                                                            "Generate",
-                                                            icon=ft.Icons.CASINO,
-                                                            on_click=generate_finetune_seed,
-                                                            bgcolor=ft.Colors.GREY_800,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            expand=1,
-                                                            height=BUTTON_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                ),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
                                                 ft.Row(
@@ -710,6 +670,46 @@ def main(page: ft.Page):
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Data Augmentation", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                        data_augmentation_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                                ),
+                                                ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        finetune_seed_field,
+                                                        ft.ElevatedButton(
+                                                            "Generate",
+                                                            icon=ft.Icons.CASINO,
+                                                            on_click=generate_finetune_seed,
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                            ],
+                                            spacing=10,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
