@@ -217,6 +217,7 @@ def main(page: ft.Page):
                 'input_size': int(input_size_field.value) if input_size_field.value else 224,
                 'resize_size': int(resize_size_field.value) if resize_size_field.value else int((int(input_size_field.value) if input_size_field.value else 224) / 224 * 256),
                 'num_workers': int(num_workers_field.value) if num_workers_field.value else 0,
+                'log_frequency': int(log_frequency_field.value) if log_frequency_field.value else 10,
                 'train_from_scratch': train_from_scratch_switch.value,
                 'strict_load': strict_load_switch.value,
                 'load_path': load_model_path.value or None,
@@ -409,6 +410,7 @@ def main(page: ft.Page):
     input_size_field = ft.TextField(label="Input size (px)", value="224", height=TEXT_FIELD_HEIGHT)
     resize_size_field = ft.TextField(label="Resize size (px)", value="256", height=TEXT_FIELD_HEIGHT)
     num_workers_field = ft.TextField(label="Data loader workers", value="0", height=TEXT_FIELD_HEIGHT)
+    log_frequency_field = ft.TextField(label="Log Frequency per Epoch", value="10", height=TEXT_FIELD_HEIGHT)
     train_from_scratch_switch = ft.Switch(value=False)
     strict_load_switch = ft.Switch(value=False)
     dropout_rate_field = ft.TextField(label="Dropout rate", value="0.0", height=TEXT_FIELD_HEIGHT)
@@ -851,6 +853,7 @@ def main(page: ft.Page):
                                                 input_size_field,
                                                 resize_size_field,
                                                 num_workers_field,
+                                                log_frequency_field,
                                                 dropout_rate_field,
                                                 optimiser_dropdown,
                                                 ft.Divider(),
@@ -1057,7 +1060,7 @@ def main(page: ft.Page):
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
-        "input_size_field": input_size_field, "resize_size_field": resize_size_field, "num_workers_field": num_workers_field,
+        "input_size_field": input_size_field, "resize_size_field": resize_size_field, "num_workers_field": num_workers_field, "log_frequency_field": log_frequency_field,
         "train_from_scratch_switch": train_from_scratch_switch,
         "strict_load_switch": strict_load_switch,
         "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,

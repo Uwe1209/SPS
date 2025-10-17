@@ -52,6 +52,7 @@ def main(args, progress_callback=None):
     num_workers = args.get('num_workers', 0)
     train_from_scratch = args.get('train_from_scratch', False)
     strict_load = args.get('strict_load', False)
+    log_frequency = args.get('log_frequency', 10)
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
@@ -216,8 +217,10 @@ def main(args, progress_callback=None):
                         scaler.step(optimizer)
                         scaler.update()
 
-                if phase == 'train' and num_batches > 10 and (i + 1) % (num_batches // 10) == 0:
-                    log(f'Processing batch {i+1}/{num_batches}')
+                if phase == 'train' and log_frequency > 0:
+                    log_interval = num_batches // log_frequency
+                    if log_interval > 0 and (i + 1) % log_interval == 0:
+                        log(f'Processing batch {i+1}/{num_batches}')
 
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
@@ -320,6 +323,7 @@ if __name__ == '__main__':
     parser.add_argument('--pin_memory', action='store_true', help='Use pin memory for data loaders')
     parser.add_argument('--train_from_scratch', action='store_true', help='Train model from scratch instead of using pretrained weights')
     parser.add_argument('--strict_load', action='store_true', help='Use strict loading for model state dict')
+    parser.add_argument('--log_frequency', type=int, default=10, help='Number of times to log progress per epoch')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
