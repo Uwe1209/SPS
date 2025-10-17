@@ -384,8 +384,8 @@ def main(page: ft.Page):
     
     aug_random_resized_crop_switch = ft.Switch(value=True)
     aug_horizontal_flip_switch = ft.Switch(value=True)
-    aug_rotation_switch = ft.Switch(value=False)
-    aug_color_jitter_switch = ft.Switch(value=False)
+    aug_rotation_switch = ft.Switch(value=True)
+    aug_color_jitter_switch = ft.Switch(value=True)
 
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",

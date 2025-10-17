@@ -32,8 +32,8 @@ def main(args, progress_callback=None):
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
     aug_horizontal_flip = args.get('aug_horizontal_flip', True)
-    aug_rotation = args.get('aug_rotation', False)
-    aug_color_jitter = args.get('aug_color_jitter', False)
+    aug_rotation = args.get('aug_rotation', True)
+    aug_color_jitter = args.get('aug_color_jitter', True)
     
     seed = args.get('seed')
 
@@ -173,11 +173,11 @@ if __name__ == '__main__':
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
     # Augmentation flags
-    parser.set_defaults(aug_random_resized_crop=True, aug_horizontal_flip=True)
+    parser.set_defaults(aug_random_resized_crop=True, aug_horizontal_flip=True, aug_rotation=True, aug_color_jitter=True)
     parser.add_argument('--no-random-resized-crop', dest='aug_random_resized_crop', action='store_false', help='Disable random resized crop and zoom')
     parser.add_argument('--no-horizontal-flip', dest='aug_horizontal_flip', action='store_false', help='Disable random horizontal flip')
-    parser.add_argument('--aug-rotation', action='store_true', help='Enable random rotation augmentation')
-    parser.add_argument('--aug-color-jitter', action='store_true', help='Enable color jitter augmentation')
+    parser.add_argument('--no-rotation', dest='aug_rotation', action='store_false', help='Disable random rotation augmentation')
+    parser.add_argument('--no-color-jitter', dest='aug_color_jitter', action='store_false', help='Disable color jitter augmentation')
 
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
 
