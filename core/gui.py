@@ -221,7 +221,7 @@ def main(page: ft.Page):
         try:
             settings = {
                 'data_dir': data_dir_path.value,
-                'model_name': model_dropdown.value or 'resnet18',
+                'model_name': model_name_field.value or 'resnet18',
                 'num_epochs': int(epochs_field.value) if epochs_field.value else 25,
                 'batch_size': int(batch_size_field.value) if batch_size_field.value else 32,
                 'learning_rate': float(learning_rate_field.value) if learning_rate_field.value else 0.001,
@@ -371,19 +371,10 @@ def main(page: ft.Page):
         expand=True,
     )
 
-    model_dropdown = ft.Dropdown(
-        label="Select model",
-        options=[
-            ft.dropdown.Option("resnet18"),
-            ft.dropdown.Option("vgg16"),
-            ft.dropdown.Option("alexnet"),
-            ft.dropdown.Option("googlenet"),
-            ft.dropdown.Option("mobilenet_v2"),
-            ft.dropdown.Option("mobilenet_v3_large"),
-        ],
-        border_radius=8,
-        border_color=ft.Colors.GREY_700,
-        focused_border_color=ft.Colors.GREY_600,
+    model_name_field = ft.TextField(
+        label="Model name (e.g., from timm or Hugging Face)",
+        value="resnet18",
+        height=TEXT_FIELD_HEIGHT,
         expand=True,
     )
     epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
@@ -595,7 +586,7 @@ def main(page: ft.Page):
                                             [
                                                 ft.Text("Model and data", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
-                                                model_dropdown,
+                                                model_name_field,
                                                 ft.Row(
                                                     [
                                                         data_dir_path,
@@ -856,7 +847,7 @@ def main(page: ft.Page):
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
         "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "process_seed_field": process_seed_field,
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
-        "model_dropdown": model_dropdown, "epochs_field": epochs_field,
+        "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
         "finetune_seed_field": finetune_seed_field,
         "aug_random_resized_crop_switch": aug_random_resized_crop_switch,

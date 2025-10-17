@@ -1,6 +1,7 @@
 import argparse
 import os
 import torch
+import timm
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, models, transforms
@@ -84,36 +85,14 @@ def main(args, progress_callback=None):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    # 4. Load pretrained model
-    if model_name == 'resnet18':
-        model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
-    elif model_name == 'vgg16':
-        model = models.vgg16(weights=models.VGG16_Weights.DEFAULT)
-    elif model_name == 'alexnet':
-        model = models.alexnet(weights=models.AlexNet_Weights.DEFAULT)
-    elif model_name == 'googlenet':
-        model = models.googlenet(weights=models.GoogLeNet_Weights.DEFAULT)
-    elif model_name == 'mobilenet_v2':
-        model = models.mobilenet_v2(weights=models.MobileNet_V2_Weights.DEFAULT)
-    elif model_name == 'mobilenet_v3_large':
-        model = models.mobilenet_v3_large(weights=models.MobileNet_V3_Large_Weights.DEFAULT)
-    else:
-        raise ValueError(f"Model {model_name} not supported")
+    # 4. Load pretrained model from timm
+    # This will load a pretrained model and replace the classifier head with a new one for our number of classes.
+    model = timm.create_model(model_name, pretrained=True, num_classes=num_classes)
 
     # 5. If a load_path is provided, load the model state
     if load_path:
-        model.load_state_dict(torch.load(load_path, map_location=device))
-
-    # 6. Replace the model's final classifier layer
-    if 'resnet' in model_name or 'googlenet' in model_name:
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, num_classes)
-    elif 'alexnet' in model_name or 'vgg' in model_name:
-        num_ftrs = model.classifier[6].in_features
-        model.classifier[6] = nn.Linear(num_ftrs, num_classes)
-    elif 'mobilenet' in model_name:
-        num_ftrs = model.classifier[-1].in_features
-        model.classifier[-1] = nn.Linear(num_ftrs, num_classes)
+        # Using strict=False allows loading weights from a checkpoint with a different classifier.
+        model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
 
     model = model.to(device)
 
@@ -186,7 +165,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fine-tune a model on a new dataset')
     
     parser.add_argument('--data_dir', type=str, required=True, help='Path to the dataset directory')
-    parser.add_argument('--model_name', type=str, default='resnet18', help='Name of the model to fine-tune (e.g., resnet18, vgg16)')
+    parser.add_argument('--model_name', type=str, default='resnet18', help='Name of the model to fine-tune (from timm or Hugging Face)')
     parser.add_argument('--num_epochs', type=int, default=25, help='Number of epochs to train for')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
