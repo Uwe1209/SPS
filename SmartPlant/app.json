@@ -20,7 +20,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.darklorddad.camera"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,6 +40,11 @@
           "recordAudioAndroid": true
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1e299d8a-9dd3-43b4-bcda-d2fff71df744"
+      }
+    }
   }
 }
