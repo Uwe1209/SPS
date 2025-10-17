@@ -88,6 +88,7 @@ def main(args, progress_callback=None):
     num_classes = len(class_names)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    log(f"Using device: {device}")
 
     # 4. Load pretrained model from timm
     # This will load a pretrained model and replace the classifier head with a new one for our number of classes.
