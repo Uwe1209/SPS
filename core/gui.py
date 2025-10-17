@@ -143,6 +143,9 @@ def main(page: ft.Page):
             val_ratio = float(val_ratio_field.value)
             test_ratio = float(test_ratio_field.value)
             resolution = int(resolution_field.value)
+            # Validate new fields
+            if image_extensions_field.value:
+                _ = {ext.strip() for ext in image_extensions_field.value.split(',')}
 
             if not (0 <= train_ratio <= 100 and 0 <= val_ratio <= 100 and 0 <= test_ratio <= 100):
                 raise ValueError("Ratios must be between 0 and 100")
@@ -184,7 +187,9 @@ def main(page: ft.Page):
                     resolution=resolution,
                     seed=seed_value,
                     progress_callback=progress_callback,
-                    cancel_event=cancel_event
+                    cancel_event=cancel_event,
+                    image_extensions=image_extensions_field.value,
+                    color_mode=color_mode_dropdown.value
                 )
                 if not cancel_event.is_set():
                     progress_callback("Dataset processing finished successfully")
@@ -230,6 +235,14 @@ def main(page: ft.Page):
                 'early_stopping_patience': int(early_stopping_patience_field.value) if early_stopping_switch.value and early_stopping_patience_field.value else 0,
                 'early_stopping_min_delta': float(early_stopping_min_delta_field.value) if early_stopping_switch.value and early_stopping_min_delta_field.value else 0.0,
                 'mixed_precision': mixed_precision_switch.value,
+                'sgd_momentum': float(sgd_momentum_field.value) if sgd_momentum_field.value else 0.9,
+                'adam_beta1': float(adam_beta1_field.value) if adam_beta1_field.value else 0.9,
+                'adam_beta2': float(adam_beta2_field.value) if adam_beta2_field.value else 0.999,
+                'adam_eps': float(adam_eps_field.value) if adam_eps_field.value else 1e-8,
+                'loss_function': loss_function_dropdown.value or 'cross_entropy',
+                'use_imagenet_norm': use_imagenet_norm_switch.value,
+                'norm_mean': norm_mean_field.value,
+                'norm_std': norm_std_field.value,
                 'input_size': int(input_size_field.value) if input_size_field.value else 224,
                 'num_workers': int(num_workers_field.value) if num_workers_field.value else 0,
                 'train_from_scratch': train_from_scratch_switch.value,
@@ -310,6 +323,20 @@ def main(page: ft.Page):
     val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     resolution_field = ft.TextField(label="Resolution (px)", value="224", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    image_extensions_field = ft.TextField(label="Image extensions", value=".jpg,.jpeg,.png", height=TEXT_FIELD_HEIGHT, expand=True)
+    color_mode_dropdown = ft.Dropdown(
+        label="Color mode",
+        value="RGB",
+        options=[
+            ft.dropdown.Option("RGB"),
+            ft.dropdown.Option("L"),
+            ft.dropdown.Option("RGBA"),
+        ],
+        border_radius=8,
+        border_color=ft.Colors.GREY_700,
+        focused_border_color=ft.Colors.GREY_600,
+        expand=True,
+    )
     process_seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
 
     def run_clear_dataset_thread():
@@ -399,6 +426,35 @@ def main(page: ft.Page):
     early_stopping_switch = ft.Switch(value=False)
     early_stopping_patience_field = ft.TextField(label="Patience", value="5", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     early_stopping_min_delta_field = ft.TextField(label="Min delta", value="0.001", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    
+    sgd_momentum_field = ft.TextField(label="SGD Momentum", value="0.9", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    adam_beta1_field = ft.TextField(label="Adam/W Beta1", value="0.9", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    adam_beta2_field = ft.TextField(label="Adam/W Beta2", value="0.999", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    adam_eps_field = ft.TextField(label="Adam/W Epsilon", value="1e-8", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+
+    loss_function_dropdown = ft.Dropdown(
+        label="Loss Function",
+        value="cross_entropy",
+        options=[
+            ft.dropdown.Option("cross_entropy"),
+        ],
+        border_radius=8,
+        border_color=ft.Colors.GREY_700,
+        focused_border_color=ft.Colors.GREY_600,
+        expand=True,
+    )
+
+    def toggle_norm_fields(e):
+        is_custom = not use_imagenet_norm_switch.value
+        norm_mean_field.disabled = not is_custom
+        norm_std_field.disabled = not is_custom
+        page.update()
+        save_inputs()
+
+    use_imagenet_norm_switch = ft.Switch(value=True)
+    norm_mean_field = ft.TextField(label="Normalisation Mean (comma-separated)", value="0.485, 0.456, 0.406", height=TEXT_FIELD_HEIGHT, expand=True, disabled=True)
+    norm_std_field = ft.TextField(label="Normalisation Std Dev (comma-separated)", value="0.229, 0.224, 0.225", height=TEXT_FIELD_HEIGHT, expand=True, disabled=True)
+
     optimiser_dropdown = ft.Dropdown(
         label="Optimiser",
         value="adamw",
@@ -550,6 +606,13 @@ def main(page: ft.Page):
                                                 ),
                                                 ft.Row(
                                                     [
+                                                        image_extensions_field,
+                                                        color_mode_dropdown,
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                                ft.Row(
+                                                    [
                                                         process_seed_field,
                                                         ft.ElevatedButton(
                                                             "Generate",
@@ -566,6 +629,54 @@ def main(page: ft.Page):
                                                 ),
                                             ],
                                             spacing=10
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Optimiser Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                                ft.Row([sgd_momentum_field, adam_beta1_field], spacing=10),
+                                                ft.Row([adam_beta2_field, adam_eps_field], spacing=10),
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Normalisation and Loss", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                                loss_function_dropdown,
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Use ImageNet Normalisation", expand=True),
+                                                        use_imagenet_norm_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                norm_mean_field,
+                                                norm_std_field,
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -922,12 +1033,16 @@ def main(page: ft.Page):
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
         "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "process_seed_field": process_seed_field,
+        "image_extensions_field": image_extensions_field, "color_mode_dropdown": color_mode_dropdown,
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
         "input_size_field": input_size_field, "num_workers_field": num_workers_field,
         "train_from_scratch_switch": train_from_scratch_switch,
         "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,
+        "sgd_momentum_field": sgd_momentum_field, "adam_beta1_field": adam_beta1_field, "adam_beta2_field": adam_beta2_field, "adam_eps_field": adam_eps_field,
+        "loss_function_dropdown": loss_function_dropdown,
+        "use_imagenet_norm_switch": use_imagenet_norm_switch, "norm_mean_field": norm_mean_field, "norm_std_field": norm_std_field,
         "mixed_precision_switch": mixed_precision_switch,
         "early_stopping_switch": early_stopping_switch, "early_stopping_patience_field": early_stopping_patience_field, "early_stopping_min_delta_field": early_stopping_min_delta_field,
         "finetune_seed_field": finetune_seed_field,
@@ -948,10 +1063,16 @@ def main(page: ft.Page):
             for key, control in controls_to_save.items():
                 if key in settings:
                     control.value = settings[key]
+            
+            # Manually trigger UI updates for controls with dependencies
+            toggle_norm_fields(None)
+            
             page.update()
 
     for control in controls_to_save.values():
         control.on_change = save_inputs
+    
+    use_imagenet_norm_switch.on_change = toggle_norm_fields
 
     load_inputs()
 

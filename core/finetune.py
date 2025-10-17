@@ -28,11 +28,19 @@ def main(args, progress_callback=None):
     learning_rate = args.get('learning_rate', 0.001)
     dropout_rate = args.get('dropout_rate', 0.0)
     optimiser_name = args.get('optimiser', 'adamw')
+    sgd_momentum = args.get('sgd_momentum', 0.9)
+    adam_beta1 = args.get('adam_beta1', 0.9)
+    adam_beta2 = args.get('adam_beta2', 0.999)
+    adam_eps = args.get('adam_eps', 1e-8)
+    loss_function = args.get('loss_function', 'cross_entropy')
     load_path = args.get('load_path')
     save_path = args.get('save_path')
     early_stopping_patience = args.get('early_stopping_patience', 0)
     early_stopping_min_delta = args.get('early_stopping_min_delta', 0.0)
     mixed_precision = args.get('mixed_precision', False)
+    use_imagenet_norm = args.get('use_imagenet_norm', True)
+    norm_mean_str = args.get('norm_mean', '0.485, 0.456, 0.406')
+    norm_std_str = args.get('norm_std', '0.229, 0.224, 0.225')
     input_size = args.get('input_size', 224)
     num_workers = args.get('num_workers', 0)
     train_from_scratch = args.get('train_from_scratch', False)
@@ -70,17 +78,31 @@ def main(args, progress_callback=None):
     if aug_color_jitter:
         train_transform_list.append(transforms.ColorJitter(brightness=aug_color_jitter_brightness, contrast=aug_color_jitter_contrast))
 
+    train_transform_list.append(transforms.ToTensor())
+    
+    val_transform_list = [
+        transforms.Resize(resize_size),
+        transforms.CenterCrop(input_size),
+        transforms.ToTensor(),
+    ]
+
+    if use_imagenet_norm:
+        try:
+            mean = [float(x.strip()) for x in norm_mean_str.split(',')]
+            std = [float(x.strip()) for x in norm_std_str.split(',')]
+        except ValueError:
+            raise ValueError("Invalid format for norm_mean or norm_std. They should be comma-separated floats.")
+        
+        if len(mean) != len(std):
+            raise ValueError("norm_mean and norm_std must have the same number of values.")
+
+        normalizer = transforms.Normalize(mean, std)
+        train_transform_list.append(normalizer)
+        val_transform_list.append(normalizer)
+
     data_transforms = {
-        'train': transforms.Compose(train_transform_list + [
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ]),
-        'val': transforms.Compose([
-            transforms.Resize(resize_size),
-            transforms.CenterCrop(input_size),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ]),
+        'train': transforms.Compose(train_transform_list),
+        'val': transforms.Compose(val_transform_list),
     }
 
     # 2. Create ImageFolder datasets
@@ -115,14 +137,17 @@ def main(args, progress_callback=None):
     model = model.to(device)
 
     # 7. Define loss function and optimizer
-    criterion = nn.CrossEntropyLoss()
+    if loss_function == 'cross_entropy':
+        criterion = nn.CrossEntropyLoss()
+    else:
+        raise ValueError(f"Unsupported loss function: {loss_function}")
     
     if optimiser_name == 'adam':
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
     elif optimiser_name == 'adamw':
-        optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+        optimizer = optimim.AdamW(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
     elif optimiser_name == 'sgd':
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=sgd_momentum)
     else:
         raise ValueError(f"Unsupported optimiser: {optimiser_name}")
 
@@ -213,10 +238,19 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
     parser.add_argument('--dropout_rate', type=float, default=0.0, help='Dropout rate for the model classifier')
-    parser.add_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
+    parseradd_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
+    parser.add_argument('--sgd_momentum', type=float, default=0.9, help='Momentum for SGD optimizer')
+    parser.add_argument('--adam_beta1', type=float, default=0.9, help='Beta1 for Adam/AdamW optimizers')
+    parser.add_argument('--adam_beta2', type=float, default=0.999, help='Beta2 for Adam/AdamW optimizers')
+    parser.add_argument('--adam_eps', type=float, default=1e-8, help='Epsilon for Adam/AdamW optimizers')
+    parser.add_argument('--loss_function', type=str, default='cross_entropy', choices=['cross_entropy'], help='Loss function to use')
     parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
     parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
     parser.add_argument('--mixed_precision', action='store_true', help='Use mixed precision training (AMP)')
+    parser.set_defaults(use_imagenet_norm=True)
+    parser.add_argument('--no-imagenet-norm', dest='use_imagenet_norm', action='store_false', help='Disable ImageNet normalization')
+    parser.add_argument('--norm_mean', type=str, default='0.485, 0.456, 0.406', help='Custom normalization mean')
+    parser.add_argument('--norm_std', type=str, default='0.229, 0.224, 0.225', help='Custom normalization standard deviation')
     parser.add_argument('--input_size', type=int, default=224, help='Input image size')
     parser.add_argument('--num_workers', type=int, default=0, help='Number of data loader workers')
     parser.add_argument('--train_from_scratch', action='store_true', help='Train model from scratch instead of using pretrained weights')

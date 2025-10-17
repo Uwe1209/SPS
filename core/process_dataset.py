@@ -6,7 +6,7 @@ from PIL import Image, ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, seed=None, progress_callback=None, cancel_event=None):
+def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, seed=None, progress_callback=None, cancel_event=None, image_extensions=None, color_mode='RGB'):
     """
     Processes an image dataset by splitting it into training, validation, and test sets
 
@@ -21,6 +21,8 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
         test_ratio (float): The proportion of images for testing
         resolution (int, optional): The resolution to resize images to If None, images are not resized
         progress_callback (function, optional): A function to call with progress updates
+        image_extensions (str, optional): Comma-separated string of image extensions to include.
+        color_mode (str, optional): The color mode to convert images to (e.g., 'RGB', 'L').
     """
     if progress_callback:
         progress_callback("Starting dataset processing")
@@ -32,7 +34,10 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
 
     source_path = pathlib.Path(source_dir)
     dest_path = pathlib.Path(dest_dir)
-    image_extensions = {'.jpg', '.jpeg', '.png'}
+    if image_extensions:
+        image_extensions = {ext.strip().lower() for ext in image_extensions.split(',')}
+    else:
+        image_extensions = {'.jpg', '.jpeg', '.png'}
 
     # Ensure the destination directory exists
     dest_path.mkdir(parents=True, exist_ok=True)
@@ -118,7 +123,7 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
                     return
                 if resolution:
                     with Image.open(img) as image:
-                        image = image.convert('RGB').resize((resolution, resolution))
+                        image = image.convert(color_mode).resize((resolution, resolution))
                         image.save(train_dest_path / class_name / img.name)
                 else:
                     shutil.copy(img, train_dest_path / class_name / img.name)
@@ -133,7 +138,7 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
                     return
                 if resolution:
                     with Image.open(img) as image:
-                        image = image.convert('RGB').resize((resolution, resolution))
+                        image = image.convert(color_mode).resize((resolution, resolution))
                         image.save(val_dest_path / class_name / img.name)
                 else:
                     shutil.copy(img, val_dest_path / class_name / img.name)
@@ -148,7 +153,7 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
                     return
                 if resolution:
                     with Image.open(img) as image:
-                        image = image.convert('RGB').resize((resolution, resolution))
+                        image = image.convert(color_mode).resize((resolution, resolution))
                         image.save(test_dest_path / class_name / img.name)
                 else:
                     shutil.copy(img, test_dest_path / class_name / img.name)
@@ -168,10 +173,12 @@ if __name__ == '__main__':
     parser.add_argument('--test_ratio', type=float, default=0.1, help='Test set ratio')
     parser.add_argument('--resolution', type=int, default=None, help='Resolution to resize images to')
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
+    parser.add_argument('--image_extensions', type=str, default='.jpg,.jpeg,.png', help='Comma-separated list of image file extensions to include')
+    parser.add_argument('--color_mode', type=str, default='RGB', help='Target color mode for images (e.g., RGB, L)')
     
     args = parser.parse_args()
 
     def print_progress(message):
         print(message)
 
-    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, seed=args.seed, progress_callback=print_progress)
+    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, seed=args.seed, progress_callback=print_progress, image_extensions=args.image_extensions, color_mode=args.color_mode)
