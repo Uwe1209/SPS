@@ -1,10 +1,11 @@
 import argparse
+import copy
 import os
 import torch
 import timm
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import datasets, models, transforms
+from torchvision import datasets, transforms
 from timm.loss import LabelSmoothingCrossEntropy
 from PIL import ImageFile
 
@@ -172,6 +173,7 @@ def main(args, progress_callback=None):
         raise ValueError(f"Unsupported optimiser: {optimiser_name}")
 
     # 8. Implement the training loop
+    best_model_state = copy.deepcopy(model.state_dict())
     final_epoch_val_acc = 0.0
     best_val_loss = float('inf')
     best_val_acc = 0.0
@@ -231,12 +233,14 @@ def main(args, progress_callback=None):
                     if early_stopping_metric == 'loss':
                         if epoch_loss < best_val_loss - early_stopping_min_delta:
                             best_val_loss = epoch_loss
+                            best_model_state = copy.deepcopy(model.state_dict())
                             epochs_no_improve = 0
                         else:
                             epochs_no_improve += 1
                     elif early_stopping_metric == 'accuracy':
                         if epoch_acc > best_val_acc + early_stopping_min_delta:
                             best_val_acc = epoch_acc.item()
+                            best_model_state = copy.deepcopy(model.state_dict())
                             epochs_no_improve = 0
                         else:
                             epochs_no_improve += 1
@@ -250,6 +254,9 @@ def main(args, progress_callback=None):
 
     # 9. After training, save the model
     if save_path:
+        if early_stopping_patience > 0:
+            log("Loading best model state before saving.")
+            model.load_state_dict(best_model_state)
         torch.save(model.state_dict(), save_path)
 
     # 10. Evaluate on test set if it exists
