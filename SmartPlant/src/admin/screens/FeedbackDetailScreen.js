@@ -1,25 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { BackIcon, TrashIcon } from '../Icons';
+import { useAdminContext } from '../AdminContext';
 
 const FeedbackDetailScreen = ({ route, navigation }) => {
     const { feedback: initialFeedback } = route.params;
-    const [feedback, setFeedback] = useState(initialFeedback);
+    const { feedbacks, handleDeleteFeedback, handleReplyFeedback } = useAdminContext();
+    
+    const feedback = feedbacks.find(f => f.id === initialFeedback.id) || initialFeedback;
+    
     const [replyText, setReplyText] = useState('');
     const scrollRef = useRef(null);
 
-    // Note: onDelete and onReply will be fully connected later.
     const onDelete = (id) => {
-        console.log("Delete feedback:", id);
+        handleDeleteFeedback(id);
         navigation.goBack();
     };
+
     const onReply = (id, text) => {
-        const newReply = { text, time: 'Just now' };
-        setFeedback(currentFeedback => ({
-            ...currentFeedback,
-            replies: [...(currentFeedback.replies || []), newReply]
-        }));
-        console.log("Replied to feedback:", id, "with:", text);
+        handleReplyFeedback(id, text);
     };
 
     useEffect(() => {
