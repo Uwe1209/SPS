@@ -317,7 +317,7 @@ def main(page: ft.Page):
         clear_thread.start()
 
     clear_dataset_button = ft.ElevatedButton(
-        "Clear Processed Dataset",
+        "Clear processed dataset",
         on_click=clear_dataset,
         icon=ft.Icons.DELETE_FOREVER,
         bgcolor=ft.Colors.GREY_800,
@@ -327,7 +327,7 @@ def main(page: ft.Page):
     )
 
     process_start_button = ft.ElevatedButton(
-        text="Run Processing",
+        text="Run processing",
         on_click=start_processing,
         icon=ft.Icons.PLAY_ARROW,
         bgcolor=ft.Colors.GREY_800,
@@ -337,7 +337,7 @@ def main(page: ft.Page):
     )
 
     model_dropdown = ft.Dropdown(
-        label="Select Model",
+        label="Select model",
         options=[
             ft.dropdown.Option("resnet18"),
             ft.dropdown.Option("vgg16"),
