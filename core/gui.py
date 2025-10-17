@@ -137,12 +137,14 @@ def main(page: ft.Page):
                 raise ValueError("The sum of ratios cannot exceed 100")
             if not resolution > 0:
                 raise ValueError("Resolution must be a positive number")
+            if seed_field.value:
+                int(seed_field.value)
 
         except (ValueError, TypeError) as ex:
             if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex) or "positive number" in str(ex):
                 toast_text.value = str(ex)
             else:
-                toast_text.value = "Invalid ratios or resolution. Please enter numbers for train, validation, test ratios and resolution"
+                toast_text.value = "Invalid number in one of the fields. Please check ratios, resolution and seed."
             toast_progress_ring.visible = False
             cancel_button_row.visible = False
             toast_container.visible = True
@@ -159,6 +161,7 @@ def main(page: ft.Page):
         def run_processing():
             """Target function for the processing thread"""
             try:
+                seed_value = int(seed_field.value) if seed_field.value else None
                 process_dataset(
                     source_dir=source_dir,
                     dest_dir=dest_dir,
@@ -166,6 +169,7 @@ def main(page: ft.Page):
                     val_ratio=val_ratio / 100.0,
                     test_ratio=test_ratio / 100.0,
                     resolution=resolution,
+                    seed=seed_value,
                     progress_callback=progress_callback,
                     cancel_event=cancel_event
                 )
@@ -201,16 +205,28 @@ def main(page: ft.Page):
         toast_container.visible = True
         page.update()
 
-        settings = {
-            'data_dir': data_dir_path.value,
-            'model_name': model_dropdown.value or 'resnet18',
-            'num_epochs': int(epochs_field.value) if epochs_field.value else 25,
-            'batch_size': int(batch_size_field.value) if batch_size_field.value else 32,
-            'learning_rate': float(learning_rate_field.value) if learning_rate_field.value else 0.001,
-            'load_path': load_model_path.value or None,
-            'save_path': save_model_path.value or None,
-            'cancel_event': cancel_event,
-        }
+        try:
+            settings = {
+                'data_dir': data_dir_path.value,
+                'model_name': model_dropdown.value or 'resnet18',
+                'num_epochs': int(epochs_field.value) if epochs_field.value else 25,
+                'batch_size': int(batch_size_field.value) if batch_size_field.value else 32,
+                'learning_rate': float(learning_rate_field.value) if learning_rate_field.value else 0.001,
+                'load_path': load_model_path.value or None,
+                'save_path': save_model_path.value or None,
+                'cancel_event': cancel_event,
+                'data_augmentation': data_augmentation_switch.value,
+                'seed': int(seed_field.value) if seed_field.value else None,
+            }
+        except (ValueError, TypeError):
+            toast_text.value = "Invalid number in one of the fields. Please check hyperparameters and seed."
+            toast_progress_ring.visible = False
+            cancel_button_row.visible = False
+            start_button.disabled = False
+            page.update()
+            toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
+            toast_hide_timer.start()
+            return
 
         def run_finetuning(settings_dict):
             """Target function for the training thread"""
@@ -267,6 +283,7 @@ def main(page: ft.Page):
     val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     resolution_field = ft.TextField(label="Resolution (px)", value="224", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory"""
@@ -356,6 +373,7 @@ def main(page: ft.Page):
     epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
+    data_augmentation_switch = ft.Switch(label="Data augmentation", value=True)
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",
         on_click=start_finetuning,
@@ -482,6 +500,7 @@ def main(page: ft.Page):
                                                     ],
                                                     spacing=10,
                                                 ),
+                                                ft.Row([seed_field], spacing=10),
                                             ],
                                             spacing=10
                                         ),
@@ -619,6 +638,7 @@ def main(page: ft.Page):
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
+                                                data_augmentation_switch,
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -736,10 +756,11 @@ def main(page: ft.Page):
 
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
-        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "data_dir_path": data_dir_path,
-        "save_model_path": save_model_path, "load_model_path": load_model_path,
+        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "seed_field": seed_field,
+        "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_dropdown": model_dropdown, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
+        "data_augmentation_switch": data_augmentation_switch,
     }
 
     def save_inputs(e=None):

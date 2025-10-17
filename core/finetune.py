@@ -27,12 +27,24 @@ def main(args, progress_callback=None):
     learning_rate = args.get('learning_rate', 0.001)
     load_path = args.get('load_path')
     save_path = args.get('save_path')
+    data_augmentation = args.get('data_augmentation', True)
+    seed = args.get('seed')
+
+    if seed is not None:
+        torch.manual_seed(seed)
+        log(f"Using random seed: {seed}")
 
     # 1. Set up data transforms
+    train_transform_list = [
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+    ] if data_augmentation else [
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+    ]
+
     data_transforms = {
-        'train': transforms.Compose([
-            transforms.RandomResizedCrop(224),
-            transforms.RandomHorizontalFlip(),
+        'train': transforms.Compose(train_transform_list + [
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
@@ -166,6 +178,8 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
+    parser.add_argument('--data_augmentation', type=bool, default=True, help='Enable data augmentation')
+    parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
 
     args = parser.parse_args()
     main(vars(args))
