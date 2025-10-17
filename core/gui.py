@@ -270,9 +270,15 @@ def main(page: ft.Page):
                 page.update()
 
             try:
-                final_accuracy = finetune_main(settings_dict, progress_callback=progress_callback)
+                results = finetune_main(settings_dict, progress_callback=progress_callback)
                 if not cancel_event.is_set():
-                    progress_callback(f"Fine-tuning finished. Final validation accuracy: {final_accuracy:.4f}")
+                    val_acc = results.get('val_acc', 0.0)
+                    test_acc = results.get('test_acc')
+                    
+                    message = f"Fine-tuning finished. Final validation accuracy: {val_acc:.4f}"
+                    if test_acc is not None:
+                        message += f". Test accuracy: {test_acc:.4f}"
+                    progress_callback(message)
             except Exception as ex:
                 progress_callback(f"An error occurred: {ex}")
             finally:

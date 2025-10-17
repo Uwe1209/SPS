@@ -260,6 +260,7 @@ def main(args, progress_callback=None):
         torch.save(model.state_dict(), save_path)
 
     # 10. Evaluate on test set if it exists
+    test_acc_value = None
     if 'test' in dataloaders:
         log("Evaluating on test set...")
         model.eval()
@@ -280,12 +281,13 @@ def main(args, progress_callback=None):
 
         test_loss = running_loss / dataset_sizes['test']
         test_acc = running_corrects.double() / dataset_sizes['test']
+        test_acc_value = test_acc.item()
         log(f'Test Loss: {test_loss:.4f} Acc: {test_acc:.4f}')
 
     log("Fine-tuning finished")
     
-    # 11. Return the final validation accuracy
-    return final_epoch_val_acc
+    # 11. Return the final validation and test accuracies
+    return {'val_acc': final_epoch_val_acc, 'test_acc': test_acc_value}
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fine-tune a model on a new dataset')
