@@ -4,7 +4,7 @@ import random
 import pathlib
 from PIL import Image, ImageFile
 
-def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, seed=None, progress_callback=None, cancel_event=None, image_extensions=None, color_mode='RGB', overwrite_dest=False, load_truncated_images=True):
+def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, seed=None, progress_callback=None, cancel_event=None, image_extensions=None, color_mode='RGB', overwrite_dest=False, load_truncated_images=True, train_dir_name='train', val_dir_name='val', test_dir_name='test'):
     """
     Processes an image dataset by splitting it into training, validation, and test sets
 
@@ -40,9 +40,9 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
 
     # Ensure the destination directory exists
     dest_path.mkdir(parents=True, exist_ok=True)
-    train_dest_path = dest_path / 'train'
-    val_dest_path = dest_path / 'val'
-    test_dest_path = dest_path / 'test'
+    train_dest_path = dest_path / train_dir_name
+    val_dest_path = dest_path / val_dir_name
+    test_dest_path = dest_path / test_dir_name
 
     # Check if destination directories already contain data.
     if (train_dest_path.exists() and any(train_dest_path.iterdir())) or \
@@ -185,6 +185,9 @@ if __name__ == '__main__':
     parser.add_argument('--image_extensions', type=str, default='.jpg,.jpeg,.png', help='Comma-separated list of image file extensions to include')
     parser.add_argument('--color_mode', type=str, default='RGB', help='Target color mode for images (e.g., RGB, L)')
     parser.add_argument('--overwrite_dest', action='store_true', help='Overwrite destination directory if it exists')
+    parser.add_argument('--train_dir_name', type=str, default='train', help='Name for the training directory')
+    parser.add_argument('--val_dir_name', type=str, default='val', help='Name for the validation directory')
+    parser.add_argument('--test_dir_name', type=str, default='test', help='Name for the test directory')
     
     parser.set_defaults(load_truncated_images=True)
     parser.add_argument('--no-load-truncated-images', dest='load_truncated_images', action='store_false', help='Do not attempt to load truncated images')
@@ -194,4 +197,4 @@ if __name__ == '__main__':
     def print_progress(message):
         print(message)
 
-    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, seed=args.seed, progress_callback=print_progress, image_extensions=args.image_extensions, color_mode=args.color_mode, overwrite_dest=args.overwrite_dest, load_truncated_images=args.load_truncated_images)
+    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, seed=args.seed, progress_callback=print_progress, image_extensions=args.image_extensions, color_mode=args.color_mode, overwrite_dest=args.overwrite_dest, load_truncated_images=args.load_truncated_images, train_dir_name=args.train_dir_name, val_dir_name=args.val_dir_name, test_dir_name=args.test_dir_name)

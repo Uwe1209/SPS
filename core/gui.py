@@ -157,7 +157,10 @@ def main(page: ft.Page):
                     image_extensions=image_extensions_field.value,
                     color_mode=color_mode_dropdown.value,
                     overwrite_dest=overwrite_dest_switch.value,
-                    load_truncated_images=load_truncated_images_switch.value
+                    load_truncated_images=load_truncated_images_switch.value,
+                    train_dir_name=train_dir_name_field.value or 'train',
+                    val_dir_name=val_dir_name_field.value or 'val',
+                    test_dir_name=test_dir_name_field.value or 'test'
                 )
                 if not cancel_event.is_set():
                     progress_callback("Dataset processing finished successfully")
@@ -218,6 +221,9 @@ def main(page: ft.Page):
                 'resize_size': int(resize_size_field.value) if resize_size_field.value else int((int(input_size_field.value) if input_size_field.value else 224) / 224 * 256),
                 'num_workers': int(num_workers_field.value) if num_workers_field.value else 0,
                 'log_frequency': int(log_frequency_field.value) if log_frequency_field.value else 10,
+                'train_dir_name': train_dir_name_field.value or 'train',
+                'val_dir_name': val_dir_name_field.value or 'val',
+                'test_dir_name': test_dir_name_field.value or 'test',
                 'train_from_scratch': train_from_scratch_switch.value,
                 'strict_load': strict_load_switch.value,
                 'load_path': load_model_path.value or None,
@@ -307,6 +313,9 @@ def main(page: ft.Page):
 
     source_dir_path = ft.TextField(label="Source directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
     dest_dir_path = ft.TextField(label="Destination directory", read_only=True, border_width=0.5, height=TEXT_FIELD_HEIGHT, expand=3)
+    train_dir_name_field = ft.TextField(label="Train dir name", value="train", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    val_dir_name_field = ft.TextField(label="Val dir name", value="val", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    test_dir_name_field = ft.TextField(label="Test dir name", value="test", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     train_ratio_field = ft.TextField(label="Train ratio (%)", value="80", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
@@ -334,9 +343,9 @@ def main(page: ft.Page):
         if not dest_dir:
             toast_text.value = "Destination directory not set"
         else:
-            train_path = os.path.join(dest_dir, 'train')
-            val_path = os.path.join(dest_dir, 'val')
-            test_path = os.path.join(dest_dir, 'test')
+            train_path = os.path.join(dest_dir, train_dir_name_field.value or 'train')
+            val_path = os.path.join(dest_dir, val_dir_name_field.value or 'val')
+            test_path = os.path.join(dest_dir, test_dir_name_field.value or 'test')
             
             try:
                 if os.path.exists(train_path):
@@ -622,6 +631,14 @@ def main(page: ft.Page):
                                                         val_ratio_field,
                                                         test_ratio_field,
                                                         resolution_field,
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        train_dir_name_field,
+                                                        val_dir_name_field,
+                                                        test_dir_name_field,
                                                     ],
                                                     spacing=10,
                                                 ),
@@ -1056,6 +1073,7 @@ def main(page: ft.Page):
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
         "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "process_seed_field": process_seed_field,
+        "train_dir_name_field": train_dir_name_field, "val_dir_name_field": val_dir_name_field, "test_dir_name_field": test_dir_name_field,
         "image_extensions_field": image_extensions_field, "color_mode_dropdown": color_mode_dropdown, "overwrite_dest_switch": overwrite_dest_switch,
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_name_field": model_name_field, "epochs_field": epochs_field,

@@ -53,6 +53,9 @@ def main(args, progress_callback=None):
     train_from_scratch = args.get('train_from_scratch', False)
     strict_load = args.get('strict_load', False)
     log_frequency = args.get('log_frequency', 10)
+    train_dir_name = args.get('train_dir_name', 'train')
+    val_dir_name = args.get('val_dir_name', 'val')
+    test_dir_name = args.get('test_dir_name', 'test')
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
@@ -116,25 +119,25 @@ def main(args, progress_callback=None):
         val_transform_list.append(normalizer)
 
     data_transforms = {
-        'train': transforms.Compose(train_transform_list),
-        'val': transforms.Compose(val_transform_list),
-        'test': transforms.Compose(val_transform_list),
+        train_dir_name: transforms.Compose(train_transform_list),
+        val_dir_name: transforms.Compose(val_transform_list),
+        test_dir_name: transforms.Compose(val_transform_list),
     }
 
     # 2. Create ImageFolder datasets
-    phases = ['train', 'val']
-    if os.path.isdir(os.path.join(data_dir, 'test')):
-        phases.append('test')
+    phases = [train_dir_name, val_dir_name]
+    if os.path.isdir(os.path.join(data_dir, test_dir_name)):
+        phases.append(test_dir_name)
     
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
                       for x in phases}
     
     # 3. Create DataLoaders
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=(x == 'train'), num_workers=num_workers, pin_memory=pin_memory)
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=(x == train_dir_name), num_workers=num_workers, pin_memory=pin_memory)
                    for x in phases}
     
     dataset_sizes = {x: len(image_datasets[x]) for x in phases}
-    class_names = image_datasets['train'].classes
+    class_names = image_datasets[train_dir_name].classes
     num_classes = len(class_names)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -187,8 +190,8 @@ def main(args, progress_callback=None):
         log(f'Epoch {epoch}/{num_epochs - 1}')
         log('-' * 10)
 
-        for phase in ['train', 'val']:
-            if phase == 'train':
+        for phase in [train_dir_name, val_dir_name]:
+            if phase == train_dir_name:
                 model.train()
             else:
                 model.eval()
@@ -230,7 +233,7 @@ def main(args, progress_callback=None):
 
             log(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
-            if phase == 'val':
+            if phase == val_dir_name:
                 final_epoch_val_acc = epoch_acc.item()
                 if early_stopping_patience > 0:
                     if early_stopping_metric == 'loss':
@@ -264,13 +267,13 @@ def main(args, progress_callback=None):
 
     # 10. Evaluate on test set if it exists
     test_acc_value = None
-    if 'test' in dataloaders:
+    if test_dir_name in dataloaders:
         log("Evaluating on test set...")
         model.eval()
         running_loss = 0.0
         running_corrects = 0
 
-        for inputs, labels in dataloaders['test']:
+        for inputs, labels in dataloaders[test_dir_name]:
             inputs = inputs.to(device)
             labels = labels.to(device)
 
@@ -282,8 +285,8 @@ def main(args, progress_callback=None):
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
 
-        test_loss = running_loss / dataset_sizes['test']
-        test_acc = running_corrects.double() / dataset_sizes['test']
+        test_loss = running_loss / dataset_sizes[test_dir_name]
+        test_acc = running_corrects.double() / dataset_sizes[test_dir_name]
         test_acc_value = test_acc.item()
         log(f'Test Loss: {test_loss:.4f} Acc: {test_acc:.4f}')
 
@@ -324,6 +327,9 @@ if __name__ == '__main__':
     parser.add_argument('--train_from_scratch', action='store_true', help='Train model from scratch instead of using pretrained weights')
     parser.add_argument('--strict_load', action='store_true', help='Use strict loading for model state dict')
     parser.add_argument('--log_frequency', type=int, default=10, help='Number of times to log progress per epoch')
+    parser.add_argument('--train_dir_name', type=str, default='train', help='Name of the training directory')
+    parser.add_argument('--val_dir_name', type=str, default='val', help='Name of the validation directory')
+    parser.add_argument('--test_dir_name', type=str, default='test', help='Name of the test directory')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
