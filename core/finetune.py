@@ -53,6 +53,13 @@ def main(args, progress_callback=None):
     aug_rotation_degrees = args.get('aug_rotation_degrees', 15)
     aug_color_jitter_brightness = args.get('aug_color_jitter_brightness', 0.2)
     aug_color_jitter_contrast = args.get('aug_color_jitter_contrast', 0.2)
+    aug_color_jitter_saturation = args.get('aug_color_jitter_saturation', 0.2)
+    aug_color_jitter_hue = args.get('aug_color_jitter_hue', 0.1)
+    aug_crop_scale_min = args.get('aug_crop_scale_min', 0.08)
+    aug_crop_scale_max = args.get('aug_crop_scale_max', 1.0)
+    aug_crop_ratio_min = args.get('aug_crop_ratio_min', 0.75)
+    aug_crop_ratio_max = args.get('aug_crop_ratio_max', 1.33)
+    pin_memory = args.get('pin_memory', False)
     
     seed = args.get('seed')
 
@@ -64,7 +71,7 @@ def main(args, progress_callback=None):
     resize_size = int(input_size / 224 * 256)
     train_transform_list = []
     if aug_random_resized_crop:
-        train_transform_list.append(transforms.RandomResizedCrop(input_size))
+        train_transform_list.append(transforms.RandomResizedCrop(input_size, scale=(aug_crop_scale_min, aug_crop_scale_max), ratio=(aug_crop_ratio_min, aug_crop_ratio_max)))
     else:
         train_transform_list.extend([
             transforms.Resize(resize_size),
@@ -76,7 +83,7 @@ def main(args, progress_callback=None):
     if aug_rotation:
         train_transform_list.append(transforms.RandomRotation(aug_rotation_degrees))
     if aug_color_jitter:
-        train_transform_list.append(transforms.ColorJitter(brightness=aug_color_jitter_brightness, contrast=aug_color_jitter_contrast))
+        train_transform_list.append(transforms.ColorJitter(brightness=aug_color_jitter_brightness, contrast=aug_color_jitter_contrast, saturation=aug_color_jitter_saturation, hue=aug_color_jitter_hue))
 
     train_transform_list.append(transforms.ToTensor())
     
@@ -110,7 +117,7 @@ def main(args, progress_callback=None):
                       for x in ['train', 'val']}
     
     # 3. Create DataLoaders
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=(x == 'train'), num_workers=num_workers, pin_memory=pin_memory)
                    for x in ['train', 'val']}
     
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
@@ -253,6 +260,7 @@ if __name__ == '__main__':
     parser.add_argument('--norm_std', type=str, default='0.229, 0.224, 0.225', help='Custom normalization standard deviation')
     parser.add_argument('--input_size', type=int, default=224, help='Input image size')
     parser.add_argument('--num_workers', type=int, default=0, help='Number of data loader workers')
+    parser.add_argument('--pin_memory', action='store_true', help='Use pin memory for data loaders')
     parser.add_argument('--train_from_scratch', action='store_true', help='Train model from scratch instead of using pretrained weights')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
@@ -266,6 +274,12 @@ if __name__ == '__main__':
     parser.add_argument('--aug_rotation_degrees', type=int, default=15, help='Max rotation degrees for augmentation')
     parser.add_argument('--aug_color_jitter_brightness', type=float, default=0.2, help='Brightness for color jitter augmentation')
     parser.add_argument('--aug_color_jitter_contrast', type=float, default=0.2, help='Contrast for color jitter augmentation')
+    parser.add_argument('--aug_color_jitter_saturation', type=float, default=0.2, help='Saturation for color jitter augmentation')
+    parser.add_argument('--aug_color_jitter_hue', type=float, default=0.1, help='Hue for color jitter augmentation')
+    parser.add_argument('--aug_crop_scale_min', type=float, default=0.08, help='Min scale for random resized crop')
+    parser.add_argument('--aug_crop_scale_max', type=float, default=1.0, help='Max scale for random resized crop')
+    parser.add_argument('--aug_crop_ratio_min', type=float, default=0.75, help='Min aspect ratio for random resized crop')
+    parser.add_argument('--aug_crop_ratio_max', type=float, default=1.33, help='Max aspect ratio for random resized crop')
 
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
 

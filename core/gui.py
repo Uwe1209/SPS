@@ -256,6 +256,13 @@ def main(page: ft.Page):
                 'aug_color_jitter': aug_color_jitter_switch.value,
                 'aug_color_jitter_brightness': float(aug_color_jitter_brightness_field.value) if aug_color_jitter_brightness_field.value else 0.2,
                 'aug_color_jitter_contrast': float(aug_color_jitter_contrast_field.value) if aug_color_jitter_contrast_field.value else 0.2,
+                'aug_color_jitter_saturation': float(aug_color_jitter_saturation_field.value) if aug_color_jitter_saturation_field.value else 0.2,
+                'aug_color_jitter_hue': float(aug_color_jitter_hue_field.value) if aug_color_jitter_hue_field.value else 0.1,
+                'aug_crop_scale_min': float(aug_crop_scale_min_field.value) if aug_crop_scale_min_field.value else 0.08,
+                'aug_crop_scale_max': float(aug_crop_scale_max_field.value) if aug_crop_scale_max_field.value else 1.0,
+                'aug_crop_ratio_min': float(aug_crop_ratio_min_field.value) if aug_crop_ratio_min_field.value else 0.75,
+                'aug_crop_ratio_max': float(aug_crop_ratio_max_field.value) if aug_crop_ratio_max_field.value else 1.33,
+                'pin_memory': pin_memory_switch.value,
                 'seed': int(finetune_seed_field.value) if finetune_seed_field.value else None,
             }
         except (ValueError, TypeError):
@@ -426,6 +433,7 @@ def main(page: ft.Page):
     early_stopping_switch = ft.Switch(value=False)
     early_stopping_patience_field = ft.TextField(label="Patience", value="5", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     early_stopping_min_delta_field = ft.TextField(label="Min delta", value="0.001", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    pin_memory_switch = ft.Switch(value=False)
     
     sgd_momentum_field = ft.TextField(label="SGD Momentum", value="0.9", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     adam_beta1_field = ft.TextField(label="Adam/W Beta1", value="0.9", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
@@ -477,6 +485,12 @@ def main(page: ft.Page):
     aug_color_jitter_switch = ft.Switch(value=True)
     aug_color_jitter_brightness_field = ft.TextField(label="Brightness", value="0.2", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     aug_color_jitter_contrast_field = ft.TextField(label="Contrast", value="0.2", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_color_jitter_saturation_field = ft.TextField(label="Saturation", value="0.2", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_color_jitter_hue_field = ft.TextField(label="Hue", value="0.1", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_crop_scale_min_field = ft.TextField(label="Min Scale", value="0.08", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_crop_scale_max_field = ft.TextField(label="Max Scale", value="1.0", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_crop_ratio_min_field = ft.TextField(label="Min Ratio", value="0.75", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_crop_ratio_max_field = ft.TextField(label="Max Ratio", value="1.33", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",
@@ -642,54 +656,6 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
-                                                ft.Text("Optimiser Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Divider(),
-                                                ft.Row([sgd_momentum_field, adam_beta1_field], spacing=10),
-                                                ft.Row([adam_beta2_field, adam_eps_field], spacing=10),
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Normalisation and Loss", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Divider(),
-                                                loss_function_dropdown,
-                                                ft.Row(
-                                                    [
-                                                        ft.Text("Use ImageNet Normalisation", expand=True),
-                                                        use_imagenet_norm_switch,
-                                                    ],
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                                norm_mean_field,
-                                                norm_std_field,
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
                                                 ft.Row(
@@ -833,6 +799,13 @@ def main(page: ft.Page):
                                                 ),
                                                 ft.Row(
                                                     [
+                                                        ft.Text("Pin Memory (CUDA)", expand=True),
+                                                        pin_memory_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
                                                         ft.Text("Early Stopping", expand=True),
                                                         early_stopping_switch,
                                                     ],
@@ -872,6 +845,20 @@ def main(page: ft.Page):
                                                 ),
                                                 ft.Row(
                                                     [
+                                                        aug_crop_scale_min_field,
+                                                        aug_crop_scale_max_field,
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        aug_crop_ratio_min_field,
+                                                        aug_crop_ratio_max_field,
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                                ft.Row(
+                                                    [
                                                         ft.Text("Random Horizontal Flip", expand=True),
                                                         aug_horizontal_flip_switch,
                                                     ],
@@ -896,6 +883,13 @@ def main(page: ft.Page):
                                                     [
                                                         aug_color_jitter_brightness_field,
                                                         aug_color_jitter_contrast_field,
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        aug_color_jitter_saturation_field,
+                                                        aug_color_jitter_hue_field,
                                                     ],
                                                     spacing=10,
                                                 ),
@@ -1044,12 +1038,14 @@ def main(page: ft.Page):
         "loss_function_dropdown": loss_function_dropdown,
         "use_imagenet_norm_switch": use_imagenet_norm_switch, "norm_mean_field": norm_mean_field, "norm_std_field": norm_std_field,
         "mixed_precision_switch": mixed_precision_switch,
+        "pin_memory_switch": pin_memory_switch,
         "early_stopping_switch": early_stopping_switch, "early_stopping_patience_field": early_stopping_patience_field, "early_stopping_min_delta_field": early_stopping_min_delta_field,
         "finetune_seed_field": finetune_seed_field,
         "aug_random_resized_crop_switch": aug_random_resized_crop_switch,
+        "aug_crop_scale_min_field": aug_crop_scale_min_field, "aug_crop_scale_max_field": aug_crop_scale_max_field, "aug_crop_ratio_min_field": aug_crop_ratio_min_field, "aug_crop_ratio_max_field": aug_crop_ratio_max_field,
         "aug_horizontal_flip_switch": aug_horizontal_flip_switch,
         "aug_rotation_switch": aug_rotation_switch, "aug_rotation_degrees_field": aug_rotation_degrees_field,
-        "aug_color_jitter_switch": aug_color_jitter_switch, "aug_color_jitter_brightness_field": aug_color_jitter_brightness_field, "aug_color_jitter_contrast_field": aug_color_jitter_contrast_field,
+        "aug_color_jitter_switch": aug_color_jitter_switch, "aug_color_jitter_brightness_field": aug_color_jitter_brightness_field, "aug_color_jitter_contrast_field": aug_color_jitter_contrast_field, "aug_color_jitter_saturation_field": aug_color_jitter_saturation_field, "aug_color_jitter_hue_field": aug_color_jitter_hue_field,
     }
 
     def save_inputs(e=None):
