@@ -21,7 +21,7 @@ def hide_toast(page: ft.Page):
 
 def main(page: ft.Page):
     """Main function for the Flet GUI"""
-    page.title = "Remapped"
+    page.title = "Core"
     page.theme_mode = ft.ThemeMode.DARK
     page.window_min_width = 640
     page.window_min_height = 360
