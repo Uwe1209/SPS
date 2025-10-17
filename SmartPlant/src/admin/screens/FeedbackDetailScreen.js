@@ -92,7 +92,7 @@ const FeedbackDetailScreen = ({ route, navigation }) => {
                 <View style={styles.replyContainer}>
                     <TextInput
                         style={styles.replyInput}
-                        rows="3"
+                        numberOfLines={3}
                         placeholder="Type your reply here..."
                         value={replyText}
                         onChangeText={setReplyText}
