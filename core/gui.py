@@ -227,6 +227,8 @@ def main(page: ft.Page):
                 'learning_rate': float(learning_rate_field.value) if learning_rate_field.value else 0.001,
                 'dropout_rate': float(dropout_rate_field.value) if dropout_rate_field.value else 0.0,
                 'optimiser': optimiser_dropdown.value or 'adamw',
+                'early_stopping_patience': int(early_stopping_patience_field.value) if early_stopping_switch.value and early_stopping_patience_field.value else 0,
+                'early_stopping_min_delta': float(early_stopping_min_delta_field.value) if early_stopping_switch.value and early_stopping_min_delta_field.value else 0.0,
                 'load_path': load_model_path.value or None,
                 'save_path': save_model_path.value or None,
                 'cancel_event': cancel_event,
@@ -383,6 +385,9 @@ def main(page: ft.Page):
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
     dropout_rate_field = ft.TextField(label="Dropout rate", value="0.0", height=TEXT_FIELD_HEIGHT)
+    early_stopping_switch = ft.Switch(value=False)
+    early_stopping_patience_field = ft.TextField(label="Patience", value="5", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    early_stopping_min_delta_field = ft.TextField(label="Min delta", value="0.001", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     optimiser_dropdown = ft.Dropdown(
         label="Optimiser",
         value="adamw",
@@ -394,6 +399,7 @@ def main(page: ft.Page):
         border_radius=8,
         border_color=ft.Colors.GREY_700,
         focused_border_color=ft.Colors.GREY_600,
+        expand=True,
     )
     finetune_seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
     
@@ -683,6 +689,21 @@ def main(page: ft.Page):
                                                 learning_rate_field,
                                                 dropout_rate_field,
                                                 optimiser_dropdown,
+                                                ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Early Stopping", expand=True),
+                                                        early_stopping_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        early_stopping_patience_field,
+                                                        early_stopping_min_delta_field,
+                                                    ],
+                                                    spacing=10,
+                                                ),
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -867,6 +888,7 @@ def main(page: ft.Page):
         "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
         "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,
+        "early_stopping_switch": early_stopping_switch, "early_stopping_patience_field": early_stopping_patience_field, "early_stopping_min_delta_field": early_stopping_min_delta_field,
         "finetune_seed_field": finetune_seed_field,
         "aug_random_resized_crop_switch": aug_random_resized_crop_switch,
         "aug_horizontal_flip_switch": aug_horizontal_flip_switch,

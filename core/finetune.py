@@ -30,6 +30,8 @@ def main(args, progress_callback=None):
     optimiser_name = args.get('optimiser', 'adamw')
     load_path = args.get('load_path')
     save_path = args.get('save_path')
+    early_stopping_patience = args.get('early_stopping_patience', 0)
+    early_stopping_min_delta = args.get('early_stopping_min_delta', 0.0)
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
@@ -112,6 +114,8 @@ def main(args, progress_callback=None):
 
     # 8. Implement the training loop
     final_epoch_val_acc = 0.0
+    best_val_loss = float('inf')
+    epochs_no_improve = 0
 
     for epoch in range(num_epochs):
         if cancel_event and cancel_event.is_set():
@@ -161,6 +165,19 @@ def main(args, progress_callback=None):
 
             if phase == 'val':
                 final_epoch_val_acc = epoch_acc.item()
+                if early_stopping_patience > 0:
+                    if epoch_loss < best_val_loss - early_stopping_min_delta:
+                        best_val_loss = epoch_loss
+                        epochs_no_improve = 0
+                    else:
+                        epochs_no_improve += 1
+                    
+                    if epochs_no_improve >= early_stopping_patience:
+                        log(f"Early stopping triggered after {epochs_no_improve} epochs with no improvement.")
+                        break
+        else:
+            continue
+        break
 
     # 9. After training, save the model
     if save_path:
@@ -181,6 +198,8 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
     parser.add_argument('--dropout_rate', type=float, default=0.0, help='Dropout rate for the model classifier')
     parser.add_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
+    parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
+    parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
