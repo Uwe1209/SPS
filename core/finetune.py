@@ -145,7 +145,7 @@ def main(args, progress_callback=None):
     if optimiser_name == 'adam':
         optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
     elif optimiser_name == 'adamw':
-        optimizer = optimim.AdamW(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
+        optimizer = optim.AdamW(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
     elif optimiser_name == 'sgd':
         optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=sgd_momentum)
     else:
@@ -238,7 +238,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
     parser.add_argument('--dropout_rate', type=float, default=0.0, help='Dropout rate for the model classifier')
-    parseradd_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
+    parser.add_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
     parser.add_argument('--sgd_momentum', type=float, default=0.9, help='Momentum for SGD optimizer')
     parser.add_argument('--adam_beta1', type=float, default=0.9, help='Beta1 for Adam/AdamW optimizers')
     parser.add_argument('--adam_beta2', type=float, default=0.999, help='Beta2 for Adam/AdamW optimizers')
