@@ -225,6 +225,8 @@ def main(page: ft.Page):
                 'num_epochs': int(epochs_field.value) if epochs_field.value else 25,
                 'batch_size': int(batch_size_field.value) if batch_size_field.value else 32,
                 'learning_rate': float(learning_rate_field.value) if learning_rate_field.value else 0.001,
+                'dropout_rate': float(dropout_rate_field.value) if dropout_rate_field.value else 0.0,
+                'optimiser': optimiser_dropdown.value or 'adamw',
                 'load_path': load_model_path.value or None,
                 'save_path': save_model_path.value or None,
                 'cancel_event': cancel_event,
@@ -380,6 +382,19 @@ def main(page: ft.Page):
     epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
+    dropout_rate_field = ft.TextField(label="Dropout rate", value="0.0", height=TEXT_FIELD_HEIGHT)
+    optimiser_dropdown = ft.Dropdown(
+        label="Optimiser",
+        value="adamw",
+        options=[
+            ft.dropdown.Option("adam"),
+            ft.dropdown.Option("adamw"),
+            ft.dropdown.Option("sgd"),
+        ],
+        border_radius=8,
+        border_color=ft.Colors.GREY_700,
+        focused_border_color=ft.Colors.GREY_600,
+    )
     finetune_seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
     
     aug_random_resized_crop_switch = ft.Switch(value=True)
@@ -666,6 +681,8 @@ def main(page: ft.Page):
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
+                                                dropout_rate_field,
+                                                optimiser_dropdown,
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -849,6 +866,7 @@ def main(page: ft.Page):
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
+        "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,
         "finetune_seed_field": finetune_seed_field,
         "aug_random_resized_crop_switch": aug_random_resized_crop_switch,
         "aug_horizontal_flip_switch": aug_horizontal_flip_switch,

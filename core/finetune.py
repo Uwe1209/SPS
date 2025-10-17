@@ -26,6 +26,8 @@ def main(args, progress_callback=None):
     num_epochs = args.get('num_epochs', 25)
     batch_size = args.get('batch_size', 32)
     learning_rate = args.get('learning_rate', 0.001)
+    dropout_rate = args.get('dropout_rate', 0.0)
+    optimiser_name = args.get('optimiser', 'adamw')
     load_path = args.get('load_path')
     save_path = args.get('save_path')
     
@@ -87,7 +89,7 @@ def main(args, progress_callback=None):
 
     # 4. Load pretrained model from timm
     # This will load a pretrained model and replace the classifier head with a new one for our number of classes.
-    model = timm.create_model(model_name, pretrained=True, num_classes=num_classes)
+    model = timm.create_model(model_name, pretrained=True, num_classes=num_classes, drop_rate=dropout_rate)
 
     # 5. If a load_path is provided, load the model state
     if load_path:
@@ -98,7 +100,15 @@ def main(args, progress_callback=None):
 
     # 7. Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    
+    if optimiser_name == 'adam':
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    elif optimiser_name == 'adamw':
+        optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+    elif optimiser_name == 'sgd':
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    else:
+        raise ValueError(f"Unsupported optimiser: {optimiser_name}")
 
     # 8. Implement the training loop
     final_epoch_val_acc = 0.0
@@ -169,6 +179,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_epochs', type=int, default=25, help='Number of epochs to train for')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
+    parser.add_argument('--dropout_rate', type=float, default=0.0, help='Dropout rate for the model classifier')
+    parser.add_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
