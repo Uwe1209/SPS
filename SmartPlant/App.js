@@ -21,6 +21,7 @@ import PostDetail from "./src/pages/PostDetail";
 import ReportError from "./src/pages/ReportError";
 import TopSuggestions from "./src/pages/TopSuggestions";
 import CreatePost from "./src/pages/CreatePost";
+import AdminNavigator from './src/admin/AdminNavigator';
 
 const Stack = createStackNavigator();
 
@@ -46,6 +47,7 @@ export default function App() {
         <Stack.Screen name="ReportError" component={ReportError}/>
         <Stack.Screen name="TopSuggestions" component={TopSuggestions}/>
         <Stack.Screen name="CreatePost" component={CreatePost}/>
+        <Stack.Screen name="AdminDashboard" component={AdminNavigator} />
 
 
       </Stack.Navigator>
