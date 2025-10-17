@@ -189,7 +189,9 @@ def main(page: ft.Page):
                     progress_callback=progress_callback,
                     cancel_event=cancel_event,
                     image_extensions=image_extensions_field.value,
-                    color_mode=color_mode_dropdown.value
+                    color_mode=color_mode_dropdown.value,
+                    overwrite_dest=overwrite_dest_switch.value,
+                    load_truncated_images=load_truncated_images_switch.value
                 )
                 if not cancel_event.is_set():
                     progress_callback("Dataset processing finished successfully")
@@ -234,6 +236,7 @@ def main(page: ft.Page):
                 'optimiser': optimiser_dropdown.value or 'adamw',
                 'early_stopping_patience': int(early_stopping_patience_field.value) if early_stopping_switch.value and early_stopping_patience_field.value else 0,
                 'early_stopping_min_delta': float(early_stopping_min_delta_field.value) if early_stopping_switch.value and early_stopping_min_delta_field.value else 0.0,
+                'early_stopping_metric': early_stopping_metric_dropdown.value or 'loss',
                 'mixed_precision': mixed_precision_switch.value,
                 'sgd_momentum': float(sgd_momentum_field.value) if sgd_momentum_field.value else 0.9,
                 'adam_beta1': float(adam_beta1_field.value) if adam_beta1_field.value else 0.9,
@@ -244,8 +247,10 @@ def main(page: ft.Page):
                 'norm_mean': norm_mean_field.value,
                 'norm_std': norm_std_field.value,
                 'input_size': int(input_size_field.value) if input_size_field.value else 224,
+                'resize_size': int(resize_size_field.value) if resize_size_field.value else int((int(input_size_field.value) if input_size_field.value else 224) / 224 * 256),
                 'num_workers': int(num_workers_field.value) if num_workers_field.value else 0,
                 'train_from_scratch': train_from_scratch_switch.value,
+                'strict_load': strict_load_switch.value,
                 'load_path': load_model_path.value or None,
                 'save_path': save_model_path.value or None,
                 'cancel_event': cancel_event,
@@ -263,6 +268,7 @@ def main(page: ft.Page):
                 'aug_crop_ratio_min': float(aug_crop_ratio_min_field.value) if aug_crop_ratio_min_field.value else 0.75,
                 'aug_crop_ratio_max': float(aug_crop_ratio_max_field.value) if aug_crop_ratio_max_field.value else 1.33,
                 'pin_memory': pin_memory_switch.value,
+                'load_truncated_images': load_truncated_images_switch.value,
                 'seed': int(finetune_seed_field.value) if finetune_seed_field.value else None,
             }
         except (ValueError, TypeError):
@@ -345,6 +351,7 @@ def main(page: ft.Page):
         expand=True,
     )
     process_seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
+    overwrite_dest_switch = ft.Switch(value=False)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory"""
@@ -426,13 +433,27 @@ def main(page: ft.Page):
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
     input_size_field = ft.TextField(label="Input size (px)", value="224", height=TEXT_FIELD_HEIGHT)
+    resize_size_field = ft.TextField(label="Resize size (px)", value="256", height=TEXT_FIELD_HEIGHT)
     num_workers_field = ft.TextField(label="Data loader workers", value="0", height=TEXT_FIELD_HEIGHT)
     train_from_scratch_switch = ft.Switch(value=False)
+    strict_load_switch = ft.Switch(value=False)
     dropout_rate_field = ft.TextField(label="Dropout rate", value="0.0", height=TEXT_FIELD_HEIGHT)
     mixed_precision_switch = ft.Switch(value=False)
     early_stopping_switch = ft.Switch(value=False)
     early_stopping_patience_field = ft.TextField(label="Patience", value="5", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     early_stopping_min_delta_field = ft.TextField(label="Min delta", value="0.001", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    early_stopping_metric_dropdown = ft.Dropdown(
+        label="Early Stopping Metric",
+        value="loss",
+        options=[
+            ft.dropdown.Option("loss"),
+            ft.dropdown.Option("accuracy"),
+        ],
+        border_radius=8,
+        border_color=ft.Colors.GREY_700,
+        focused_border_color=ft.Colors.GREY_600,
+        expand=True,
+    )
     pin_memory_switch = ft.Switch(value=False)
     
     sgd_momentum_field = ft.TextField(label="SGD Momentum", value="0.9", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
@@ -462,6 +483,7 @@ def main(page: ft.Page):
     use_imagenet_norm_switch = ft.Switch(value=True)
     norm_mean_field = ft.TextField(label="Normalisation Mean (comma-separated)", value="0.485, 0.456, 0.406", height=TEXT_FIELD_HEIGHT, expand=True, disabled=True)
     norm_std_field = ft.TextField(label="Normalisation Std Dev (comma-separated)", value="0.229, 0.224, 0.225", height=TEXT_FIELD_HEIGHT, expand=True, disabled=True)
+    load_truncated_images_switch = ft.Switch(value=True)
 
     optimiser_dropdown = ft.Dropdown(
         label="Optimiser",
@@ -590,6 +612,13 @@ def main(page: ft.Page):
                                                     spacing=10,
                                                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                 ),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Strictly enforce model keys on load", expand=True),
+                                                        strict_load_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -656,6 +685,30 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
+                                                ft.Text("Advanced Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Load truncated images", expand=True),
+                                                        load_truncated_images_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                            ],
+                                            spacing=10,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
                                                 ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
                                                 ft.Row(
@@ -665,6 +718,14 @@ def main(page: ft.Page):
                                                     ],
                                                     spacing=10,
                                                     alignment=ft.MainAxisAlignment.CENTER,
+                                                ),
+                                                ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Overwrite destination", expand=True),
+                                                        overwrite_dest_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                 ),
                                             ],
                                             spacing=10,
@@ -827,6 +888,7 @@ def main(page: ft.Page):
                                                 batch_size_field,
                                                 learning_rate_field,
                                                 input_size_field,
+                                                resize_size_field,
                                                 num_workers_field,
                                                 dropout_rate_field,
                                                 optimiser_dropdown,
@@ -866,6 +928,7 @@ def main(page: ft.Page):
                                                     ],
                                                     spacing=10,
                                                 ),
+                                                early_stopping_metric_dropdown,
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -1075,19 +1138,21 @@ def main(page: ft.Page):
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
         "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "process_seed_field": process_seed_field,
-        "image_extensions_field": image_extensions_field, "color_mode_dropdown": color_mode_dropdown,
+        "image_extensions_field": image_extensions_field, "color_mode_dropdown": color_mode_dropdown, "overwrite_dest_switch": overwrite_dest_switch,
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
-        "input_size_field": input_size_field, "num_workers_field": num_workers_field,
+        "input_size_field": input_size_field, "resize_size_field": resize_size_field, "num_workers_field": num_workers_field,
         "train_from_scratch_switch": train_from_scratch_switch,
+        "strict_load_switch": strict_load_switch,
         "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,
         "sgd_momentum_field": sgd_momentum_field, "adam_beta1_field": adam_beta1_field, "adam_beta2_field": adam_beta2_field, "adam_eps_field": adam_eps_field,
         "loss_function_dropdown": loss_function_dropdown,
         "use_imagenet_norm_switch": use_imagenet_norm_switch, "norm_mean_field": norm_mean_field, "norm_std_field": norm_std_field,
+        "load_truncated_images_switch": load_truncated_images_switch,
         "mixed_precision_switch": mixed_precision_switch,
         "pin_memory_switch": pin_memory_switch,
-        "early_stopping_switch": early_stopping_switch, "early_stopping_patience_field": early_stopping_patience_field, "early_stopping_min_delta_field": early_stopping_min_delta_field,
+        "early_stopping_switch": early_stopping_switch, "early_stopping_patience_field": early_stopping_patience_field, "early_stopping_min_delta_field": early_stopping_min_delta_field, "early_stopping_metric_dropdown": early_stopping_metric_dropdown,
         "finetune_seed_field": finetune_seed_field,
         "aug_random_resized_crop_switch": aug_random_resized_crop_switch,
         "aug_crop_scale_min_field": aug_crop_scale_min_field, "aug_crop_scale_max_field": aug_crop_scale_max_field, "aug_crop_ratio_min_field": aug_crop_ratio_min_field, "aug_crop_ratio_max_field": aug_crop_ratio_max_field,

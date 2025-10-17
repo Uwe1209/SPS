@@ -7,8 +7,6 @@ import torch.optim as optim
 from torchvision import datasets, models, transforms
 from PIL import ImageFile
 
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
 def main(args, progress_callback=None):
     """Main function to run the fine-tuning script"""
     
@@ -19,6 +17,9 @@ def main(args, progress_callback=None):
             print(message)
 
     log("Starting fine-tuning")
+
+    load_truncated_images = args.get('load_truncated_images', True)
+    ImageFile.LOAD_TRUNCATED_IMAGES = load_truncated_images
     
     cancel_event = args.get('cancel_event')
     data_dir = args['data_dir']
@@ -37,13 +38,16 @@ def main(args, progress_callback=None):
     save_path = args.get('save_path')
     early_stopping_patience = args.get('early_stopping_patience', 0)
     early_stopping_min_delta = args.get('early_stopping_min_delta', 0.0)
+    early_stopping_metric = args.get('early_stopping_metric', 'loss')
     mixed_precision = args.get('mixed_precision', False)
     use_imagenet_norm = args.get('use_imagenet_norm', True)
     norm_mean_str = args.get('norm_mean', '0.485, 0.456, 0.406')
     norm_std_str = args.get('norm_std', '0.229, 0.224, 0.225')
     input_size = args.get('input_size', 224)
+    resize_size = args.get('resize_size', int(input_size / 224 * 256))
     num_workers = args.get('num_workers', 0)
     train_from_scratch = args.get('train_from_scratch', False)
+    strict_load = args.get('strict_load', False)
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
@@ -68,7 +72,6 @@ def main(args, progress_callback=None):
         log(f"Using random seed: {seed}")
 
     # 1. Set up data transforms
-    resize_size = int(input_size / 224 * 256)
     train_transform_list = []
     if aug_random_resized_crop:
         train_transform_list.append(transforms.RandomResizedCrop(input_size, scale=(aug_crop_scale_min, aug_crop_scale_max), ratio=(aug_crop_ratio_min, aug_crop_ratio_max)))
@@ -139,7 +142,7 @@ def main(args, progress_callback=None):
     # 5. If a load_path is provided, load the model state
     if load_path:
         # Using strict=False allows loading weights from a checkpoint with a different classifier.
-        model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
+        model.load_state_dict(torch.load(load_path, map_location=device), strict=strict_load)
 
     model = model.to(device)
 
@@ -161,6 +164,7 @@ def main(args, progress_callback=None):
     # 8. Implement the training loop
     final_epoch_val_acc = 0.0
     best_val_loss = float('inf')
+    best_val_acc = 0.0
     epochs_no_improve = 0
 
     for epoch in range(num_epochs):
@@ -214,11 +218,18 @@ def main(args, progress_callback=None):
             if phase == 'val':
                 final_epoch_val_acc = epoch_acc.item()
                 if early_stopping_patience > 0:
-                    if epoch_loss < best_val_loss - early_stopping_min_delta:
-                        best_val_loss = epoch_loss
-                        epochs_no_improve = 0
-                    else:
-                        epochs_no_improve += 1
+                    if early_stopping_metric == 'loss':
+                        if epoch_loss < best_val_loss - early_stopping_min_delta:
+                            best_val_loss = epoch_loss
+                            epochs_no_improve = 0
+                        else:
+                            epochs_no_improve += 1
+                    elif early_stopping_metric == 'accuracy':
+                        if epoch_acc > best_val_acc + early_stopping_min_delta:
+                            best_val_acc = epoch_acc.item()
+                            epochs_no_improve = 0
+                        else:
+                            epochs_no_improve += 1
                     
                     if epochs_no_improve >= early_stopping_patience:
                         log(f"Early stopping triggered after {epochs_no_improve} epochs with no improvement.")
@@ -253,15 +264,18 @@ if __name__ == '__main__':
     parser.add_argument('--loss_function', type=str, default='cross_entropy', choices=['cross_entropy'], help='Loss function to use')
     parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
     parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
+    parser.add_argument('--early_stopping_metric', type=str, default='loss', choices=['loss', 'accuracy'], help='Metric for early stopping')
     parser.add_argument('--mixed_precision', action='store_true', help='Use mixed precision training (AMP)')
     parser.set_defaults(use_imagenet_norm=True)
     parser.add_argument('--no-imagenet-norm', dest='use_imagenet_norm', action='store_false', help='Disable ImageNet normalization')
     parser.add_argument('--norm_mean', type=str, default='0.485, 0.456, 0.406', help='Custom normalization mean')
     parser.add_argument('--norm_std', type=str, default='0.229, 0.224, 0.225', help='Custom normalization standard deviation')
     parser.add_argument('--input_size', type=int, default=224, help='Input image size')
+    parser.add_argument('--resize_size', type=int, default=None, help='Size to resize images to before cropping (defaults to 256 for 224 input)')
     parser.add_argument('--num_workers', type=int, default=0, help='Number of data loader workers')
     parser.add_argument('--pin_memory', action='store_true', help='Use pin memory for data loaders')
     parser.add_argument('--train_from_scratch', action='store_true', help='Train model from scratch instead of using pretrained weights')
+    parser.add_argument('--strict_load', action='store_true', help='Use strict loading for model state dict')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
@@ -282,6 +296,9 @@ if __name__ == '__main__':
     parser.add_argument('--aug_crop_ratio_max', type=float, default=1.33, help='Max aspect ratio for random resized crop')
 
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
+
+    parser.set_defaults(load_truncated_images=True)
+    parser.add_argument('--no-load-truncated-images', dest='load_truncated_images', action='store_false', help='Do not attempt to load truncated images')
 
     args = parser.parse_args()
     main(vars(args))

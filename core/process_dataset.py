@@ -4,9 +4,7 @@ import random
 import pathlib
 from PIL import Image, ImageFile
 
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, seed=None, progress_callback=None, cancel_event=None, image_extensions=None, color_mode='RGB'):
+def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_ratio=0.1, resolution=None, seed=None, progress_callback=None, cancel_event=None, image_extensions=None, color_mode='RGB', overwrite_dest=False, load_truncated_images=True):
     """
     Processes an image dataset by splitting it into training, validation, and test sets
 
@@ -24,6 +22,7 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
         image_extensions (str, optional): Comma-separated string of image extensions to include.
         color_mode (str, optional): The color mode to convert images to (e.g., 'RGB', 'L').
     """
+    ImageFile.LOAD_TRUNCATED_IMAGES = load_truncated_images
     if progress_callback:
         progress_callback("Starting dataset processing")
 
@@ -49,9 +48,19 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
     if (train_dest_path.exists() and any(train_dest_path.iterdir())) or \
        (val_dest_path.exists() and any(val_dest_path.iterdir())) or \
        (test_dest_path.exists() and any(test_dest_path.iterdir())):
-        if progress_callback:
-            progress_callback("Destination directory is not empty Please clear it first using the 'Clear Processed Dataset' button")
-        return
+        if overwrite_dest:
+            if progress_callback:
+                progress_callback("Destination directory is not empty. Overwriting...")
+            if train_dest_path.exists():
+                shutil.rmtree(train_dest_path)
+            if val_dest_path.exists():
+                shutil.rmtree(val_dest_path)
+            if test_dest_path.exists():
+                shutil.rmtree(test_dest_path)
+        else:
+            if progress_callback:
+                progress_callback("Destination directory is not empty. Please clear it first or enable 'Overwrite destination'.")
+            return
 
     train_dest_path.mkdir(exist_ok=True)
     val_dest_path.mkdir(exist_ok=True)
@@ -175,10 +184,14 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
     parser.add_argument('--image_extensions', type=str, default='.jpg,.jpeg,.png', help='Comma-separated list of image file extensions to include')
     parser.add_argument('--color_mode', type=str, default='RGB', help='Target color mode for images (e.g., RGB, L)')
+    parser.add_argument('--overwrite_dest', action='store_true', help='Overwrite destination directory if it exists')
     
+    parser.set_defaults(load_truncated_images=True)
+    parser.add_argument('--no-load-truncated-images', dest='load_truncated_images', action='store_false', help='Do not attempt to load truncated images')
+
     args = parser.parse_args()
 
     def print_progress(message):
         print(message)
 
-    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, seed=args.seed, progress_callback=print_progress, image_extensions=args.image_extensions, color_mode=args.color_mode)
+    process_dataset(args.source_dir, args.dest_dir, train_ratio=args.train_ratio, val_ratio=args.val_ratio, test_ratio=args.test_ratio, resolution=args.resolution, seed=args.seed, progress_callback=print_progress, image_extensions=args.image_extensions, color_mode=args.color_mode, overwrite_dest=args.overwrite_dest, load_truncated_images=args.load_truncated_images)
