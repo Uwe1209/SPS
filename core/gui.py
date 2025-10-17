@@ -589,13 +589,6 @@ def main(page: ft.Page):
                                                     spacing=10,
                                                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                 ),
-                                                ft.Row(
-                                                    [
-                                                        ft.Text("Strictly enforce model keys on load", expand=True),
-                                                        strict_load_switch,
-                                                    ],
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -792,6 +785,13 @@ def main(page: ft.Page):
                                                         ),
                                                     ],
                                                     spacing=10,
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Strictly enforce model keys on load", expand=True),
+                                                        strict_load_switch,
+                                                    ],
                                                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                 ),
                                             ],
