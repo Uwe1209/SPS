@@ -655,30 +655,6 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
-                                                ft.Text("Advanced Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Divider(),
-                                                ft.Row(
-                                                    [
-                                                        ft.Text("Load truncated images", expand=True),
-                                                        load_truncated_images_switch,
-                                                    ],
-                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                ),
-                                            ],
-                                            spacing=10,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                            ),
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
                                                 ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
                                                 ft.Row(
@@ -911,6 +887,30 @@ def main(page: ft.Page):
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Advanced Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Load truncated images", expand=True),
+                                                        load_truncated_images_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                            ],
+                                            spacing=10,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
