@@ -2,24 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { BackIcon, PlusIcon } from '../Icons';
 import SearchBar from '../components/SearchBar';
-
-// Note: Data will be managed by a higher-level component in a later step.
-const allUsers = [
-    { id: 1, name: 'Gibson', status: 'active', favourite: true, color: '#fca5a5', details: { age: 32, gender: 'Male', contact: '555-0101', address: '123 Apple St', email: 'gibson@example.com', plantId: 10, role: 'Expert' } },
-    { id: 2, name: 'Esther', status: 'active', favourite: false, color: '#16a34a', details: { age: 28, gender: 'Female', contact: '555-0102', address: '456 Oak Ave', email: 'esther@example.com', plantId: 12, role: 'User' } },
-    { id: 3, name: 'Nothing', status: 'deactive', favourite: false, color: '#a3e635', details: { age: 45, gender: 'Other', contact: '555-0103', address: '789 Pine Ln', email: 'nothing@example.com', plantId: 5, role: 'User' } },
-    { id: 4, name: 'Eric Wee', status: 'active', favourite: true, color: '#fef08a', details: { age: 25, gender: 'Male', contact: '555-0104', address: '321 Birch Rd', email: 'eric.w@example.com', plantId: 8, role: 'Expert' } },
-    { id: 5, name: 'Gibson Lee', status: 'deactive', favourite: false, color: '#16a34a', details: { age: 32, gender: 'Male', contact: '555-0105', address: '654 Maple Ct', email: 'gibson.l@example.com', plantId: 15, role: 'User' } },
-    { id: 6, name: 'Eric', status: 'active', favourite: false, color: '#9ca3af', details: { age: 29, gender: 'Male', contact: '555-0106', address: '987 Cedar Blvd', email: 'eric@example.com', plantId: 7, role: 'User' } },
-    { id: 7, name: 'Samantha', status: 'active', favourite: true, color: '#c084fc', details: { age: 35, gender: 'Female', contact: '555-0107', address: '111 Rosewood Dr', email: 'samantha@example.com', plantId: 22, role: 'Expert' } },
-    { id: 8, name: 'Ben Carter', status: 'deactive', favourite: false, color: '#60a5fa', details: { age: 41, gender: 'Male', contact: '555-0108', address: '222 Willow Way', email: 'ben.c@example.com', plantId: 3, role: 'User' } },
-    { id: 9, name: 'Olivia', status: 'active', favourite: false, color: '#f9a8d4', details: { age: 22, gender: 'Female', contact: '555-0109', address: '333 Daisy Pl', email: 'olivia@example.com', plantId: 18, role: 'User' } },
-];
+import { useAdminContext } from '../AdminContext';
 
 const AccountManagementScreen = ({ navigation }) => {
+    const { users } = useAdminContext();
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState('all');
-    const [users, setUsers] = useState(allUsers);
 
     const navigate = (screen, params) => navigation.navigate(screen, params);
 

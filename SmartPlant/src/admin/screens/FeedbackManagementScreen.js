@@ -2,16 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { BackIcon } from '../Icons';
 import SearchBar from '../components/SearchBar';
-
-// Note: Data will be managed by a higher-level component in a later step.
-const allFeedbacks = [
-    { id: 1, subject: 'UI Suggestion', body: 'The dashboard looks great, but maybe the colors could be a bit brighter.', time: 'Yesterday', replies: [] },
-    { id: 2, subject: 'Feature Request', body: 'Can we add a dark mode? It would be easier on the eyes at night.', time: '2 days ago', replies: [{ text: "That's a great idea! We'll look into it for a future update.", time: 'Yesterday'}]}
-];
+import { useAdminContext } from '../AdminContext';
 
 const FeedbackManagementScreen = ({ navigation }) => {
+    const { feedbacks } = useAdminContext();
     const [searchQuery, setSearchQuery] = useState('');
-    const [feedbacks, setFeedbacks] = useState(allFeedbacks);
 
     const filteredFeedbacks = feedbacks.filter(
       feedback =>

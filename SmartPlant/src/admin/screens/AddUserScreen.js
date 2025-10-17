@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { BackIcon } from '../Icons';
+import { useAdminContext } from '../AdminContext';
 
 const AddUserScreen = ({ navigation, route }) => {
-    // Note: The onAddUser function will be fully connected in a later step.
-    const onAddUser = (newUser) => console.log("Add new user:", newUser);
+    const { handleAddNewUser } = useAdminContext();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -22,7 +22,7 @@ const AddUserScreen = ({ navigation, route }) => {
             status,
             details: { email, role, age: 0, gender: 'N/A', contact: 'N/A', address: 'N/A', plantId: 0 }
         };
-        onAddUser(newUser);
+        handleAddNewUser(newUser);
         navigation.goBack();
     }
 

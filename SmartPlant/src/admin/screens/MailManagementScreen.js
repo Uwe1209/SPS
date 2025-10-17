@@ -2,25 +2,15 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SectionList } from 'react-native';
 import { BackIcon, StarIcon } from '../Icons';
 import SearchBar from '../components/SearchBar';
-
-// Note: Data will be managed by a higher-level component in a later step.
-const allMails = [
-    { id: 1, from: 'Feedback', to: 'me', subject: 'Regarding the new UI', body: 'The new user interface is fantastic! Very intuitive and easy to navigate.', date: 'Tuesday', status: 'unread', flagged: true, timeGroup: 'Yesterday' },
-    { id: 2, from: 'Service Report', to: 'not-me', subject: 'Weekly System Performance', body: 'Please find the attached weekly performance report. Overall system health is at 99.8%.', date: 'Tuesday', status: 'read', flagged: true, timeGroup: 'Yesterday' },
-    { id: 3, from: 'System Alert', to: 'me', subject: 'New login detected', body: 'A new device has logged into your account. If this was not you, please secure your account immediately.', date: '07/05/2025', status: 'read', flagged: false, timeGroup: 'This Week' },
-];
+import { useAdminContext } from '../AdminContext';
 
 const MailManagementScreen = ({ navigation }) => {
+    const { mails, handleToggleMailFavourite } = useAdminContext();
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState('all');
-    const [mails, setMails] = useState(allMails);
 
     const onToggleFavourite = (mailId) => {
-        setMails(currentMails =>
-            currentMails.map(mail =>
-                mail.id === mailId ? { ...mail, flagged: !mail.flagged } : mail
-            )
-        );
+        handleToggleMailFavourite(mailId);
     };
 
     const filteredMails = mails.filter(mail => {

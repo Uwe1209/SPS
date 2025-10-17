@@ -1,11 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { BackIcon, EditIcon, TrashIcon } from '../Icons';
+import { useAdminContext } from '../AdminContext';
 
 const UserProfileScreen = ({ route, navigation }) => {
-    // Note: The onDelete function will be fully connected in a later step.
+    const { handleDeleteUser } = useAdminContext();
     const { user } = route.params;
-    const onDelete = () => console.log("Delete user:", user.id);
+    const onDelete = (userId) => {
+        handleDeleteUser(userId);
+        navigation.navigate('AccountManagement');
+    };
 
 
     if (!user) {
