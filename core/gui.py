@@ -543,13 +543,35 @@ def main(page: ft.Page):
                             ft.Container(
                                 content=ft.Card(
                                     content=ft.Container(
-                                        content=ft.Row(
+                                        content=ft.Column(
                                             [
-                                                ft.Text("Data Augmentation", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                data_augmentation_switch,
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Data Augmentation", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                        data_augmentation_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                                ),
+                                                ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        finetune_seed_field,
+                                                        ft.ElevatedButton(
+                                                            "Generate",
+                                                            icon=ft.Icons.CASINO,
+                                                            on_click=generate_finetune_seed,
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                ),
                                             ],
-                                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                            spacing=10,
                                         ),
                                         padding=ft.padding.all(15)
                                     ),
@@ -685,22 +707,6 @@ def main(page: ft.Page):
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
-                                                ft.Row(
-                                                    [
-                                                        finetune_seed_field,
-                                                        ft.ElevatedButton(
-                                                            "Generate",
-                                                            icon=ft.Icons.CASINO,
-                                                            on_click=generate_finetune_seed,
-                                                            bgcolor=ft.Colors.GREY_800,
-                                                            color=ft.Colors.WHITE,
-                                                            style=beside_button_style,
-                                                            expand=1,
-                                                            height=BUTTON_HEIGHT,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                ),
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
