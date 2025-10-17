@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndi
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { addPlantIdentify } from '../firebase/plant_identify/addPlantIdentify.js';
 import { uploadImage } from '../firebase/plant_identify/uploadImage.js';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 import * as Location from 'expo-location'; //getting current device location
 import * as ImagePicker from 'expo-image-picker'; // for picking images with EXIF
@@ -134,7 +133,6 @@ export default function ResultScreen() {
       const plantData = {
         plant_species:prediction[0].class,
         ai_score: prediction[0].confidence,
-        createdAt: serverTimestamp(),
         ImageURL: downloadURL,
         coordinate: {latitude:latitude, longitude:longitude},
        
