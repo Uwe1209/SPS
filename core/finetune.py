@@ -32,6 +32,7 @@ def main(args, progress_callback=None):
     save_path = args.get('save_path')
     early_stopping_patience = args.get('early_stopping_patience', 0)
     early_stopping_min_delta = args.get('early_stopping_min_delta', 0.0)
+    mixed_precision = args.get('mixed_precision', False)
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
@@ -90,6 +91,11 @@ def main(args, progress_callback=None):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     log(f"Using device: {device}")
 
+    use_amp = mixed_precision and device.type == 'cuda'
+    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+    if use_amp:
+        log("Using mixed precision training (AMP).")
+
     # 4. Load pretrained model from timm
     # This will load a pretrained model and replace the classifier head with a new one for our number of classes.
     model = timm.create_model(model_name, pretrained=True, num_classes=num_classes, drop_rate=dropout_rate)
@@ -145,13 +151,15 @@ def main(args, progress_callback=None):
                 optimizer.zero_grad()
 
                 with torch.set_grad_enabled(phase == 'train'):
-                    outputs = model(inputs)
-                    _, preds = torch.max(outputs, 1)
-                    loss = criterion(outputs, labels)
+                    with torch.cuda.amp.autocast(enabled=use_amp):
+                        outputs = model(inputs)
+                        _, preds = torch.max(outputs, 1)
+                        loss = criterion(outputs, labels)
 
                     if phase == 'train':
-                        loss.backward()
-                        optimizer.step()
+                        scaler.scale(loss).backward()
+                        scaler.step(optimizer)
+                        scaler.update()
 
                 if phase == 'train' and num_batches > 10 and (i + 1) % (num_batches // 10) == 0:
                     log(f'Processing batch {i+1}/{num_batches}')
@@ -201,6 +209,7 @@ if __name__ == '__main__':
     parser.add_argument('--optimiser', type=str, default='adamw', choices=['adam', 'adamw', 'sgd'], help='Optimiser to use for training')
     parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
     parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
+    parser.add_argument('--mixed_precision', action='store_true', help='Use mixed precision training (AMP)')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
