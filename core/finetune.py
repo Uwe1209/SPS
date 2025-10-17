@@ -35,6 +35,8 @@ def main(args, progress_callback=None):
     adam_beta2 = args.get('adam_beta2', 0.999)
     adam_eps = args.get('adam_eps', 1e-8)
     loss_function = args.get('loss_function', 'cross_entropy')
+    label_smoothing_factor = args.get('label_smoothing_factor', 0.1)
+    weight_decay = args.get('weight_decay', 0.0)
     load_path = args.get('load_path')
     save_path = args.get('save_path')
     early_stopping_patience = args.get('early_stopping_patience', 0)
@@ -156,16 +158,16 @@ def main(args, progress_callback=None):
     if loss_function == 'cross_entropy':
         criterion = nn.CrossEntropyLoss()
     elif loss_function == 'label_smoothing':
-        criterion = LabelSmoothingCrossEntropy()
+        criterion = LabelSmoothingCrossEntropy(smoothing=label_smoothing_factor)
     else:
         raise ValueError(f"Unsupported loss function: {loss_function}")
     
     if optimiser_name == 'adam':
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps, weight_decay=weight_decay)
     elif optimiser_name == 'adamw':
-        optimizer = optim.AdamW(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps)
+        optimizer = optim.AdamW(model.parameters(), lr=learning_rate, betas=(adam_beta1, adam_beta2), eps=adam_eps, weight_decay=weight_decay)
     elif optimiser_name == 'sgd':
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=sgd_momentum)
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=sgd_momentum, weight_decay=weight_decay)
     else:
         raise ValueError(f"Unsupported optimiser: {optimiser_name}")
 
@@ -292,7 +294,9 @@ if __name__ == '__main__':
     parser.add_argument('--adam_beta1', type=float, default=0.9, help='Beta1 for Adam/AdamW optimizers')
     parser.add_argument('--adam_beta2', type=float, default=0.999, help='Beta2 for Adam/AdamW optimizers')
     parser.add_argument('--adam_eps', type=float, default=1e-8, help='Epsilon for Adam/AdamW optimizers')
+    parser.add_argument('--weight_decay', type=float, default=0.0, help='Weight decay for optimizers')
     parser.add_argument('--loss_function', type=str, default='cross_entropy', choices=['cross_entropy', 'label_smoothing'], help='Loss function to use')
+    parser.add_argument('--label_smoothing_factor', type=float, default=0.1, help='Label smoothing factor')
     parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
     parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
     parser.add_argument('--early_stopping_metric', type=str, default='loss', choices=['loss', 'accuracy'], help='Metric for early stopping')

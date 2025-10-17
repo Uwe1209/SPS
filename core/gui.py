@@ -87,40 +87,6 @@ def main(page: ft.Page):
         page.update()
         save_inputs()
 
-    def show_test_toast(text=None, ring=False, bar=False, button=False):
-        """Helper to show toast for UI testing"""
-        global toast_hide_timer
-        if toast_hide_timer:
-            toast_hide_timer.cancel()
-        
-        toast_text.value = text or ""
-        toast_progress_ring.visible = ring
-        toast_progress_bar.visible = bar
-        if bar:
-            toast_progress_bar.value = None  # Indeterminate
-
-        cancel_button_row.visible = button
-        cancel_button.disabled = not button
-
-        toast_container.visible = True
-        page.update()
-
-        if not button:  # Auto-hide if there's no cancel button
-            toast_hide_timer = threading.Timer(5.0, lambda: hide_toast(page))
-            toast_hide_timer.start()
-
-    def on_toast_only(e):
-        show_test_toast()
-
-    def on_toast_with_text(e):
-        show_test_toast(text="This is a toast with text")
-
-    def on_toast_with_loading_and_text(e):
-        show_test_toast(text="Loading", ring=True)
-
-    def on_toast_with_loading_text_and_button(e):
-        show_test_toast(text="Long process", bar=True, button=True)
-
     def start_processing(e):
         """Callback to start the dataset processing in a separate thread"""
         global toast_hide_timer
@@ -242,7 +208,9 @@ def main(page: ft.Page):
                 'adam_beta1': float(adam_beta1_field.value) if adam_beta1_field.value else 0.9,
                 'adam_beta2': float(adam_beta2_field.value) if adam_beta2_field.value else 0.999,
                 'adam_eps': float(adam_eps_field.value) if adam_eps_field.value else 1e-8,
+                'weight_decay': float(weight_decay_field.value) if weight_decay_field.value else 0.0,
                 'loss_function': loss_function_dropdown.value or 'cross_entropy',
+                'label_smoothing_factor': float(label_smoothing_factor_field.value) if label_smoothing_factor_field.value else 0.1,
                 'use_imagenet_norm': use_imagenet_norm_switch.value,
                 'norm_mean': norm_mean_field.value,
                 'norm_std': norm_std_field.value,
@@ -460,6 +428,7 @@ def main(page: ft.Page):
     adam_beta1_field = ft.TextField(label="Adam/W Beta1", value="0.9", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     adam_beta2_field = ft.TextField(label="Adam/W Beta2", value="0.999", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     adam_eps_field = ft.TextField(label="Adam/W Epsilon", value="1e-8", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    weight_decay_field = ft.TextField(label="Weight Decay", value="0.0", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     loss_function_dropdown = ft.Dropdown(
         label="Loss Function",
@@ -473,6 +442,13 @@ def main(page: ft.Page):
         focused_border_color=ft.Colors.GREY_600,
         expand=True,
     )
+    label_smoothing_factor_field = ft.TextField(label="Label Smoothing Factor", value="0.1", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True, disabled=True)
+
+    def toggle_label_smoothing_field(e):
+        is_ls = loss_function_dropdown.value == 'label_smoothing'
+        label_smoothing_factor_field.disabled = not is_ls
+        page.update()
+        save_inputs()
 
     def toggle_norm_fields(e):
         is_custom = not use_imagenet_norm_switch.value
@@ -839,6 +815,7 @@ def main(page: ft.Page):
                                                 ft.Divider(),
                                                 ft.Row([sgd_momentum_field, adam_beta1_field], spacing=10),
                                                 ft.Row([adam_beta2_field, adam_eps_field], spacing=10),
+                                                weight_decay_field,
                                             ],
                                             spacing=10,
                                             horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
@@ -858,6 +835,7 @@ def main(page: ft.Page):
                                                 ft.Text("Normalisation and Loss", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
                                                 loss_function_dropdown,
+                                                label_smoothing_factor_field,
                                                 ft.Row(
                                                     [
                                                         ft.Text("Use ImageNet Normalisation", expand=True),
@@ -1060,76 +1038,6 @@ def main(page: ft.Page):
                     alignment=ft.alignment.top_center,
                 ),
             ),
-            ft.Tab(
-                text="UI testing",
-                content=ft.Container(
-                    content=ft.Column(
-                        [
-                            ft.Container(
-                                content=ft.Card(
-                                    content=ft.Container(
-                                        content=ft.Column(
-                                            [
-                                                ft.Text("Toast tests", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.Divider(),
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Show toast only",
-                                                            on_click=on_toast_only,
-                                                            style=action_button_style,
-                                                            height=BUTTON_HEIGHT,
-                                                            expand=True,
-                                                        ),
-                                                        ft.ElevatedButton(
-                                                            "Show toast with text",
-                                                            on_click=on_toast_with_text,
-                                                            style=action_button_style,
-                                                            height=BUTTON_HEIGHT,
-                                                            expand=True,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                ),
-                                                ft.Row(
-                                                    [
-                                                        ft.ElevatedButton(
-                                                            "Show toast with loading and text",
-                                                            on_click=on_toast_with_loading_and_text,
-                                                            style=action_button_style,
-                                                            height=BUTTON_HEIGHT,
-                                                            expand=True,
-                                                        ),
-                                                        ft.ElevatedButton(
-                                                            "Show toast with loading, text and button",
-                                                            on_click=on_toast_with_loading_text_and_button,
-                                                            style=action_button_style,
-                                                            height=BUTTON_HEIGHT,
-                                                            expand=True,
-                                                        ),
-                                                    ],
-                                                    spacing=10,
-                                                ),
-                                            ],
-                                            spacing=10,
-                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                        ),
-                                        padding=ft.padding.all(15)
-                                    ),
-                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                    width=800,
-                                ),
-                                alignment=ft.alignment.center,
-                                padding=ft.padding.only(top=20, bottom=20),
-                            ),
-                        ],
-                        spacing=10,
-                        scroll=ft.ScrollMode.ADAPTIVE,
-                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                    ),
-                    alignment=ft.alignment.top_center,
-                )
-            ),
         ],
         expand=1,
     )
@@ -1147,8 +1055,8 @@ def main(page: ft.Page):
         "train_from_scratch_switch": train_from_scratch_switch,
         "strict_load_switch": strict_load_switch,
         "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,
-        "sgd_momentum_field": sgd_momentum_field, "adam_beta1_field": adam_beta1_field, "adam_beta2_field": adam_beta2_field, "adam_eps_field": adam_eps_field,
-        "loss_function_dropdown": loss_function_dropdown,
+        "sgd_momentum_field": sgd_momentum_field, "adam_beta1_field": adam_beta1_field, "adam_beta2_field": adam_beta2_field, "adam_eps_field": adam_eps_field, "weight_decay_field": weight_decay_field,
+        "loss_function_dropdown": loss_function_dropdown, "label_smoothing_factor_field": label_smoothing_factor_field,
         "use_imagenet_norm_switch": use_imagenet_norm_switch, "norm_mean_field": norm_mean_field, "norm_std_field": norm_std_field,
         "load_truncated_images_switch": load_truncated_images_switch,
         "mixed_precision_switch": mixed_precision_switch,
@@ -1176,6 +1084,7 @@ def main(page: ft.Page):
             
             # Manually trigger UI updates for controls with dependencies
             toggle_norm_fields(None)
+            toggle_label_smoothing_field(None)
             
             page.update()
 
@@ -1183,6 +1092,7 @@ def main(page: ft.Page):
         control.on_change = save_inputs
     
     use_imagenet_norm_switch.on_change = toggle_norm_fields
+    loss_function_dropdown.on_change = toggle_label_smoothing_field
 
     load_inputs()
 
