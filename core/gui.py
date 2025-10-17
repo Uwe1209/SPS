@@ -773,6 +773,54 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
+                                                ft.Text("Optimiser Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                                ft.Row([sgd_momentum_field, adam_beta1_field], spacing=10),
+                                                ft.Row([adam_beta2_field, adam_eps_field], spacing=10),
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Normalisation and Loss", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                                loss_function_dropdown,
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Use ImageNet Normalisation", expand=True),
+                                                        use_imagenet_norm_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                norm_mean_field,
+                                                norm_std_field,
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
                                                 ft.Text("Hyperparameters", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
                                                 ft.Divider(),
                                                 epochs_field,
