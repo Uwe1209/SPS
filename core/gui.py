@@ -77,13 +77,13 @@ def main(page: ft.Page):
 
     def generate_process_seed(e):
         """Generates a random seed for the processing seed field"""
-        process_seed_field.value = str(random.randint(0, 2**32 - 1))
+        process_seed_field.value = str(random.randint(1000000000, 9999999999))
         page.update()
         save_inputs()
 
     def generate_finetune_seed(e):
         """Generates a random seed for the fine-tuning seed field"""
-        finetune_seed_field.value = str(random.randint(0, 2**32 - 1))
+        finetune_seed_field.value = str(random.randint(1000000000, 9999999999))
         page.update()
         save_inputs()
 
