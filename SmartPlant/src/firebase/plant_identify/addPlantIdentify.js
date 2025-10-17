@@ -1,13 +1,9 @@
-import firestore from '@react-native-firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../FirebaseConfig';
 
 export const addPlantIdentify = async (plantData) => {
   try {
-    const docRef = await firestore()
-      .collection('plant_identify')
-      .add({
-        ...plantData,
-        createdAt: firestore.FieldValue.serverTimestamp(),
-      });
+    const docRef = await addDoc(collection(db, 'plant_identify'), plantData);
     
     return docRef.id;
   } catch (error) {

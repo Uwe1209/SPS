@@ -4,7 +4,8 @@ import MapView, { Marker, PROVIDER_GOOGLE, Circle } from "react-native-maps";
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import mapStyle from "../../assets/mapStyle.json";
-import firestore from '@react-native-firebase/firestore';
+import { db } from '../firebase/FirebaseConfig';
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 
 const { width, height } = Dimensions.get('window');
 
@@ -153,8 +154,8 @@ const MapPage = ({navigation}) => {
     try {
       setLoading(true);
 
-      const markersCollection = firestore().collection('markers');
-      const markerSnapshot = await markersCollection.get();
+      const markersCollection = collection(db, 'markers');
+      const markerSnapshot = await getDocs(markersCollection);
       
       const markersList = markerSnapshot.docs.map(doc => fixMarkerData(doc));
       
@@ -171,8 +172,8 @@ const MapPage = ({navigation}) => {
   // 设置实时监听
   const setupRealtimeListener = () => {
     try {
-      const markersCollection = firestore().collection('markers');
-      const unsubscribe = markersCollection.onSnapshot((snapshot) => {
+      const markersCollection = collection(db, 'markers');
+      const unsubscribe = onSnapshot(markersCollection, (snapshot) => {
         const markersList = snapshot.docs.map(doc => fixMarkerData(doc));
         
         setMarkers(markersList);
