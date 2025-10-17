@@ -408,111 +408,159 @@ def main(page: ft.Page):
                     content=ft.Column(
                         [
                             ft.Container(
-                                    content=ft.Card(
-                                        content=ft.Container(
-                                            content=ft.Column(
-                                                [
-                                                    ft.Text("Directories", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    ft.Row(
-                                                        [
-                                                            source_dir_path,
-                                                            ft.ElevatedButton(
-                                                                "Select source",
-                                                                icon=ft.Icons.FOLDER_OPEN,
-                                                                on_click=lambda _: source_dir_picker.get_directory_path(
-                                                                    dialog_title="Select source directory"
-                                                                ),
-                                                                bgcolor=ft.Colors.GREY_800,
-                                                                color=ft.Colors.WHITE,
-                                                                style=beside_button_style,
-                                                                expand=1,
-                                                                height=BUTTON_HEIGHT,
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Directories", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                                padding=ft.padding.only(top=20),
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Row(
+                                                    [
+                                                        source_dir_path,
+                                                        ft.ElevatedButton(
+                                                            "Select source",
+                                                            icon=ft.Icons.FOLDER_OPEN,
+                                                            on_click=lambda _: source_dir_picker.get_directory_path(
+                                                                dialog_title="Select source directory"
                                                             ),
-                                                        ],
-                                                        spacing=10,
-                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    ),
-                                                    ft.Row(
-                                                        [
-                                                            dest_dir_path,
-                                                            ft.ElevatedButton(
-                                                                "Select destination",
-                                                                icon=ft.Icons.FOLDER_OPEN,
-                                                                on_click=lambda _: dest_dir_picker.get_directory_path(
-                                                                    dialog_title="Select destination directory"
-                                                                ),
-                                                                bgcolor=ft.Colors.GREY_800,
-                                                                color=ft.Colors.WHITE,
-                                                                style=beside_button_style,
-                                                                expand=1,
-                                                                height=BUTTON_HEIGHT,
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        dest_dir_path,
+                                                        ft.ElevatedButton(
+                                                            "Select destination",
+                                                            icon=ft.Icons.FOLDER_OPEN,
+                                                            on_click=lambda _: dest_dir_picker.get_directory_path(
+                                                                dialog_title="Select destination directory"
                                                             ),
-                                                        ],
-                                                        spacing=10,
-                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    ),
-                                                ],
-                                                spacing=10,
-                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                            ),
-                                            padding=ft.padding.all(15)
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
                                         ),
-                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                        width=800,
+                                        padding=ft.padding.all(15)
                                     ),
-                                    alignment=ft.alignment.center,
-                                    padding=ft.padding.only(top=20),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
-                                ft.Container(
-                                    content=ft.Card(
-                                        content=ft.Container(
-                                            content=ft.Column(
-                                                [
-                                                    ft.Text("Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    ft.Row(
-                                                        [
-                                                            train_ratio_field,
-                                                            val_ratio_field,
-                                                            test_ratio_field,
-                                                            resolution_field,
-                                                        ],
-                                                        spacing=10,
-                                                    ),
-                                                ],
-                                                spacing=10
-                                            ),
-                                            padding=ft.padding.all(15)
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Settings", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
                                         ),
-                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                        width=800,
+                                        padding=ft.padding.all(15)
                                     ),
-                                    alignment=ft.alignment.center,
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
-                                ft.Container(
-                                    content=ft.Card(
-                                        content=ft.Container(
-                                            content=ft.Column(
-                                                [
-                                                    ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    process_start_button,
-                                                    clear_dataset_button,
-                                                ],
-                                                spacing=10,
-                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                            ),
-                                            padding=ft.padding.all(15)
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Row(
+                                                    [
+                                                        train_ratio_field,
+                                                        val_ratio_field,
+                                                        test_ratio_field,
+                                                        resolution_field,
+                                                    ],
+                                                    spacing=10,
+                                                ),
+                                            ],
+                                            spacing=10
                                         ),
-                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                        width=800,
+                                        padding=ft.padding.all(15)
                                     ),
-                                    alignment=ft.alignment.center,
-                                    padding=ft.padding.only(bottom=20),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
-                            ],
-                            spacing=10,
-                            scroll=ft.ScrollMode.ADAPTIVE,
-                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                        ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Actions", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Row(
+                                            [
+                                                process_start_button,
+                                                clear_dataset_button,
+                                            ],
+                                            spacing=10,
+                                            alignment=ft.MainAxisAlignment.CENTER,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                                padding=ft.padding.only(bottom=20),
+                            ),
+                        ],
+                        spacing=10,
+                        scroll=ft.ScrollMode.ADAPTIVE,
+                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                    ),
                     alignment=ft.alignment.top_center,
                 ),
             ),
@@ -522,111 +570,190 @@ def main(page: ft.Page):
                     content=ft.Column(
                         [
                             ft.Container(
-                                    content=ft.Card(
-                                        content=ft.Container(
-                                            content=ft.Column(
-                                                [
-                                                    ft.Text("Configuration", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    ft.Text("Model and data", theme_style=ft.TextThemeStyle.TITLE_SMALL),
-                                                    model_dropdown,
-                                                    ft.Row(
-                                                        [
-                                                            data_dir_path,
-                                                            ft.ElevatedButton(
-                                                                "Select dataset",
-                                                                icon=ft.Icons.FOLDER_OPEN,
-                                                                on_click=lambda _: file_picker.get_directory_path(
-                                                                    dialog_title="Select dataset directory"
-                                                                ),
-                                                                bgcolor=ft.Colors.GREY_800,
-                                                                color=ft.Colors.WHITE,
-                                                                style=beside_button_style,
-                                                                expand=1,
-                                                                height=BUTTON_HEIGHT,
-                                                            ),
-                                                        ],
-                                                        spacing=10,
-                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    ),
-                                                    ft.Row(
-                                                        [
-                                                            save_model_path,
-                                                            ft.ElevatedButton(
-                                                                "Set save path",
-                                                                icon=ft.Icons.SAVE,
-                                                                on_click=lambda _: save_file_picker.save_file(
-                                                                    dialog_title="Save model as..."
-                                                                ),
-                                                                bgcolor=ft.Colors.GREY_800,
-                                                                color=ft.Colors.WHITE,
-                                                                style=beside_button_style,
-                                                                expand=1,
-                                                                height=BUTTON_HEIGHT,
-                                                            ),
-                                                        ],
-                                                        spacing=10,
-                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    ),
-                                                    ft.Row(
-                                                        [
-                                                            load_model_path,
-                                                            ft.ElevatedButton(
-                                                                "Select model file",
-                                                                icon=ft.Icons.UPLOAD_FILE,
-                                                                on_click=lambda _: load_file_picker.pick_files(
-                                                                    dialog_title="Load model from...", allow_multiple=False
-                                                                ),
-                                                                bgcolor=ft.Colors.GREY_800,
-                                                                color=ft.Colors.WHITE,
-                                                                style=beside_button_style,
-                                                                expand=1,
-                                                                height=BUTTON_HEIGHT,
-                                                            ),
-                                                        ],
-                                                        spacing=10,
-                                                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    ),
-                                                    ft.Divider(),
-                                                    ft.Text("Hyperparameters", theme_style=ft.TextThemeStyle.TITLE_SMALL),
-                                                    epochs_field,
-                                                    batch_size_field,
-                                                    learning_rate_field,
-                                                ],
-                                                spacing=10,
-                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                            ),
-                                            padding=ft.padding.all(15)
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Configuration", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
                                         ),
-                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                        width=800,
+                                        padding=ft.padding.all(15)
                                     ),
-                                    alignment=ft.alignment.center,
-                                    padding=ft.padding.only(top=20),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
-                                ft.Container(
-                                    content=ft.Card(
-                                        content=ft.Container(
-                                            content=ft.Column(
-                                                [
-                                                    ft.Text("Training", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                    start_button,
-                                                ],
-                                                spacing=10,
-                                                horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                                            ),
-                                            padding=ft.padding.all(15)
+                                alignment=ft.alignment.center,
+                                padding=ft.padding.only(top=20),
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Model and data", theme_style=ft.TextThemeStyle.TITLE_SMALL),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
                                         ),
-                                        elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
-                                        width=800,
+                                        padding=ft.padding.all(15)
                                     ),
-                                    alignment=ft.alignment.center,
-                                    padding=ft.padding.only(bottom=20),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
                                 ),
-                            ],
-                            spacing=10,
-                            scroll=ft.ScrollMode.ADAPTIVE,
-                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
-                        ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                model_dropdown,
+                                                ft.Row(
+                                                    [
+                                                        data_dir_path,
+                                                        ft.ElevatedButton(
+                                                            "Select dataset",
+                                                            icon=ft.Icons.FOLDER_OPEN,
+                                                            on_click=lambda _: file_picker.get_directory_path(
+                                                                dialog_title="Select dataset directory"
+                                                            ),
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        save_model_path,
+                                                        ft.ElevatedButton(
+                                                            "Set save path",
+                                                            icon=ft.Icons.SAVE,
+                                                            on_click=lambda _: save_file_picker.save_file(
+                                                                dialog_title="Save model as..."
+                                                            ),
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        load_model_path,
+                                                        ft.ElevatedButton(
+                                                            "Select model file",
+                                                            icon=ft.Icons.UPLOAD_FILE,
+                                                            on_click=lambda _: load_file_picker.pick_files(
+                                                                dialog_title="Load model from...", allow_multiple=False
+                                                            ),
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Hyperparameters", theme_style=ft.TextThemeStyle.TITLE_SMALL),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                epochs_field,
+                                                batch_size_field,
+                                                learning_rate_field,
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Text("Training", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                start_button,
+                                            ],
+                                            spacing=10,
+                                            horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                                padding=ft.padding.only(bottom=20),
+                            ),
+                        ],
+                        spacing=10,
+                        scroll=ft.ScrollMode.ADAPTIVE,
+                        horizontal_alignment=ft.CrossAxisAlignment.STRETCH,
+                    ),
                     alignment=ft.alignment.top_center,
                 ),
             ),
@@ -641,29 +768,60 @@ def main(page: ft.Page):
                                         content=ft.Column(
                                             [
                                                 ft.Text("Toast tests", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                ft.ElevatedButton(
-                                                    "Show toast only",
-                                                    on_click=on_toast_only,
-                                                    style=action_button_style,
-                                                    height=BUTTON_HEIGHT,
+                                                ft.Divider(),
+                                            ],
+                                            spacing=10,
+                                        ),
+                                        padding=ft.padding.all(15)
+                                    ),
+                                    elevation=2, shape=ft.RoundedRectangleBorder(radius=8),
+                                    width=800,
+                                ),
+                                alignment=ft.alignment.center,
+                                padding=ft.padding.only(top=20),
+                            ),
+                            ft.Container(
+                                content=ft.Card(
+                                    content=ft.Container(
+                                        content=ft.Column(
+                                            [
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Show toast only",
+                                                            on_click=on_toast_only,
+                                                            style=action_button_style,
+                                                            height=BUTTON_HEIGHT,
+                                                            expand=True,
+                                                        ),
+                                                        ft.ElevatedButton(
+                                                            "Show toast with text",
+                                                            on_click=on_toast_with_text,
+                                                            style=action_button_style,
+                                                            height=BUTTON_HEIGHT,
+                                                            expand=True,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
                                                 ),
-                                                ft.ElevatedButton(
-                                                    "Show toast with text",
-                                                    on_click=on_toast_with_text,
-                                                    style=action_button_style,
-                                                    height=BUTTON_HEIGHT,
-                                                ),
-                                                ft.ElevatedButton(
-                                                    "Show toast with loading and text",
-                                                    on_click=on_toast_with_loading_and_text,
-                                                    style=action_button_style,
-                                                    height=BUTTON_HEIGHT,
-                                                ),
-                                                ft.ElevatedButton(
-                                                    "Show toast with loading, text and button",
-                                                    on_click=on_toast_with_loading_text_and_button,
-                                                    style=action_button_style,
-                                                    height=BUTTON_HEIGHT,
+                                                ft.Row(
+                                                    [
+                                                        ft.ElevatedButton(
+                                                            "Show toast with loading and text",
+                                                            on_click=on_toast_with_loading_and_text,
+                                                            style=action_button_style,
+                                                            height=BUTTON_HEIGHT,
+                                                            expand=True,
+                                                        ),
+                                                        ft.ElevatedButton(
+                                                            "Show toast with loading, text and button",
+                                                            on_click=on_toast_with_loading_text_and_button,
+                                                            style=action_button_style,
+                                                            height=BUTTON_HEIGHT,
+                                                            expand=True,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
                                                 ),
                                             ],
                                             spacing=10,
@@ -675,7 +833,7 @@ def main(page: ft.Page):
                                     width=800,
                                 ),
                                 alignment=ft.alignment.center,
-                                padding=ft.padding.only(top=20, bottom=20),
+                                padding=ft.padding.only(bottom=20),
                             ),
                         ],
                         spacing=10,
