@@ -1,5 +1,6 @@
 import flet as ft
 import threading
+import random
 import re
 import json
 import shutil
@@ -74,6 +75,18 @@ def main(page: ft.Page):
             page.update()
             save_inputs()
 
+    def generate_process_seed(e):
+        """Generates a random seed for the processing seed field"""
+        process_seed_field.value = str(random.randint(0, 2**32 - 1))
+        page.update()
+        save_inputs()
+
+    def generate_finetune_seed(e):
+        """Generates a random seed for the fine-tuning seed field"""
+        finetune_seed_field.value = str(random.randint(0, 2**32 - 1))
+        page.update()
+        save_inputs()
+
     def show_test_toast(text=None, ring=False, bar=False, button=False):
         """Helper to show toast for UI testing"""
         global toast_hide_timer
@@ -137,14 +150,14 @@ def main(page: ft.Page):
                 raise ValueError("The sum of ratios cannot exceed 100")
             if not resolution > 0:
                 raise ValueError("Resolution must be a positive number")
-            if seed_field.value:
-                int(seed_field.value)
+            if process_seed_field.value:
+                int(process_seed_field.value)
 
         except (ValueError, TypeError) as ex:
             if "cannot exceed 100" in str(ex) or "between 0 and 100" in str(ex) or "positive number" in str(ex):
                 toast_text.value = str(ex)
             else:
-                toast_text.value = "Invalid number in one of the fields. Please check ratios, resolution and seed."
+                toast_text.value = "Invalid number in one of the fields. Please check ratios, resolution, and seed."
             toast_progress_ring.visible = False
             cancel_button_row.visible = False
             toast_container.visible = True
@@ -161,7 +174,7 @@ def main(page: ft.Page):
         def run_processing():
             """Target function for the processing thread"""
             try:
-                seed_value = int(seed_field.value) if seed_field.value else None
+                seed_value = int(process_seed_field.value) if process_seed_field.value else None
                 process_dataset(
                     source_dir=source_dir,
                     dest_dir=dest_dir,
@@ -216,7 +229,7 @@ def main(page: ft.Page):
                 'save_path': save_model_path.value or None,
                 'cancel_event': cancel_event,
                 'data_augmentation': data_augmentation_switch.value,
-                'seed': int(seed_field.value) if seed_field.value else None,
+                'seed': int(finetune_seed_field.value) if finetune_seed_field.value else None,
             }
         except (ValueError, TypeError):
             toast_text.value = "Invalid number in one of the fields. Please check hyperparameters and seed."
@@ -283,7 +296,7 @@ def main(page: ft.Page):
     val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     resolution_field = ft.TextField(label="Resolution (px)", value="224", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
-    seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    process_seed_field = ft.TextField(label="Seed", value="42", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory"""
@@ -373,6 +386,7 @@ def main(page: ft.Page):
     epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
+    finetune_seed_field = ft.TextField(label="Seed", value="42", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
     data_augmentation_switch = ft.Switch(label="Data augmentation", value=True)
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",
@@ -500,7 +514,22 @@ def main(page: ft.Page):
                                                     ],
                                                     spacing=10,
                                                 ),
-                                                ft.Row([seed_field], spacing=10),
+                                                ft.Row(
+                                                    [
+                                                        process_seed_field,
+                                                        ft.ElevatedButton(
+                                                            "Generate",
+                                                            icon=ft.Icons.CASINO,
+                                                            on_click=generate_process_seed,
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                ),
                                             ],
                                             spacing=10
                                         ),
@@ -638,6 +667,22 @@ def main(page: ft.Page):
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
+                                                ft.Row(
+                                                    [
+                                                        finetune_seed_field,
+                                                        ft.ElevatedButton(
+                                                            "Generate",
+                                                            icon=ft.Icons.CASINO,
+                                                            on_click=generate_finetune_seed,
+                                                            bgcolor=ft.Colors.GREY_800,
+                                                            color=ft.Colors.WHITE,
+                                                            style=beside_button_style,
+                                                            expand=1,
+                                                            height=BUTTON_HEIGHT,
+                                                        ),
+                                                    ],
+                                                    spacing=10,
+                                                ),
                                                 data_augmentation_switch,
                                             ],
                                             spacing=10,
@@ -756,10 +801,11 @@ def main(page: ft.Page):
 
     controls_to_save = {
         "source_dir_path": source_dir_path, "dest_dir_path": dest_dir_path,
-        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "seed_field": seed_field,
+        "train_ratio_field": train_ratio_field, "val_ratio_field": val_ratio_field, "test_ratio_field": test_ratio_field, "resolution_field": resolution_field, "process_seed_field": process_seed_field,
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_dropdown": model_dropdown, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
+        "finetune_seed_field": finetune_seed_field,
         "data_augmentation_switch": data_augmentation_switch,
     }
 
