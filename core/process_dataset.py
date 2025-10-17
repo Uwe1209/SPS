@@ -117,10 +117,6 @@ def process_dataset(source_dir, dest_dir, train_ratio=0.8, val_ratio=0.1, test_r
         val_images = images[train_count : train_count + val_count]
         test_images = images[train_count + val_count : train_count + val_count + test_count]
         
-        # Assign remaining images to the training set
-        remaining_start_index = train_count + val_count + test_count
-        train_images.extend(images[remaining_start_index:])
-
         # Create destination class directories and copy files
         if train_images:
             (train_dest_path / class_name).mkdir()

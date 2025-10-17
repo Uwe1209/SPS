@@ -115,8 +115,8 @@ def main(page: ft.Page):
 
             if not (0 <= train_ratio <= 100 and 0 <= val_ratio <= 100 and 0 <= test_ratio <= 100):
                 raise ValueError("Ratios must be between 0 and 100")
-            if train_ratio + val_ratio + test_ratio > 100:
-                raise ValueError("The sum of ratios cannot exceed 100")
+            if train_ratio + val_ratio + test_ratio != 100:
+                raise ValueError("The sum of ratios must be exactly 100")
             if not resolution > 0:
                 raise ValueError("Resolution must be a positive number")
             if process_seed_field.value:
