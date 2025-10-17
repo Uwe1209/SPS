@@ -230,13 +230,19 @@ def main(page: ft.Page):
                 'early_stopping_patience': int(early_stopping_patience_field.value) if early_stopping_switch.value and early_stopping_patience_field.value else 0,
                 'early_stopping_min_delta': float(early_stopping_min_delta_field.value) if early_stopping_switch.value and early_stopping_min_delta_field.value else 0.0,
                 'mixed_precision': mixed_precision_switch.value,
+                'input_size': int(input_size_field.value) if input_size_field.value else 224,
+                'num_workers': int(num_workers_field.value) if num_workers_field.value else 0,
+                'train_from_scratch': train_from_scratch_switch.value,
                 'load_path': load_model_path.value or None,
                 'save_path': save_model_path.value or None,
                 'cancel_event': cancel_event,
                 'aug_random_resized_crop': aug_random_resized_crop_switch.value,
                 'aug_horizontal_flip': aug_horizontal_flip_switch.value,
                 'aug_rotation': aug_rotation_switch.value,
+                'aug_rotation_degrees': int(aug_rotation_degrees_field.value) if aug_rotation_degrees_field.value else 15,
                 'aug_color_jitter': aug_color_jitter_switch.value,
+                'aug_color_jitter_brightness': float(aug_color_jitter_brightness_field.value) if aug_color_jitter_brightness_field.value else 0.2,
+                'aug_color_jitter_contrast': float(aug_color_jitter_contrast_field.value) if aug_color_jitter_contrast_field.value else 0.2,
                 'seed': int(finetune_seed_field.value) if finetune_seed_field.value else None,
             }
         except (ValueError, TypeError):
@@ -385,6 +391,9 @@ def main(page: ft.Page):
     epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
+    input_size_field = ft.TextField(label="Input size (px)", value="224", height=TEXT_FIELD_HEIGHT)
+    num_workers_field = ft.TextField(label="Data loader workers", value="0", height=TEXT_FIELD_HEIGHT)
+    train_from_scratch_switch = ft.Switch(value=False)
     dropout_rate_field = ft.TextField(label="Dropout rate", value="0.0", height=TEXT_FIELD_HEIGHT)
     mixed_precision_switch = ft.Switch(value=False)
     early_stopping_switch = ft.Switch(value=False)
@@ -408,7 +417,10 @@ def main(page: ft.Page):
     aug_random_resized_crop_switch = ft.Switch(value=True)
     aug_horizontal_flip_switch = ft.Switch(value=True)
     aug_rotation_switch = ft.Switch(value=True)
+    aug_rotation_degrees_field = ft.TextField(label="Rotation degrees", value="15", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     aug_color_jitter_switch = ft.Switch(value=True)
+    aug_color_jitter_brightness_field = ft.TextField(label="Brightness", value="0.2", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
+    aug_color_jitter_contrast_field = ft.TextField(label="Contrast", value="0.2", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
 
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",
@@ -689,9 +701,18 @@ def main(page: ft.Page):
                                                 epochs_field,
                                                 batch_size_field,
                                                 learning_rate_field,
+                                                input_size_field,
+                                                num_workers_field,
                                                 dropout_rate_field,
                                                 optimiser_dropdown,
                                                 ft.Divider(),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Train from scratch", expand=True),
+                                                        train_from_scratch_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
                                                 ft.Row(
                                                     [
                                                         ft.Text("Mixed Precision (AMP)", expand=True),
@@ -747,17 +768,25 @@ def main(page: ft.Page):
                                                 ),
                                                 ft.Row(
                                                     [
-                                                        ft.Text("Random Rotation (±15°)", expand=True),
+                                                        ft.Text("Random Rotation", expand=True),
                                                         aug_rotation_switch,
                                                     ],
                                                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                 ),
+                                                aug_rotation_degrees_field,
                                                 ft.Row(
                                                     [
                                                         ft.Text("Random Brightness/Contrast", expand=True),
                                                         aug_color_jitter_switch,
                                                     ],
                                                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        aug_color_jitter_brightness_field,
+                                                        aug_color_jitter_contrast_field,
+                                                    ],
+                                                    spacing=10,
                                                 ),
                                                 ft.Divider(),
                                                 ft.Row(
@@ -896,14 +925,16 @@ def main(page: ft.Page):
         "data_dir_path": data_dir_path, "save_model_path": save_model_path, "load_model_path": load_model_path,
         "model_name_field": model_name_field, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
+        "input_size_field": input_size_field, "num_workers_field": num_workers_field,
+        "train_from_scratch_switch": train_from_scratch_switch,
         "dropout_rate_field": dropout_rate_field, "optimiser_dropdown": optimiser_dropdown,
         "mixed_precision_switch": mixed_precision_switch,
         "early_stopping_switch": early_stopping_switch, "early_stopping_patience_field": early_stopping_patience_field, "early_stopping_min_delta_field": early_stopping_min_delta_field,
         "finetune_seed_field": finetune_seed_field,
         "aug_random_resized_crop_switch": aug_random_resized_crop_switch,
         "aug_horizontal_flip_switch": aug_horizontal_flip_switch,
-        "aug_rotation_switch": aug_rotation_switch,
-        "aug_color_jitter_switch": aug_color_jitter_switch,
+        "aug_rotation_switch": aug_rotation_switch, "aug_rotation_degrees_field": aug_rotation_degrees_field,
+        "aug_color_jitter_switch": aug_color_jitter_switch, "aug_color_jitter_brightness_field": aug_color_jitter_brightness_field, "aug_color_jitter_contrast_field": aug_color_jitter_contrast_field,
     }
 
     def save_inputs(e=None):

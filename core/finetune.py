@@ -33,12 +33,18 @@ def main(args, progress_callback=None):
     early_stopping_patience = args.get('early_stopping_patience', 0)
     early_stopping_min_delta = args.get('early_stopping_min_delta', 0.0)
     mixed_precision = args.get('mixed_precision', False)
+    input_size = args.get('input_size', 224)
+    num_workers = args.get('num_workers', 0)
+    train_from_scratch = args.get('train_from_scratch', False)
     
     # Get individual augmentation flags
     aug_random_resized_crop = args.get('aug_random_resized_crop', True)
     aug_horizontal_flip = args.get('aug_horizontal_flip', True)
     aug_rotation = args.get('aug_rotation', True)
     aug_color_jitter = args.get('aug_color_jitter', True)
+    aug_rotation_degrees = args.get('aug_rotation_degrees', 15)
+    aug_color_jitter_brightness = args.get('aug_color_jitter_brightness', 0.2)
+    aug_color_jitter_contrast = args.get('aug_color_jitter_contrast', 0.2)
     
     seed = args.get('seed')
 
@@ -47,21 +53,22 @@ def main(args, progress_callback=None):
         log(f"Using random seed: {seed}")
 
     # 1. Set up data transforms
+    resize_size = int(input_size / 224 * 256)
     train_transform_list = []
     if aug_random_resized_crop:
-        train_transform_list.append(transforms.RandomResizedCrop(224))
+        train_transform_list.append(transforms.RandomResizedCrop(input_size))
     else:
         train_transform_list.extend([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
+            transforms.Resize(resize_size),
+            transforms.CenterCrop(input_size),
         ])
     
     if aug_horizontal_flip:
         train_transform_list.append(transforms.RandomHorizontalFlip())
     if aug_rotation:
-        train_transform_list.append(transforms.RandomRotation(15))
+        train_transform_list.append(transforms.RandomRotation(aug_rotation_degrees))
     if aug_color_jitter:
-        train_transform_list.append(transforms.ColorJitter(brightness=0.2, contrast=0.2))
+        train_transform_list.append(transforms.ColorJitter(brightness=aug_color_jitter_brightness, contrast=aug_color_jitter_contrast))
 
     data_transforms = {
         'train': transforms.Compose(train_transform_list + [
@@ -69,8 +76,8 @@ def main(args, progress_callback=None):
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
         'val': transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
+            transforms.Resize(resize_size),
+            transforms.CenterCrop(input_size),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
@@ -81,7 +88,7 @@ def main(args, progress_callback=None):
                       for x in ['train', 'val']}
     
     # 3. Create DataLoaders
-    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=0)
+    dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=True, num_workers=num_workers)
                    for x in ['train', 'val']}
     
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
@@ -98,7 +105,7 @@ def main(args, progress_callback=None):
 
     # 4. Load pretrained model from timm
     # This will load a pretrained model and replace the classifier head with a new one for our number of classes.
-    model = timm.create_model(model_name, pretrained=True, num_classes=num_classes, drop_rate=dropout_rate)
+    model = timm.create_model(model_name, pretrained=not train_from_scratch, num_classes=num_classes, drop_rate=dropout_rate)
 
     # 5. If a load_path is provided, load the model state
     if load_path:
@@ -210,6 +217,9 @@ if __name__ == '__main__':
     parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
     parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
     parser.add_argument('--mixed_precision', action='store_true', help='Use mixed precision training (AMP)')
+    parser.add_argument('--input_size', type=int, default=224, help='Input image size')
+    parser.add_argument('--num_workers', type=int, default=0, help='Number of data loader workers')
+    parser.add_argument('--train_from_scratch', action='store_true', help='Train model from scratch instead of using pretrained weights')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
     
@@ -219,6 +229,9 @@ if __name__ == '__main__':
     parser.add_argument('--no-horizontal-flip', dest='aug_horizontal_flip', action='store_false', help='Disable random horizontal flip')
     parser.add_argument('--no-rotation', dest='aug_rotation', action='store_false', help='Disable random rotation augmentation')
     parser.add_argument('--no-color-jitter', dest='aug_color_jitter', action='store_false', help='Disable color jitter augmentation')
+    parser.add_argument('--aug_rotation_degrees', type=int, default=15, help='Max rotation degrees for augmentation')
+    parser.add_argument('--aug_color_jitter_brightness', type=float, default=0.2, help='Brightness for color jitter augmentation')
+    parser.add_argument('--aug_color_jitter_contrast', type=float, default=0.2, help='Contrast for color jitter augmentation')
 
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
 
