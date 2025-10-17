@@ -228,7 +228,10 @@ def main(page: ft.Page):
                 'load_path': load_model_path.value or None,
                 'save_path': save_model_path.value or None,
                 'cancel_event': cancel_event,
-                'data_augmentation': data_augmentation_switch.value,
+                'aug_random_resized_crop': aug_random_resized_crop_switch.value,
+                'aug_horizontal_flip': aug_horizontal_flip_switch.value,
+                'aug_rotation': aug_rotation_switch.value,
+                'aug_color_jitter': aug_color_jitter_switch.value,
                 'seed': int(finetune_seed_field.value) if finetune_seed_field.value else None,
             }
         except (ValueError, TypeError):
@@ -387,7 +390,12 @@ def main(page: ft.Page):
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
     finetune_seed_field = ft.TextField(label="Seed (optional)", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
-    data_augmentation_switch = ft.Switch(value=True)
+    
+    aug_random_resized_crop_switch = ft.Switch(value=True)
+    aug_horizontal_flip_switch = ft.Switch(value=True)
+    aug_rotation_switch = ft.Switch(value=False)
+    aug_color_jitter_switch = ft.Switch(value=False)
+
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",
         on_click=start_finetuning,
@@ -683,13 +691,35 @@ def main(page: ft.Page):
                                     content=ft.Container(
                                         content=ft.Column(
                                             [
+                                                ft.Text("Data Augmentation", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
+                                                ft.Divider(),
                                                 ft.Row(
                                                     [
-                                                        ft.Text("Data Augmentation", theme_style=ft.TextThemeStyle.TITLE_MEDIUM),
-                                                        data_augmentation_switch,
+                                                        ft.Text("Random Crop and Zoom", expand=True),
+                                                        aug_random_resized_crop_switch,
                                                     ],
                                                     vertical_alignment=ft.CrossAxisAlignment.CENTER,
-                                                    alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Random Horizontal Flip", expand=True),
+                                                        aug_horizontal_flip_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Random Rotation (±15°)", expand=True),
+                                                        aug_rotation_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                                                ),
+                                                ft.Row(
+                                                    [
+                                                        ft.Text("Random Brightness/Contrast", expand=True),
+                                                        aug_color_jitter_switch,
+                                                    ],
+                                                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
                                                 ),
                                                 ft.Divider(),
                                                 ft.Row(
@@ -829,7 +859,10 @@ def main(page: ft.Page):
         "model_dropdown": model_dropdown, "epochs_field": epochs_field,
         "batch_size_field": batch_size_field, "learning_rate_field": learning_rate_field,
         "finetune_seed_field": finetune_seed_field,
-        "data_augmentation_switch": data_augmentation_switch,
+        "aug_random_resized_crop_switch": aug_random_resized_crop_switch,
+        "aug_horizontal_flip_switch": aug_horizontal_flip_switch,
+        "aug_rotation_switch": aug_rotation_switch,
+        "aug_color_jitter_switch": aug_color_jitter_switch,
     }
 
     def save_inputs(e=None):

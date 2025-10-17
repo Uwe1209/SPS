@@ -27,7 +27,13 @@ def main(args, progress_callback=None):
     learning_rate = args.get('learning_rate', 0.001)
     load_path = args.get('load_path')
     save_path = args.get('save_path')
-    data_augmentation = args.get('data_augmentation', True)
+    
+    # Get individual augmentation flags
+    aug_random_resized_crop = args.get('aug_random_resized_crop', True)
+    aug_horizontal_flip = args.get('aug_horizontal_flip', True)
+    aug_rotation = args.get('aug_rotation', False)
+    aug_color_jitter = args.get('aug_color_jitter', False)
+    
     seed = args.get('seed')
 
     if seed is not None:
@@ -35,13 +41,21 @@ def main(args, progress_callback=None):
         log(f"Using random seed: {seed}")
 
     # 1. Set up data transforms
-    train_transform_list = [
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-    ] if data_augmentation else [
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-    ]
+    train_transform_list = []
+    if aug_random_resized_crop:
+        train_transform_list.append(transforms.RandomResizedCrop(224))
+    else:
+        train_transform_list.extend([
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+        ])
+    
+    if aug_horizontal_flip:
+        train_transform_list.append(transforms.RandomHorizontalFlip())
+    if aug_rotation:
+        train_transform_list.append(transforms.RandomRotation(15))
+    if aug_color_jitter:
+        train_transform_list.append(transforms.ColorJitter(brightness=0.2, contrast=0.2))
 
     data_transforms = {
         'train': transforms.Compose(train_transform_list + [
@@ -178,7 +192,14 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for the optimizer')
     parser.add_argument('--load_path', type=str, default=None, help='Path to load a model state from')
     parser.add_argument('--save_path', type=str, default=None, help='Path to save the trained model state')
-    parser.add_argument('--data_augmentation', type=bool, default=True, help='Enable data augmentation')
+    
+    # Augmentation flags
+    parser.set_defaults(aug_random_resized_crop=True, aug_horizontal_flip=True)
+    parser.add_argument('--no-random-resized-crop', dest='aug_random_resized_crop', action='store_false', help='Disable random resized crop and zoom')
+    parser.add_argument('--no-horizontal-flip', dest='aug_horizontal_flip', action='store_false', help='Disable random horizontal flip')
+    parser.add_argument('--aug-rotation', action='store_true', help='Enable random rotation augmentation')
+    parser.add_argument('--aug-color-jitter', action='store_true', help='Enable color jitter augmentation')
+
     parser.add_argument('--seed', type=int, default=None, help='Random seed for reproducibility')
 
     args = parser.parse_args()
