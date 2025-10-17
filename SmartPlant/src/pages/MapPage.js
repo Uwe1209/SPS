@@ -172,7 +172,7 @@ const MapPage = ({navigation}) => {
   const setupRealtimeListener = () => {
     try {
       const markersCollection = firestore().collection('markers');
-      const unsubscribe = onSnapshot(markersCollection, (snapshot) => {
+      const unsubscribe = markersCollection.onSnapshot((snapshot) => {
         const markersList = snapshot.docs.map(doc => fixMarkerData(doc));
         
         setMarkers(markersList);
