@@ -182,7 +182,7 @@ def main(args, progress_callback=None):
     for epoch in range(num_epochs):
         if cancel_event and cancel_event.is_set():
             log("Fine-tuning cancelled")
-            return final_epoch_val_acc
+            return {'val_acc': final_epoch_val_acc, 'test_acc': None}
         log(f'Epoch {epoch}/{num_epochs - 1}')
         log('-' * 10)
 
@@ -199,7 +199,7 @@ def main(args, progress_callback=None):
             for i, (inputs, labels) in enumerate(dataloaders[phase]):
                 if cancel_event and cancel_event.is_set():
                     log("Fine-tuning cancelled")
-                    return final_epoch_val_acc
+                    return {'val_acc': final_epoch_val_acc, 'test_acc': None}
                 inputs = inputs.to(device)
                 labels = labels.to(device)
 
