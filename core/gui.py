@@ -296,7 +296,7 @@ def main(page: ft.Page):
     val_ratio_field = ft.TextField(label="Validation ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     test_ratio_field = ft.TextField(label="Test ratio (%)", value="10", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
     resolution_field = ft.TextField(label="Resolution (px)", value="224", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=True)
-    process_seed_field = ft.TextField(label="Seed", value="42", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
+    process_seed_field = ft.TextField(label="Seed", value="1234567890", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
 
     def run_clear_dataset_thread():
         """Background thread to clear the dataset directory"""
@@ -386,7 +386,7 @@ def main(page: ft.Page):
     epochs_field = ft.TextField(label="Number of epochs", value="25", height=TEXT_FIELD_HEIGHT)
     batch_size_field = ft.TextField(label="Batch size", value="32", height=TEXT_FIELD_HEIGHT)
     learning_rate_field = ft.TextField(label="Learning rate", value="0.001", height=TEXT_FIELD_HEIGHT)
-    finetune_seed_field = ft.TextField(label="Seed", value="42", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
+    finetune_seed_field = ft.TextField(label="Seed", value="1234567890", height=TEXT_FIELD_HEIGHT, text_align=ft.TextAlign.CENTER, expand=3)
     data_augmentation_switch = ft.Switch(label="Data augmentation", value=True)
     start_button = ft.ElevatedButton(
         text="Run fine-tuning",
