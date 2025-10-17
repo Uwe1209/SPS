@@ -324,6 +324,7 @@ def main(page: ft.Page):
         color=ft.Colors.WHITE,
         style=action_button_style,
         height=BUTTON_HEIGHT,
+        expand=True,
     )
 
     process_start_button = ft.ElevatedButton(
@@ -334,6 +335,7 @@ def main(page: ft.Page):
         color=ft.Colors.WHITE,
         style=action_button_style,
         height=BUTTON_HEIGHT,
+        expand=True,
     )
 
     model_dropdown = ft.Dropdown(
