@@ -5,6 +5,7 @@ import timm
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, models, transforms
+from timm.loss import LabelSmoothingCrossEntropy
 from PIL import ImageFile
 
 def main(args, progress_callback=None):
@@ -113,17 +114,22 @@ def main(args, progress_callback=None):
     data_transforms = {
         'train': transforms.Compose(train_transform_list),
         'val': transforms.Compose(val_transform_list),
+        'test': transforms.Compose(val_transform_list),
     }
 
     # 2. Create ImageFolder datasets
+    phases = ['train', 'val']
+    if os.path.isdir(os.path.join(data_dir, 'test')):
+        phases.append('test')
+    
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
-                      for x in ['train', 'val']}
+                      for x in phases}
     
     # 3. Create DataLoaders
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=batch_size, shuffle=(x == 'train'), num_workers=num_workers, pin_memory=pin_memory)
-                   for x in ['train', 'val']}
+                   for x in phases}
     
-    dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+    dataset_sizes = {x: len(image_datasets[x]) for x in phases}
     class_names = image_datasets['train'].classes
     num_classes = len(class_names)
 
@@ -149,6 +155,8 @@ def main(args, progress_callback=None):
     # 7. Define loss function and optimizer
     if loss_function == 'cross_entropy':
         criterion = nn.CrossEntropyLoss()
+    elif loss_function == 'label_smoothing':
+        criterion = LabelSmoothingCrossEntropy()
     else:
         raise ValueError(f"Unsupported loss function: {loss_function}")
     
@@ -242,9 +250,32 @@ def main(args, progress_callback=None):
     if save_path:
         torch.save(model.state_dict(), save_path)
 
+    # 10. Evaluate on test set if it exists
+    if 'test' in dataloaders:
+        log("Evaluating on test set...")
+        model.eval()
+        running_loss = 0.0
+        running_corrects = 0
+
+        for inputs, labels in dataloaders['test']:
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+
+            with torch.no_grad():
+                outputs = model(inputs)
+                _, preds = torch.max(outputs, 1)
+                loss = criterion(outputs, labels)
+
+            running_loss += loss.item() * inputs.size(0)
+            running_corrects += torch.sum(preds == labels.data)
+
+        test_loss = running_loss / dataset_sizes['test']
+        test_acc = running_corrects.double() / dataset_sizes['test']
+        log(f'Test Loss: {test_loss:.4f} Acc: {test_acc:.4f}')
+
     log("Fine-tuning finished")
     
-    # 10. Return the final validation accuracy
+    # 11. Return the final validation accuracy
     return final_epoch_val_acc
 
 if __name__ == '__main__':
@@ -261,7 +292,7 @@ if __name__ == '__main__':
     parser.add_argument('--adam_beta1', type=float, default=0.9, help='Beta1 for Adam/AdamW optimizers')
     parser.add_argument('--adam_beta2', type=float, default=0.999, help='Beta2 for Adam/AdamW optimizers')
     parser.add_argument('--adam_eps', type=float, default=1e-8, help='Epsilon for Adam/AdamW optimizers')
-    parser.add_argument('--loss_function', type=str, default='cross_entropy', choices=['cross_entropy'], help='Loss function to use')
+    parser.add_argument('--loss_function', type=str, default='cross_entropy', choices=['cross_entropy', 'label_smoothing'], help='Loss function to use')
     parser.add_argument('--early_stopping_patience', type=int, default=0, help='Patience for early stopping (0 to disable)')
     parser.add_argument('--early_stopping_min_delta', type=float, default=0.0, help='Minimum delta for early stopping')
     parser.add_argument('--early_stopping_metric', type=str, default='loss', choices=['loss', 'accuracy'], help='Metric for early stopping')

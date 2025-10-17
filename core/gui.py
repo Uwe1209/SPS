@@ -466,6 +466,7 @@ def main(page: ft.Page):
         value="cross_entropy",
         options=[
             ft.dropdown.Option("cross_entropy"),
+            ft.dropdown.Option("label_smoothing"),
         ],
         border_radius=8,
         border_color=ft.Colors.GREY_700,
