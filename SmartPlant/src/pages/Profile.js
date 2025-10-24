@@ -8,7 +8,7 @@ export default function ProfileScreen({ navigation, route }) {
   const { userEmail } = route.params || {};
   //const emailToUse = userEmail;
   // Determine which email to fetch
-  const emailToUse = userEmail|| "ally@gmail.com";
+  const emailToUse = userEmail;
   const [profile, setProfile] = useState(null);
 
   // Fetch profile info from Firebase
@@ -55,6 +55,7 @@ export default function ProfileScreen({ navigation, route }) {
           <TouchableOpacity 
             style={styles.menuItem} 
             onPress={() => navigation.navigate("MyProfile", { userEmail: emailToUse })}
+
           >
             <Text style={styles.menuText}>My Profile</Text>
             <Text style={styles.arrow}>›</Text>
@@ -83,6 +84,15 @@ export default function ProfileScreen({ navigation, route }) {
 
           <TouchableOpacity style={styles.menuItem}>
             <Text style={styles.menuText}>Log Out</Text>
+            <Text style={styles.arrow}>›</Text>
+          </TouchableOpacity>
+
+          {/* Temporary link to Admin Dashboard */}
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate("AdminDashboard")} 
+          >
+            <Text style={styles.menuText}>Admin Dashboard (temp)</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
         </View>

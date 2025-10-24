@@ -69,6 +69,7 @@ export default function MyProfile({ navigation, route }) {
       {/* Profile Picture */}
       <View style={styles.profileSection}>
         <Text style={styles.profileLabel}>Profile picture</Text>
+
         <TouchableOpacity
           onPress={() => navigation.navigate("EditProfile", { email: profile.email })} >
           <Text style={styles.editText}>Edit</Text>

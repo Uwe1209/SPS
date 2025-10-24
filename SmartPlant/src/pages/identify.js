@@ -117,6 +117,7 @@ export default function IdentifyPage() {
         try {
             setLoading(true);
             const response = await fetch("http://10.69.215.149:3000/predict", {
+
                 method: "POST",
                 headers: { "Content-Type": "multipart/form-data" },
                 body: formData,

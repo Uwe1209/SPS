@@ -259,6 +259,7 @@ const MapPage = ({navigation}) => {
             });
           }
         } else if (gestureState.dy < -20) {
+
           if (selectedMarker) {
             Animated.spring(bottomSheetHeight, {
               toValue: height * 0.6,
@@ -285,13 +286,14 @@ const MapPage = ({navigation}) => {
   };
 
   const [panResponder, setPanResponder] = useState(() => createPanResponder());
-
+  
   useEffect(() => {
     setPanResponder(createPanResponder());
   }, [selectedMarker]);
 
   const handleMarkerPress = (marker) => {
     setSelectedMarker(marker);
+
     Animated.spring(bottomSheetHeight, {
       toValue: 300,
       useNativeDriver: false,
@@ -387,8 +389,9 @@ const MapPage = ({navigation}) => {
                 <Text style={styles.descriptionText}>
                   {selectedMarker.description}
                 </Text>
-                
+
                 <View style={styles.actionRow}>
+
                   <TouchableOpacity 
                     style={styles.likeButton}
                     onPress={handleLike}
@@ -400,7 +403,7 @@ const MapPage = ({navigation}) => {
                     />
                     <Text style={styles.likeCount}>{likeCount}</Text>
                   </TouchableOpacity>
-                  
+
                   <View style={styles.menuContainer}>
                     <TouchableOpacity 
                       style={styles.menuButton}
@@ -408,7 +411,7 @@ const MapPage = ({navigation}) => {
                     >
                       <Ionicons name="ellipsis-vertical" size={20} color="#666" />
                     </TouchableOpacity>
-                    
+
                     {showMenu && (
                       <View style={styles.menuOverlay}>
                         <TouchableOpacity 
@@ -519,6 +522,7 @@ const MapPage = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -572,6 +576,7 @@ const MapPage = ({navigation}) => {
               key={tab}
               style={[styles.tab, selectedTab === tab && styles.selectedTab]}
               onPress={() => handleTabPress(tab)}
+
             >
               <Text style={[styles.tabText, selectedTab === tab && styles.selectedTabText]}>
                 {tab}
@@ -882,6 +887,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 
 export default MapPage;

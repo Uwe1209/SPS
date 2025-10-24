@@ -23,6 +23,7 @@ export default function NotificationsScreen({ navigation }) {
           { paddingBottom: NAV_HEIGHT + 8 }, // room for the bar itself
         ]}
       >
+
         {/* Title */}
         <View style={styles.titleRow}>
           <Text style={styles.title}>Notifications</Text>
@@ -112,3 +113,4 @@ const styles = StyleSheet.create({
     borderWidth: 1.5, borderColor: GREEN, marginLeft: 10,
   },
 });
+

@@ -7,7 +7,7 @@ export const addPlantIdentify = async (plantData) => {
       ...plantData,
       createdAt: serverTimestamp(),
     });
-    
+
     return docRef.id;
   } catch (error) {
     console.error('Error adding document:', error);
