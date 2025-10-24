@@ -1,37 +1,52 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
 import BottomNav from "../components/Navigation";
 import { getFullProfile } from "../firebase/UserProfile/UserUpdate";
+import { auth } from "../firebase/FirebaseConfig";
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function ProfileScreen({ navigation, route }) {
-  // Extracting email and updated profile info 
-  const { userEmail } = route.params || {};
-  //const emailToUse = userEmail;
-  // Determine which email to fetch
-  const emailToUse = userEmail;
+export default function ProfileScreen({ navigation }) {
   const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch profile info from Firebase
-  useEffect(() => {
-    if (!emailToUse) {
-      Alert.alert("Error", "No email provided. Please log in.");
-      return;
-    }
-    const fetchProfile = async () => {
+  const fetchProfile = async () => {
+      setLoading(true);
       try {
-        const data = await getFullProfile(emailToUse);
+        const user = auth.currentUser; 
+        if (!user) {
+          Alert.alert("Error", "No logged-in user found. Please log in again.");
+          navigation.replace("Login");
+          return;
+        }
+
+        const email = user.email;
+        const data = await getFullProfile(email);
         setProfile(data);
       } catch (err) {
         console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchProfile();
-  }, [userEmail]);
+  
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [])
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingstyle}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
 
   if (!profile) {
     return (
       <View style={styles.loadingstyle}>
-        <Text>Loading profile...</Text>
+        <Text>Profile not found.</Text>
       </View>
     );
   }
@@ -54,7 +69,7 @@ export default function ProfileScreen({ navigation, route }) {
         <View style={styles.menuContainer}>
           <TouchableOpacity 
             style={styles.menuItem} 
-            onPress={() => navigation.navigate("MyProfile", { userEmail: emailToUse })}
+            onPress={() => navigation.navigate("MyProfile", { userEmail: profile.email })}
 
           >
             <Text style={styles.menuText}>My Profile</Text>
@@ -82,7 +97,15 @@ export default function ProfileScreen({ navigation, route }) {
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} 
+          onPress={async () => {
+              try {
+                await auth.signOut();
+                navigation.replace("LoginSelection");
+              } catch (error) {
+                console.error("Error logging out:", error);
+              }
+            }}>
             <Text style={styles.menuText}>Log Out</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>

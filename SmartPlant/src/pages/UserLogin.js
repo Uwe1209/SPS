@@ -17,7 +17,7 @@ export default function UserLogin({navigation}){
     const response = await loginUser(email, password);
     if (response.success) {
       Alert.alert("Success", "Login successful!");
-      navigation.navigate("Profile",{userEmail:email}); // ✅ Redirect after login
+      navigation.navigate("Profile"); // ✅ Redirect after login
     } else {
       Alert.alert("Login Failed", response.error);
     }
