@@ -775,6 +775,32 @@ def verify_images():
     
     print("\nVerification finished.")
 
+<<<<<<< HEAD
+=======
+def list_downloaded_species():
+    """
+    Scans the image download directory and lists all unique species folders found.
+    """
+    print("\n--- Downloaded Species ---")
+    if not os.path.exists(IMAGE_DOWNLOAD_BASE_PATH):
+        print(f"Image download directory not found: {IMAGE_DOWNLOAD_BASE_PATH}")
+        return
+
+    species_dirs = set()
+    for root, _, files in os.walk(IMAGE_DOWNLOAD_BASE_PATH):
+        if any(file.endswith('.jpg') for file in files):
+            species_name = os.path.basename(root)
+            species_dirs.add(species_name)
+
+    if not species_dirs:
+        print("No species with downloaded images found.")
+    else:
+        print(f"Found {len(species_dirs)} unique species with images:")
+        for i, species in enumerate(sorted(list(species_dirs)), 1):
+            print(f"  {i}. {species}")
+    print("--------------------------")
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 def main():
     """
     Main function to run the script.
@@ -801,6 +827,7 @@ def main():
             print(f"Cache last updated: {last_updated}")
         print("Current hierarchy from manifest:")
         print_tree(file_tree)
+<<<<<<< HEAD
         print("\nOptions:")
         print("1. Fetch updated counts from iNaturalist API (updates cache)")
         print("2. Download all taxon data (clears existing downloads)")
@@ -811,6 +838,26 @@ def main():
         print("7. Verify local images against CSVs")
         print("8. Exit")
         choice = input("Enter your choice (1-8): ")
+=======
+        
+        print("\n--- Options ---")
+        print("\n[Data & Counts]")
+        print("  1. Fetch updated counts from iNaturalist API (updates cache)")
+        print("  2. Compare local and remote counts")
+        print("  3. Download all taxon data (clears existing downloads)")
+        print("  4. Update changed taxon data (downloads new/changed files)")
+        
+        print("\n[Image Management]")
+        print("  5. Download all observation images (clears existing images)")
+        print("  6. Update missing observation images")
+        print("  7. Verify local images against CSVs")
+        print("  8. List downloaded species")
+
+        print("\n[General]")
+        print("  9. Exit")
+        print()
+        choice = input("Enter your choice (1-9): ")
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
         if choice == '1':
             print("\nFetching observation counts from iNaturalist API...")
@@ -822,6 +869,18 @@ def main():
             print("Counts cache updated.")
         
         elif choice == '2':
+<<<<<<< HEAD
+=======
+            print("\nComparing local and cached counts...")
+            if not has_any_integer_counts(file_tree):
+                print("Warning: No counts loaded from cache. Please use option '1' to fetch counts first.")
+            else:
+                print("Comparison Report (mismatches and missing files based on cached counts):")
+                compare_counts(file_tree)
+                print("\nComparison complete.")
+
+        elif choice == '3':
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
             print("\nDownloading all taxon data...")
             if not has_any_integer_counts(file_tree):
                  print("Warning: No counts loaded. Fetching counts first.")
@@ -835,7 +894,11 @@ def main():
             download_all_taxons(file_tree)
             print("\nDownload complete.")
 
+<<<<<<< HEAD
         elif choice == '3':
+=======
+        elif choice == '4':
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
             print("\nChecking for updates...")
             fetch_and_update_counts(file_tree) # Always get latest counts before updating
             new_counts = extract_counts_from_tree(file_tree)
@@ -846,6 +909,7 @@ def main():
             update_changed_taxons(file_tree)
             print("\nUpdate check complete.")
 
+<<<<<<< HEAD
         elif choice == '4':
             print("\nComparing local and cached counts...")
             if not has_any_integer_counts(file_tree):
@@ -855,6 +919,8 @@ def main():
                 compare_counts(file_tree)
                 print("\nComparison complete.")
 
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         elif choice == '5':
             print("\nDownloading all observation images...")
             download_all_images()
@@ -868,6 +934,12 @@ def main():
             verify_images()
 
         elif choice == '8':
+<<<<<<< HEAD
+=======
+            list_downloaded_species()
+
+        elif choice == '9':
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
             print("Exiting.")
             break
         else:

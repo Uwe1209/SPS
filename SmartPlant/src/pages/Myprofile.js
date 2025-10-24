@@ -1,26 +1,102 @@
+<<<<<<< HEAD
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
 
 export default function MyProfile({ navigation }) {
+=======
+import React, { useEffect, useState } from "react";
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Alert} from "react-native";
+import { getFullProfile } from "../firebase/UserProfile/UserUpdate";
+
+export default function MyProfile({ navigation, route }) {
+  // Extracting email and updated profile info 
+  const { userEmail, updatedProfile } = route.params || {};
+  // Storing status
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch profile info from Firebase
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        if (!userEmail) {
+          Alert.alert("Error", "No email provided. Please log in.");
+          return;
+        }
+        const data = await getFullProfile(userEmail);
+        //console.log("Fetched full profile:", data);
+        setProfile(data);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [userEmail, updatedProfile]);
+
+  // Show loading
+  if (loading) {
+    return (
+      <View style={styles.loadingstyle}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+  // Show message if cannot be fetched
+  if (!profile) {
+    return (
+      <View style={loadingstyle}>
+        <Text>No profile data available as no login</Text>
+      </View>
+    );
+  }
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+<<<<<<< HEAD
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>←</Text>
         </TouchableOpacity>
+=======
+        <TouchableOpacity
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate("Profile");
+            }
+          }}
+        >
+          <Text style={styles.back}>←</Text>
+        </TouchableOpacity>
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         <Text style={styles.headerTitle}>My profile</Text>
       </View>
 
       {/* Profile Picture */}
       <View style={styles.profileSection}>
         <Text style={styles.profileLabel}>Profile picture</Text>
+<<<<<<< HEAD
         <TouchableOpacity>
+=======
+        <TouchableOpacity
+          onPress={() => navigation.navigate("EditProfile", { email: profile.email })} >
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>
       </View>
       <Image
+<<<<<<< HEAD
         source={require("../../assets/user2.png")}
+=======
+        source={profile.profile_pic ? { uri: profile.profile_pic } : require("../../assets/user2.png")}
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         style={styles.profileImage}
       />
 
@@ -29,11 +105,19 @@ export default function MyProfile({ navigation }) {
         <Text style={styles.sectionTitle}>Contact Information</Text>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Email</Text>
+<<<<<<< HEAD
           <Text style={styles.value}>Bryan@gmail.com</Text>
         </View>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Phone Number</Text>
           <Text style={styles.value}>0143980012</Text>
+=======
+          <Text style={styles.value}>{profile.email}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Phone Number</Text>
+          <Text style={styles.value}>{profile.phone_number || "N/A"}</Text>
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         </View>
       </View>
 
@@ -42,6 +126,7 @@ export default function MyProfile({ navigation }) {
         <Text style={styles.sectionTitle}>Personal Details</Text>
         <View style={styles.infoRow}>
           <Text style={styles.label}>Name</Text>
+<<<<<<< HEAD
           <Text style={styles.value}>Bryan</Text>
         </View>
         <View style={styles.infoRow}>
@@ -75,6 +160,41 @@ export default function MyProfile({ navigation }) {
         <View style={styles.infoRow}>
           <Text style={styles.label}>Occupation</Text>
           <Text style={styles.value}>Student</Text>
+=======
+          <Text style={styles.value}>{profile.full_name}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Date of Birth</Text>
+          <Text style={styles.value}>{profile.date_of_birth || "N/A"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>NRIC</Text>
+          <Text style={styles.value}>{profile.nric || "*******000"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Gender</Text>
+          <Text style={styles.value}>{profile.gender|| "N/A"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Address</Text>
+          <Text style={styles.value}>{profile.address || "N/A"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>District</Text>
+          <Text style={styles.value}>{profile.division || "N/A"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Postcode</Text>
+          <Text style={styles.value}>{profile.postcode || "N/A"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Race</Text>
+          <Text style={styles.value}>{profile.race || "N/A"}</Text>
+        </View>
+        <View style={styles.infoRow}>
+          <Text style={styles.label}>Occupation</Text>
+          <Text style={styles.value}>{profile.occupation || "N/A"}</Text>
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         </View>
       </View>
 
@@ -162,4 +282,12 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "right",
   },
+<<<<<<< HEAD
+=======
+  loadingstyle:{
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center"
+  }
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 });

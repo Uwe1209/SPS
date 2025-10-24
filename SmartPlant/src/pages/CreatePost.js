@@ -1,12 +1,21 @@
 // pages/CreatePost.js
+<<<<<<< HEAD
 import React from "react";
+=======
+import React, { useState } from "react";
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomNav from "../components/Navigation";
 
 export default function CreatePost({ navigation }) {
+<<<<<<< HEAD
   const [image, setImage] = React.useState(null);
   const [caption, setCaption] = React.useState("");
+=======
+  const [image, setImage] = useState(null);
+  const [caption, setCaption] = useState("");
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
   // handle both old and new expo-image-picker shapes
   const getAssetUri = (result) => {

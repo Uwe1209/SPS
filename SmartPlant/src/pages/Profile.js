@@ -1,8 +1,49 @@
+<<<<<<< HEAD
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
 import BottomNav from "../components/Navigation";
 
 export default function ProfileScreen({ navigation }) {   
+=======
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
+import BottomNav from "../components/Navigation";
+import { getFullProfile } from "../firebase/UserProfile/UserUpdate";
+
+export default function ProfileScreen({ navigation, route }) {
+  // Extracting email and updated profile info 
+  const { userEmail } = route.params || {};
+  //const emailToUse = userEmail;
+  // Determine which email to fetch
+  const emailToUse = userEmail|| "ally@gmail.com";
+  const [profile, setProfile] = useState(null);
+
+  // Fetch profile info from Firebase
+  useEffect(() => {
+    if (!emailToUse) {
+      Alert.alert("Error", "No email provided. Please log in.");
+      return;
+    }
+    const fetchProfile = async () => {
+      try {
+        const data = await getFullProfile(emailToUse);
+        setProfile(data);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      }
+    };
+    fetchProfile();
+  }, [userEmail]);
+
+  if (!profile) {
+    return (
+      <View style={styles.loadingstyle}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   return (
     <View style={styles.background}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -11,17 +52,28 @@ export default function ProfileScreen({ navigation }) {
         {/* Profile Image */}
         <View style={styles.profileContainer}>
           <Image
+<<<<<<< HEAD
             source={require("../../assets/user2.png")}
             style={styles.profileImage}
           />
           <Text style={styles.username}>LiYing</Text>
+=======
+            source={profile.profile_pic ? { uri: profile.profile_pic } : require("../../assets/user2.png")}
+            style={styles.profileImage}
+          />
+          <Text style={styles.username}>{profile.full_name}</Text>
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         </View>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
           <TouchableOpacity 
             style={styles.menuItem} 
+<<<<<<< HEAD
             onPress={() => navigation.navigate("MyProfile")} 
+=======
+            onPress={() => navigation.navigate("MyProfile", { userEmail: emailToUse })}
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
           >
             <Text style={styles.menuText}>My Profile</Text>
             <Text style={styles.arrow}>›</Text>
@@ -52,6 +104,18 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.menuText}>Log Out</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
+<<<<<<< HEAD
+=======
+
+          {/* Temporary link to Admin Dashboard */}
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate("AdminDashboard")} 
+          >
+            <Text style={styles.menuText}>Admin Dashboard (temp)</Text>
+            <Text style={styles.arrow}>›</Text>
+          </TouchableOpacity>
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         </View>
       </ScrollView>
 
@@ -114,5 +178,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
   },
+<<<<<<< HEAD
+=======
+  loadingstyle:{
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center"
+  }
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 });
 

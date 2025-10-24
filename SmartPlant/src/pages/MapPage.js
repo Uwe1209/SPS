@@ -1,19 +1,37 @@
+<<<<<<< HEAD
 import React,{ useState, useRef, useEffect } from 'react';
+=======
+import React, { useState, useRef, useEffect } from 'react';
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 import { StyleSheet, TextInput, Text, View, TouchableOpacity, ScrollView, Image, Dimensions, Animated, PanResponder, Alert, Platform } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, Circle } from "react-native-maps";
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import mapStyle from "../../assets/mapStyle.json";
+<<<<<<< HEAD
 import markers from "../../assets/marker.json";
+=======
+import { db } from '../firebase/FirebaseConfig';
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
 const { width, height } = Dimensions.get('window');
 
 const MapPage = ({navigation}) => {
   const [searchText, setSearchText] = useState('');
+<<<<<<< HEAD
   const [selectedTab, setSelectedTab] = useState('Plant');
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
+=======
+  const [selectedTab, setSelectedTab] = useState(null); // 默认不选择任何tab
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  const [markers, setMarkers] = useState([]);
+  const [loading, setLoading] = useState(true);
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
   const mapRef = useRef(null);
   const bottomSheetHeight = useRef(new Animated.Value(180)).current;
@@ -26,11 +44,216 @@ const MapPage = ({navigation}) => {
     longitudeDelta: 0.0421,
   };
 
+<<<<<<< HEAD
+=======
+  // 计算两点之间的距离（公里）
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // 地球半径（公里）
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance;
+  };
+
+  // 根据距离排序植物
+  const getSortedMarkersByDistance = (markersList) => {
+    if (!userLocation) return markersList;
+    
+    return markersList
+      .map(marker => ({
+        ...marker,
+        distance: calculateDistance(
+          userLocation.latitude,
+          userLocation.longitude,
+          marker.coordinate.latitude,
+          marker.coordinate.longitude
+        )
+      }))
+      .sort((a, b) => a.distance - b.distance);
+  };
+
+  // 获取最近的植物（用于底部面板）
+  const getNearestMarkers = (markersList, count = 3) => {
+    const sorted = getSortedMarkersByDistance(markersList);
+    return sorted.slice(0, count);
+  };
+
+  // 处理tab点击
+  const handleTabPress = (tab) => {
+    if (selectedTab === tab) {
+      // 如果点击的是已选中的tab，取消选择
+      setSelectedTab(null);
+      console.log(`🔘 取消选择 ${tab}，显示所有植物`);
+    } else {
+      // 否则选择新的tab
+      setSelectedTab(tab);
+      console.log(`🔘 选择tab: ${tab}`);
+    }
+  };
+
+  // 简化时间格式化函数
+  const formatTime = (timeData) => {
+    if (!timeData) return 'Unknown time';
+    
+    try {
+      if (timeData.seconds && timeData.nanoseconds) {
+        const date = new Date(timeData.seconds * 1000);
+        const now = new Date();
+        const diffInMs = now - date;
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+        
+        if (diffInDays === 0) return 'Today';
+        if (diffInDays === 1) return 'Yesterday';
+        if (diffInDays < 7) return `${diffInDays} days ago`;
+        if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+        return date.toLocaleDateString();
+      }
+      
+      if (typeof timeData === 'string') {
+        return timeData;
+      }
+      
+      return 'Unknown time';
+    } catch (error) {
+      return 'Unknown time';
+    }
+  };
+
+  // 修复数据格式函数
+  const fixMarkerData = (doc) => {
+    const data = doc.data();
+    
+    let latitude, longitude;
+    
+    if (data.coordinate) {
+      latitude = typeof data.coordinate.latitude === 'string' 
+        ? parseFloat(data.coordinate.latitude) 
+        : data.coordinate.latitude;
+      
+      longitude = typeof data.coordinate.longitude === 'string'
+        ? parseFloat(data.coordinate.longitude)
+        : data.coordinate.longitude;
+    } else {
+      latitude = 1.5495;
+      longitude = 110.3632;
+    }
+    
+    let imageUrl = data.image;
+    if (imageUrl && imageUrl.startsWith('gs://')) {
+      const fileName = imageUrl.replace('gs://smartplantsarawak.firebasestorage.app/', '');
+      imageUrl = `https://firebasestorage.googleapis.com/v0/b/smartplantsarawak.appspot.com/o/${encodeURIComponent(fileName)}?alt=media`;
+    }
+    
+    const fixedMarker = {
+      id: doc.id,
+      title: data.title || 'Unknown Plant',
+      type: data.type || 'Plant',
+      coordinate: {
+        latitude: latitude || 1.5495,
+        longitude: longitude || 110.3632
+      },
+      identifiedBy: data.identifiedBy || 'Unknown',
+      time: formatTime(data.time),
+      image: imageUrl || 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
+      description: data.description || 'No description available'
+    };
+    
+    return fixedMarker;
+  };
+
+  // 从Firebase获取markers数据
+  const fetchMarkers = async () => {
+    try {
+      setLoading(true);
+
+      const markersCollection = collection(db, 'markers');
+      const markerSnapshot = await getDocs(markersCollection);
+      
+      const markersList = markerSnapshot.docs.map(doc => fixMarkerData(doc));
+      
+      setMarkers(markersList);
+      
+    } catch (error) {
+      console.error('❌ 获取markers错误:', error);
+      Alert.alert('错误', `无法加载植物数据: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 设置实时监听
+  const setupRealtimeListener = () => {
+    try {
+      const markersCollection = collection(db, 'markers');
+      const unsubscribe = onSnapshot(markersCollection, (snapshot) => {
+        const markersList = snapshot.docs.map(doc => fixMarkerData(doc));
+        
+        setMarkers(markersList);
+        
+      }, (error) => {
+        console.error('❌ 实时监听错误:', error);
+      });
+
+      return unsubscribe;
+    } catch (error) {
+      console.error('❌ 设置实时监听错误:', error);
+      return () => {};
+    }
+  };
+
+  useEffect(() => {
+    // 获取初始数据
+    fetchMarkers();
+    
+    // 设置实时监听
+    const unsubscribe = setupRealtimeListener();
+    
+    // 请求定位权限
+    (async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          return;
+        }
+        
+        setHasLocationPermission(true);
+        let location = await Location.getCurrentPositionAsync({});
+        setUserLocation(location.coords);
+      } catch (error) {
+        console.log('📍 获取位置错误:', error);
+      }
+    })();
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  // 根据tab过滤markers - 地图显示所有或筛选后的植物
+  const filteredMarkersForMap = selectedTab 
+    ? markers.filter(marker => marker.type === selectedTab)
+    : markers;
+
+  // 底部面板显示的植物 - 总是显示距离最近的3个
+  const markersForBottomSheet = selectedTab 
+    ? getNearestMarkers(markers.filter(marker => marker.type === selectedTab), 3)
+    : getNearestMarkers(markers, 3);
+
+  // 其余函数保持不变...
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   const createPanResponder = () => {
     return PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (evt, gestureState) => {
+<<<<<<< HEAD
         // 根据当前模式设置不同的高度范围
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         const minHeight = selectedMarker ? 200 : 100;
         const maxHeight = selectedMarker ? height * 0.7 : 280;
         
@@ -39,10 +262,16 @@ const MapPage = ({navigation}) => {
       },
       onPanResponderRelease: (evt, gestureState) => {
         const currentHeightValue = bottomSheetHeight._value;
+<<<<<<< HEAD
         currentHeightRef.current = currentHeightValue; // 更新当前高度
         
         if (gestureState.dy > 20) {
           // 向下拉 - 收起
+=======
+        currentHeightRef.current = currentHeightValue;
+        
+        if (gestureState.dy > 20) {
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
           if (selectedMarker) {
             Animated.spring(bottomSheetHeight, {
               toValue: 200,
@@ -59,7 +288,10 @@ const MapPage = ({navigation}) => {
             });
           }
         } else if (gestureState.dy < -20) {
+<<<<<<< HEAD
           // 向上拉 - 展开
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
           if (selectedMarker) {
             Animated.spring(bottomSheetHeight, {
               toValue: height * 0.6,
@@ -76,7 +308,10 @@ const MapPage = ({navigation}) => {
             });
           }
         } else {
+<<<<<<< HEAD
           // 轻微拖动，回到当前位置
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
           Animated.spring(bottomSheetHeight, {
             toValue: currentHeightValue,
             useNativeDriver: false,
@@ -88,11 +323,15 @@ const MapPage = ({navigation}) => {
 
   const [panResponder, setPanResponder] = useState(() => createPanResponder());
 
+<<<<<<< HEAD
   // 当 selectedMarker 改变时更新 PanResponder
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   useEffect(() => {
     setPanResponder(createPanResponder());
   }, [selectedMarker]);
 
+<<<<<<< HEAD
   <MapView style={{ flex: 1 }}>
   {markers.map(marker => (
     <Marker
@@ -122,6 +361,10 @@ const MapPage = ({navigation}) => {
   const handleMarkerPress = (marker) => {
     setSelectedMarker(marker);
     // 进入详情时设置合适的高度
+=======
+  const handleMarkerPress = (marker) => {
+    setSelectedMarker(marker);
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
     Animated.spring(bottomSheetHeight, {
       toValue: 300,
       useNativeDriver: false,
@@ -160,7 +403,11 @@ const MapPage = ({navigation}) => {
 
   const renderBottomSheet = () => {
     const [isLiked, setIsLiked] = useState(false);
+<<<<<<< HEAD
     const [likeCount, setLikeCount] = useState(42); // 初始点赞数
+=======
+    const [likeCount, setLikeCount] = useState(42);
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
     const [showMenu, setShowMenu] = useState(false);
 
     const handleLike = () => {
@@ -174,7 +421,10 @@ const MapPage = ({navigation}) => {
 
     const handleMenuAction = (action) => {
       setShowMenu(false);
+<<<<<<< HEAD
       // 处理菜单选项
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
       switch(action) {
         case 'more':
           Alert.alert('More Details', 'Showing more details...');
@@ -219,9 +469,13 @@ const MapPage = ({navigation}) => {
                   {selectedMarker.description}
                 </Text>
                 
+<<<<<<< HEAD
                 {/* 操作按钮行 - 在描述文字下方 */}
                 <View style={styles.actionRow}>
                   {/* 左边 - 心形按钮 */}
+=======
+                <View style={styles.actionRow}>
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
                   <TouchableOpacity 
                     style={styles.likeButton}
                     onPress={handleLike}
@@ -234,7 +488,10 @@ const MapPage = ({navigation}) => {
                     <Text style={styles.likeCount}>{likeCount}</Text>
                   </TouchableOpacity>
                   
+<<<<<<< HEAD
                   {/* 右边 - 三点菜单 */}
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
                   <View style={styles.menuContainer}>
                     <TouchableOpacity 
                       style={styles.menuButton}
@@ -243,7 +500,10 @@ const MapPage = ({navigation}) => {
                       <Ionicons name="ellipsis-vertical" size={20} color="#666" />
                     </TouchableOpacity>
                     
+<<<<<<< HEAD
                     {/* 菜单弹出层 */}
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
                     {showMenu && (
                       <View style={styles.menuOverlay}>
                         <TouchableOpacity 
@@ -284,6 +544,7 @@ const MapPage = ({navigation}) => {
             </ScrollView>
           ) : (
             <>
+<<<<<<< HEAD
               <Text style={styles.sectionTitle}>Latest in the area</Text>
               <ScrollView 
                 horizontal 
@@ -309,6 +570,56 @@ const MapPage = ({navigation}) => {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
+=======
+              <Text style={styles.sectionTitle}>
+                {selectedTab ? `${selectedTab}s nearby` : 'Latest in the area'}
+              </Text>
+              {loading ? (
+                <Text style={styles.loadingText}>Loading plants...</Text>
+              ) : markersForBottomSheet.length === 0 ? (
+                <View style={styles.noDataContainer}>
+                  <Text style={styles.noDataText}>
+                    {selectedTab ? `No ${selectedTab.toLowerCase()}s nearby` : 'No plants nearby'}
+                  </Text>
+                  <Text style={styles.noDataSubtext}>
+                    {selectedTab ? 'Try exploring other areas' : 'Move around to discover plants'}
+                  </Text>
+                </View>
+              ) : (
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.latestContainer}
+                >
+                  {markersForBottomSheet.map((marker, index) => (
+                    <TouchableOpacity 
+                      key={marker.id} 
+                      style={styles.latestItem}
+                      onPress={() => handleMarkerPress(marker)}
+                    >
+                      <Image 
+                        source={{ uri: marker.image }} 
+                        style={styles.latestImage}
+                      />
+                      <View style={styles.latestTextContainer}>
+                        <Text style={styles.latestTitle}>{marker.title}</Text>
+                        <Text style={styles.latestInfo}>
+                          {marker.distance ? `${marker.distance.toFixed(1)} km away` : 'Calculating distance...'}
+                        </Text>
+                        <Text style={styles.latestSubInfo}>
+                          Identified by {marker.identifiedBy} • {marker.time}
+                        </Text>
+                      </View>
+                      {index === 0 && (
+                        <View style={styles.closestBadge}>
+                          <Text style={styles.closestBadgeText}>Closest</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
             </>
           )}
         </View>
@@ -330,9 +641,13 @@ const MapPage = ({navigation}) => {
   };
 
   return (
+<<<<<<< HEAD
     
     <View style={styles.container}>
     
+=======
+    <View style={styles.container}>
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -343,7 +658,12 @@ const MapPage = ({navigation}) => {
         showsCompass={true}
         customMapStyle={mapStyle}
       >
+<<<<<<< HEAD
         {markers.map(marker => (
+=======
+        {/* 地图显示所有或筛选后的植物 */}
+        {filteredMarkersForMap.map(marker => (
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
           <Marker
             key={marker.id}
             coordinate={marker.coordinate}
@@ -384,7 +704,11 @@ const MapPage = ({navigation}) => {
             <TouchableOpacity
               key={tab}
               style={[styles.tab, selectedTab === tab && styles.selectedTab]}
+<<<<<<< HEAD
               onPress={() => setSelectedTab(tab)}
+=======
+              onPress={() => handleTabPress(tab)}
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
             >
               <Text style={[styles.tabText, selectedTab === tab && styles.selectedTabText]}>
                 {tab}
@@ -394,6 +718,7 @@ const MapPage = ({navigation}) => {
         </ScrollView>
       </View>
 
+<<<<<<< HEAD
 
       {renderBottomSheet()}
 
@@ -407,6 +732,13 @@ const MapPage = ({navigation}) => {
   customMapStyle={mapStyle}
 />
 
+=======
+      {renderBottomSheet()}
+    </View>
+  );
+};
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -659,6 +991,55 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+<<<<<<< HEAD
 });
 
+=======
+  noDataContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  noDataText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 8,
+  },
+  noDataSubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginBottom: 16,
+  },
+  debugInfo: {
+    fontSize: 12,
+    color: '#ccc',
+    textAlign: 'center',
+  },
+  loadingText: {
+    textAlign: 'center',
+    color: '#666',
+    marginTop: 20,
+  },
+  latestSubInfo: {
+    fontSize: 10,
+    color: '#888',
+    marginTop: 2,
+  },
+  closestBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  closestBadgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+});
+
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 export default MapPage;

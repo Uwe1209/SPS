@@ -6,7 +6,10 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+<<<<<<< HEAD
     "newArchEnabled": true,
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -23,11 +26,17 @@
       "edgeToEdgeEnabled": true,
       "permissions": [
         "android.permission.CAMERA",
+<<<<<<< HEAD
         "android.permission.RECORD_AUDIO",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.anonymous.camera"
+=======
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.darklorddad.camera"
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -41,6 +50,15 @@
           "recordAudioAndroid": true
         }
       ]
+<<<<<<< HEAD
     ]
+=======
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1e299d8a-9dd3-43b4-bcda-d2fff71df744"
+      }
+    }
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   }
 }

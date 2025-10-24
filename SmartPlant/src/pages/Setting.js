@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import { View, Text, StyleSheet, Switch, TouchableOpacity, Image } from "react-native";
 
@@ -5,6 +6,15 @@ export default function SettingsScreen({ navigation }) {
   const [location, setLocation] = React.useState(false);
   const [camera, setCamera] = React.useState(false);
   const [photos, setPhotos] = React.useState(false);
+=======
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Image } from "react-native";
+
+export default function SettingsScreen({ navigation }) {
+  const [location, setLocation] = useState(false);
+  const [camera, setCamera] = useState(false);
+  const [photos, setPhotos] = useState(false);
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
   return (
     <View style={styles.container}>
@@ -74,9 +84,16 @@ const styles = StyleSheet.create({
       marginTop: 30,
   },
   title: { 
+<<<<<<< HEAD
       fontSize: 20, 
       flex: 1,
       textAlign: "center",
+=======
+      fontSize: 18, 
+      textAlign: "center",
+      width: "80%",
+      marginTop: 30,
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   },
   row: {
       flexDirection: "row",

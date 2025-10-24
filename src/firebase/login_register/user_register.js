@@ -8,7 +8,7 @@ export async function user_register(fullName, email, password) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const userId = userCredential.user.uid;
 
-    // 2. Firestore - Store in "users" table
+    // 2. Firestore - Store in "user" table
     await setDoc(doc(db, "user", userId), {
       user_id: userId,
       full_name: fullName,

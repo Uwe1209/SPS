@@ -1,11 +1,19 @@
 // Mail.js
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from "react-native";
 import { Ionicons, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+<<<<<<< HEAD
 import React from "react";
 
 export default function MailScreen({ navigation }) {
   // star state per item
   const [stars, setStars] = React.useState({
+=======
+import React, { useState } from "react";
+
+export default function MailScreen({ navigation }) {
+  // star state per item
+  const [stars, setStars] = useState({
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
     feedback: false,
     report: false,
   });

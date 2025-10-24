@@ -1,10 +1,21 @@
 import React from "react";
+<<<<<<< HEAD
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator, Alert } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { addPlantIdentify } from '../firebase/plant_identify/addPlantIdentify.js';
 import { uploadImage } from '../firebase/plant_identify/uploadImage.js';
 import { db } from "../firebase/FirebaseConfig";
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+=======
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicato, Alert } from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { addPlantIdentify } from '../firebase/plant_identify/addPlantIdentify.js';
+import { uploadImage } from '../firebase/plant_identify/uploadImage.js';
+import { serverTimestamp } from 'firebase/firestore';
+
+import * as Location from 'expo-location'; //getting current device location
+import * as ImagePicker from 'expo-image-picker'; // for picking images with EXIF
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
 export default function ResultScreen() {
   const route = useRoute();
@@ -37,7 +48,11 @@ export default function ResultScreen() {
     try {
       setLoading(true);
 
+<<<<<<< HEAD
       const response = await fetch("http://192.168.0.196:3000/heatmap", {
+=======
+      const response = await fetch("http://10.69.215.149:3000/heatmap", {
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         method: "POST",
         headers: { "Content-Type": "multipart/form-data" },
         body: formData,
@@ -86,6 +101,7 @@ export default function ResultScreen() {
 
   };
 
+<<<<<<< HEAD
   const uploadDataToDatabase = async () => {
     try {
       const downloadURL = await uploadImage(imageURI, prediction[0].class);
@@ -105,6 +121,71 @@ export default function ResultScreen() {
       console.log("image uplaod failed: ", error);
     }
 
+=======
+ 
+  function dmsToDecimal(dms, ref) {
+    const [deg, min, sec] = dms.map(parseFloat);
+    let dec = deg + min / 60 + sec / 3600;
+    if (ref === 'S' || ref === 'W') dec = -dec;
+    return dec;
+  }
+
+  const uploadDataToDatabase = async () => {
+    try {
+      let latitude = null;
+      let longitude = null;
+
+      // Try to extract location from EXIF (if imageURI is from picker with exif)
+      try {
+        const exifResult = await ImagePicker.getExifAsync(imageURI);
+        if (exifResult && exifResult.GPSLatitude && exifResult.GPSLongitude) {
+          latitude = exifResult.GPSLatitude;
+          longitude = exifResult.GPSLongitude;
+          console.log('Got GPS from EXIF:', latitude, longitude);
+        }
+      } catch (e) {
+        console.log('No EXIF location found, fallback to device location...');
+      }
+
+      //Fallback — get current device location   (needa fix later, what if they upload the image at home)
+      if (!latitude || !longitude) {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({});
+          latitude = loc.coords.latitude;
+          longitude = loc.coords.longitude;
+          console.log('Got GPS from device:', latitude, longitude);
+        } else {
+          console.log('Location permission denied.');
+        }
+      }
+
+      //Upload image to storage
+      const downloadURL = await uploadImage(imageURI, prediction[0].class);
+      console.log('Added to storage with URL:', downloadURL);
+
+      //Uplaod info to firestore
+      const plantData = {
+        plant_species:prediction[0].class,
+        ai_score: prediction[0].confidence,
+        createdAt: serverTimestamp(),
+        ImageURL: downloadURL,
+        coordinate: {latitude:latitude, longitude:longitude},
+       
+      };
+
+      try {
+        const docId = await addPlantIdentify(plantData);
+        console.log('Added to Firestore with ID:', docId);
+        navigation.navigate("MapPage")
+      } catch (error) {
+        console.error('Error adding plant:', error);
+      }
+
+    } catch (error) {
+      console.log("Image upload failed:", error);
+    }
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
   };
 
   return (

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import React from "react";
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -9,24 +12,48 @@ import IdentifyTips from './src/pages/identify_tips';
 import IdentifyOutput from './src/pages/identify_output';
 import Profile from "./src/pages/Profile";
 import MyProfile from "./src/pages/Myprofile";
+<<<<<<< HEAD
+=======
+import EditProfile from "./src/pages/EditProfile";
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 import Setting from "./src/pages/Setting";
 import Saved from "./src/pages/Saved";
 import Notification from "./src/pages/Notification";
 import MapPage from "./src/pages/MapPage";
+<<<<<<< HEAD
 import LoginSelection from "./src/pages/LoginSelection";
 import UserLogin from "./src/pages/UserLogin";
 import UserRegister from "./src/pages/UserRegister";
 import AdminLogin from "./src/pages/AdminLogin";
 
+=======
+import HomepageExpert from "./src/pages/HomepageExpert";
+import HomepageUser from "./src/pages/HomepageUser";
+import PlantDetailUser from "./src/pages/PlantDetailUser";
+import PlantManagementDetail from "./src/pages/PlantManagementDetail";
+import PlantManagementList from "./src/pages/PlantManagementList";
+import PostDetail from "./src/pages/PostDetail";
+import ReportError from "./src/pages/ReportError";
+import TopSuggestions from "./src/pages/TopSuggestions";
+import CreatePost from "./src/pages/CreatePost";
+import AdminNavigator from './src/admin/AdminNavigator';
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
+<<<<<<< HEAD
       <Stack.Navigator initialRouteName="LoginSelection" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="MyProfile" component={MyProfile} />
+=======
+      <Stack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="MyProfile" component={MyProfile} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
         <Stack.Screen name="MapPage" component={MapPage} />
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="Saved" component={Saved} />
@@ -34,10 +61,25 @@ export default function App() {
         <Stack.Screen name="identify" component={IdentifyPage} />
         <Stack.Screen name="identify_tips" component={IdentifyTips} />
         <Stack.Screen name="identify_output" component={IdentifyOutput}/>
+<<<<<<< HEAD
         <Stack.Screen name="LoginSelection" component={LoginSelection} />
         <Stack.Screen name="UserLogin" component={UserLogin} />
         <Stack.Screen name="UserRegister" component={UserRegister} />
         <Stack.Screen name="AdminLogin" component={AdminLogin} />
+=======
+        <Stack.Screen name="HomepageExpert" component={HomepageExpert}/>
+        <Stack.Screen name="HomepageUser" component={HomepageUser}/>
+        <Stack.Screen name="PlantDetailUser" component={PlantDetailUser}/>
+        <Stack.Screen name="PlantManagementDetail" component={PlantManagementDetail}/>
+        <Stack.Screen name="PlantManagementList" component={PlantManagementList}/>
+        <Stack.Screen name="PostDetail" component={PostDetail}/>
+        <Stack.Screen name="ReportError" component={ReportError}/>
+        <Stack.Screen name="TopSuggestions" component={TopSuggestions}/>
+        <Stack.Screen name="CreatePost" component={CreatePost}/>
+        <Stack.Screen name="AdminDashboard" component={AdminNavigator} />
+
+
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
       </Stack.Navigator>
     </NavigationContainer>
   );

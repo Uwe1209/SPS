@@ -1,12 +1,21 @@
 // pages/ReportError.js
+<<<<<<< HEAD
 import React from "react";
+=======
+import React, { useState } from "react";
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import BottomNav from "../components/Navigation";
 
 export default function ReportError({ navigation }) {
+<<<<<<< HEAD
   const [title, setTitle] = React.useState("");
   const [details, setDetails] = React.useState("");
+=======
+  const [title, setTitle] = useState("");
+  const [details, setDetails] = useState("");
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 
   const upload = async () => {
     await ImagePicker.requestMediaLibraryPermissionsAsync();

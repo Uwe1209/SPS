@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import React from "react";
+=======
+>>>>>>> 217dbb287f57b9f55efba5ef5a9d47b2c1115ead
 import { View, TouchableOpacity, StyleSheet, Text, Dimensions } from "react-native";
 
 export default function SavedScreen({ navigation }) {
