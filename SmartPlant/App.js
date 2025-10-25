@@ -38,6 +38,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="LoginSelection" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="DashboardScreen" component={DashboardScreen} />
         <Stack.Screen name="MyProfile" component={MyProfile} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
 
