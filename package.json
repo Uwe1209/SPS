@@ -16,6 +16,7 @@
     "expo-media-library": "^18.2.0",
     "expo-status-bar": "~3.0.8",
     "express": "^5.1.0",
+    "firebase-admin": "^13.5.0",
     "multer": "^2.0.2",
     "react": "19.1.0",
     "react-native": "0.81.4",
