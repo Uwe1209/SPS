@@ -4,12 +4,15 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-nati
 import BottomNav from "../components/Navigation";
 import { useNotifications } from "../firebase/notification_user/useNotification";
 import { markNotificationRead } from "../firebase/notification_user/markRead";
+import { auth } from "../firebase/FirebaseConfig";
 
 const NAV_HEIGHT = 60;      // bottom bar height
 const NAV_MARGIN_TOP = 150; // the bar's marginTop in your Navigation.js
 
 export default function NotificationsScreen({ navigation }) {
-  const userId = "U001";
+  
+  const userId = auth.currentUser ? auth.currentUser.uid : null;
+
   const items = useNotifications(userId);
 
   const newItems = items.filter(n => !n.read);

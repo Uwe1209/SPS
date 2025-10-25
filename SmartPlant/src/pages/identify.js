@@ -11,6 +11,12 @@ import BottomNav from "../components/Navigation";
 
 import CustomButton from '../components/Button';
 
+//noti start
+import { addNotification } from "../firebase/notification_user/addNotification";
+import { auth } from "../firebase/FirebaseConfig";
+const currentUserId = auth.currentUser?.uid || "U001"; 
+//noti end
+
 export default function IdentifyPage() {
     const [permission, requestPermission] = useCameraPermissions();
     const [images, setImages] = useState([]);
@@ -22,7 +28,6 @@ export default function IdentifyPage() {
     //prediction variable
     const [prediction, setPrediction] = useState(null);
     const [loading, setLoading] = useState(false);
-
 
     //Reset images when switching modes
     useEffect(() => {
@@ -116,7 +121,7 @@ export default function IdentifyPage() {
 
         try {
             setLoading(true);
-            const response = await fetch("http://10.69.215.149:3000/predict", {
+            const response = await fetch("http://192.168.136.1:3000/predict", {
 
                 method: "POST",
                 headers: { "Content-Type": "multipart/form-data" },
@@ -125,6 +130,49 @@ export default function IdentifyPage() {
 
             const data = await response.json();
             setLoading(false);
+
+    //noti start
+    const label = data?.label ?? (typeof data?.raw === "string" ? data.raw : "Unknown");
+    const conf  = data?.confidence ?? null;
+
+    if (!auth.currentUser?.uid) {
+        console.warn("No signed-in user, using fallback U001 for test.");
+    }
+
+    await addNotification({
+        userId: auth.currentUser?.uid || "U001",
+        type: "plant_identified",
+        title: "Plant Identification Complete",
+        message: conf != null ? `We found: ${label} (${Math.round(conf * 100)}%)` : `We found: ${label}`,
+        payload: { label, confidence: conf },
+    });
+
+    // build the array that identify_output expects
+    const normalized =
+    Array.isArray(data)
+    ? data
+    : Array.isArray(data?.top3) && data.top3.length
+    ? data.top3.map(x => ({
+        class: x.class || x.label || label || "Unknown",
+        confidence:
+          typeof x.confidence === "number"
+            ? x.confidence
+            : typeof conf === "number"
+            ? conf
+            : 0,
+      }))
+    : [
+        {
+          class: label || "Unknown",
+          confidence: typeof conf === "number" ? conf : 0,
+        },
+      ];
+
+    // navigate with the normalized array and exit the function
+    navigation.navigate("identify_output", { prediction: normalized, imageURI: images[0] });
+    return;
+    //noti end
+
 
             // Navigate to output page with prediction
             navigation.navigate("identify_output", { prediction: data, imageURI: images[0] });
