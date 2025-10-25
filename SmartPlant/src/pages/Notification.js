@@ -42,6 +42,7 @@ export default function NotificationsScreen({ navigation }) {
         ]}
         showsVerticalScrollIndicator={false}
       >
+
         {/* Title */}
         <View style={styles.titleRow}>
           <Text style={styles.title}>Notifications</Text>
@@ -113,3 +114,4 @@ const styles = StyleSheet.create({
   tag: { marginLeft: 10, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: "#E7F0E5", color: "#2b2b2b" },
   empty: { textAlign: "center", color: "#666", paddingVertical: 10 },
 });
+

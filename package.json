@@ -1,14 +1,15 @@
 {
-  "name": "smartplantsarawak",
+  "name": "camera",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/stack": "^7.4.8",
     "expo": "~54.0.12",

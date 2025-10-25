@@ -1,7 +1,56 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native";
+import React, { useCallback, useState } from "react";
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from "react-native";
 import BottomNav from "../components/Navigation";
+import { getFullProfile } from "../firebase/UserProfile/UserUpdate";
+import { auth } from "../firebase/FirebaseConfig";
+import { useFocusEffect } from '@react-navigation/native';
 
-export default function ProfileScreen({ navigation }) {   
+export default function ProfileScreen({ navigation }) {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfile = async () => {
+      setLoading(true);
+      try {
+        const user = auth.currentUser; 
+        if (!user) {
+          Alert.alert("Error", "No logged-in user found. Please log in again.");
+          navigation.replace("Login");
+          return;
+        }
+
+        const email = user.email;
+        const data = await getFullProfile(email);
+        setProfile(data);
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [])
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingstyle}>
+        <Text>Loading profile...</Text>
+      </View>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <View style={styles.loadingstyle}>
+        <Text>Profile not found.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.background}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -10,17 +59,18 @@ export default function ProfileScreen({ navigation }) {
         {/* Profile Image */}
         <View style={styles.profileContainer}>
           <Image
-            source={require("../../assets/user2.png")}
+            source={profile.profile_pic ? { uri: profile.profile_pic } : require("../../assets/user2.png")}
             style={styles.profileImage}
           />
-          <Text style={styles.username}>LiYing</Text>
+          <Text style={styles.username}>{profile.full_name}</Text>
         </View>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
           <TouchableOpacity 
             style={styles.menuItem} 
-            onPress={() => navigation.navigate("MyProfile")} 
+            onPress={() => navigation.navigate("MyProfile", { userEmail: profile.email })}
+
           >
             <Text style={styles.menuText}>My Profile</Text>
             <Text style={styles.arrow}>›</Text>
@@ -47,8 +97,25 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} 
+          onPress={async () => {
+              try {
+                await auth.signOut();
+                navigation.replace("LoginSelection");
+              } catch (error) {
+                console.error("Error logging out:", error);
+              }
+            }}>
             <Text style={styles.menuText}>Log Out</Text>
+            <Text style={styles.arrow}>›</Text>
+          </TouchableOpacity>
+
+          {/* Temporary link to Admin Dashboard */}
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate("AdminDashboard")} 
+          >
+            <Text style={styles.menuText}>Admin Dashboard (temp)</Text>
             <Text style={styles.arrow}>›</Text>
           </TouchableOpacity>
         </View>
@@ -113,5 +180,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#333",
   },
+  loadingstyle:{
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center"
+  }
 });
 
