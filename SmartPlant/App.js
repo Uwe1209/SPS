@@ -30,14 +30,16 @@ import ReportError from "./src/pages/ReportError";
 import TopSuggestions from "./src/pages/TopSuggestions";
 import CreatePost from "./src/pages/CreatePost";
 import AdminNavigator from './src/admin/AdminNavigator';
+import IoTDashboard from './src/pages/iot_dashboard';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginSelection" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="IoTDashboard" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Profile" component={Profile} />
+        {/* <Stack.Screen name="IoTDashboard" component={IoTDashboard} /> */}
         {/* <Stack.Screen name="DashboardScreen" component={DashboardScreen} /> */}
         <Stack.Screen name="MyProfile" component={MyProfile} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
