@@ -31,12 +31,16 @@ import TopSuggestions from "./src/pages/TopSuggestions";
 import CreatePost from "./src/pages/CreatePost";
 import AdminNavigator from './src/admin/AdminNavigator';
 
+//testing the component
+import Testing from './src/pages/testing';
+
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginSelection" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="identify" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Testing" component={Testing} />
         <Stack.Screen name="Profile" component={Profile} />
         {/* <Stack.Screen name="DashboardScreen" component={DashboardScreen} /> */}
         <Stack.Screen name="MyProfile" component={MyProfile} />
