@@ -34,13 +34,17 @@ import AdminNavigator from './src/admin/AdminNavigator';
 import IoTDashboard from './src/pages/iot_dashboard';
 import FlashMessage, { showMessage } from "react-native-flash-message";
 
+//testing the component
+import Testing from './src/pages/testing';
+
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="HomepageUser" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="identify" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Testing" component={Testing} />
         <Stack.Screen name="Profile" component={Profile} />
         {/* <Stack.Screen name="IoTDashboard" component={IoTDashboard} /> */}
         {/* <Stack.Screen name="DashboardScreen" component={DashboardScreen} /> */}

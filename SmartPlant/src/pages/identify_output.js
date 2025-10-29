@@ -1,9 +1,10 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator, Alert, ScrollView } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
+import PlantSuggestionCard from '../components/PlantSuggestionCard';
 import { addPlantIdentify } from '../firebase/plant_identify/addPlantIdentify.js';
 import { uploadImage } from '../firebase/plant_identify/uploadImage.js';
-import { db } from "../firebase/FirebaseConfig";
+import { db, auth } from "../firebase/FirebaseConfig";
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 import * as Location from 'expo-location'; //getting current device location
@@ -17,11 +18,11 @@ export default function ResultScreen() {
   const [heatmapURI, setHeatmapURI] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [showHeatmap, setShowHeatmap] = React.useState(false); // toggle overlay
-
+  const [Uploadloading, setUploadLoading] = React.useState(false);
   // prediction is expected to be an array like:
   // [{ class: "Nepenthes_tentaculata", confidence: 0.7321 }, {...}, {...}]
 
-  console.log("Predictions received:", prediction);
+  //console.log("Predictions received:", prediction);
 
   const constructHeatmap = async () => {
     if (heatmapURI) {
@@ -40,7 +41,7 @@ export default function ResultScreen() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://172.17.27.94:3000/heatmap", {
+      const response = await fetch("http://172.17.17.221:3000/heatmap", {
         method: "POST",
         headers: { "Content-Type": "multipart/form-data" },
         body: formData,
@@ -62,33 +63,33 @@ export default function ResultScreen() {
     }
   };
 
+  //asking user permission to save the data
   const handleUploadConfirmation = () => {
-    if (prediction[0].confidence >= 0.7) {
-      Alert.alert(
-        "Upload Permission Request",
-        "Do you give us permission to upload the plant image and info into our database?",
-        [
-          {
-            text: "NO",
-            onPress: () => {
-              navigation.goBack();
-              console.log("User refuse to upload");
-            },
-            style: "cancel", // also fixed typo here
+
+    Alert.alert(
+      "Upload Permission Request",
+      "Do you give us permission to upload the plant image and info into our database?",
+      [
+        {
+          text: "NO",
+          onPress: () => {
+            navigation.goBack();
+            console.log("User refuse to upload");
           },
-          {
-            text: "Upload",
-            onPress: () => uploadDataToDatabase(),
-          },
-        ]
-      );
-    } else {
-      console.log("Confidence too low. Skip the uploading process.");
-      navigation.goBack();
-    }
+          style: "cancel",
+        },
+        {
+          text: "Upload",
+          onPress: () => uploadDataToDatabase(),
+        },
+      ]
+    );
+
+
+
 
   };
- 
+
   function dmsToDecimal(dms, ref) {
     const [deg, min, sec] = dms.map(parseFloat);
     let dec = deg + min / 60 + sec / 3600;
@@ -98,6 +99,7 @@ export default function ResultScreen() {
 
   const uploadDataToDatabase = async () => {
     try {
+      setUploadLoading(true);
       let latitude = null;
       let longitude = null;
 
@@ -126,18 +128,46 @@ export default function ResultScreen() {
         }
       }
 
+      //determince identification status?
+      let identify_status = "";
+      if (prediction[0].confidence > 0.7) {
+        identify_status = "verified";
+      } else {
+        identify_status = "pending";
+      }
+
+
+      //Get user id 
+      const user = auth.currentUser;
+      const userID = user.uid;
+      console.log(userID);
+
       //Upload image to storage
       const downloadURL = await uploadImage(imageURI, prediction[0].class);
       console.log('Added to storage with URL:', downloadURL);
 
       //Uplaod info to firestore
       const plantData = {
-        plant_species:prediction[0].class,
-        ai_score: prediction[0].confidence,
+        model_predictions: {
+          top_1: {
+            plant_species: prediction[0].class,
+            ai_score: prediction[0].confidence,
+          },
+          top_2: {
+            plant_species: prediction[1].class,
+            ai_score: prediction[1].confidence,
+          },
+          top_3: {
+            plant_species: prediction[2].class,
+            ai_score: prediction[2].confidence,
+          },
+        },
         createdAt: serverTimestamp(),
         ImageURL: downloadURL,
-        coordinate: {latitude:latitude, longitude:longitude},
-       
+        coordinate: { latitude: latitude, longitude: longitude },
+        user_id: userID,
+        identify_status: identify_status,
+
       };
 
       try {
@@ -151,10 +181,18 @@ export default function ResultScreen() {
     } catch (error) {
       console.log("Image upload failed:", error);
     }
+    setUploadLoading(false);
   };
 
   return (
+
     <View style={styles.container}>
+      {Uploadloading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#00ff3cff" />
+            <Text style={{ color: "white", marginTop: 10 }}>Upload...</Text>
+          </View>
+        )}
       <View style={styles.imageBox}>
         {loading && (
           <View style={styles.loadingOverlay}>
@@ -208,10 +246,31 @@ export default function ResultScreen() {
         <View style={styles.lowConfidenceContainer}>
           <Text style={styles.lowConfidenceText}>
             The confidence score is too low.
-            Our team will send this case to an expert for verification.
+            Our team would wish to send this case to an expert for further verification.
           </Text>
         </View>
-      )}
+      )
+      }
+      {/* {prediction && prediction.length > 0 && prediction[0].confidence >= 0.7 ? (
+        <View style={{ width: "100%", alignItems: "center" }}>
+          {prediction.map((item, index) => (
+            <PlantSuggestionCard
+              key={index}
+              name={item.class || "Unknown Plant"}
+              confidence={(item.confidence * 100).toFixed(2)}
+              onPress={() => console.log(`See more for ${item.class}`)}
+            />
+          ))}
+        </View>
+      ) : (
+        <View style={styles.lowConfidenceContainer}>
+          <Text style={styles.lowConfidenceText}>
+            The confidence score is too low.{"\n"}
+            Our team would wish to send this case to an expert for further verification.
+          </Text>
+        </View>
+      )} */}
+
 
 
       {/* Done Button */}
@@ -320,5 +379,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontStyle: "italic",
   },
+  Topsuggestion: {
+    paddingBottom: 20,
+    alignItems: "center",
+  }
 
 });
