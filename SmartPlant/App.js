@@ -16,6 +16,7 @@ import NotificationUser from "./src/pages/NotificationUser";
 import NotificationExpert from "./src/pages/NotificationExpert";
 import MapPage from "./src/pages/MapPage";
 
+import Introduction from "./src/pages/Introduction";
 import LoginSelection from "./src/pages/LoginSelection";
 import UserLogin from "./src/pages/UserLogin";
 import UserRegister from "./src/pages/UserRegister";
@@ -43,7 +44,7 @@ export default function App() {
   return (
     <>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="HomepageUser" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="Introduction" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Testing" component={Testing} />
         <Stack.Screen name="Profile" component={Profile} />
         {/* <Stack.Screen name="IoTDashboard" component={IoTDashboard} /> */}
@@ -60,6 +61,7 @@ export default function App() {
         <Stack.Screen name="identify_tips" component={IdentifyTips} />
         <Stack.Screen name="identify_output" component={IdentifyOutput}/>
 
+        <Stack.Screen name="Introduction" component={Introduction} />
         <Stack.Screen name="LoginSelection" component={LoginSelection} />
         <Stack.Screen name="UserLogin" component={UserLogin} />
         <Stack.Screen name="UserRegister" component={UserRegister} />

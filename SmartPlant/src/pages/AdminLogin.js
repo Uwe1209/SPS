@@ -1,33 +1,74 @@
 import React from "react";
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { loginWithEmail } from "../firebase/login_register/user_login";
+import { db } from "../firebase/FirebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function AdminLogin({navigation}){
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
+  async function handleAdminLogin() {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter email and password.");
+      return;
+    }
+
+    const result = await loginWithEmail(email, password);
+
+    if (!result.success) {
+      Alert.alert("Login Failed", result.error);
+      return;
+    }
+
+    const user = result.user;
+
+    try {
+      // Step 2: Check Firestore if user has admin role
+      const adminDocRef = doc(db, "admin", user.uid); // Document ID should be the Firebase UID
+      const adminSnap = await getDoc(adminDocRef);
+
+      if (adminSnap.exists()) {
+        // Admin exists, navigate to Admin Dashboard
+        Alert.alert("Success", "Logged in successfully!", [
+          { text: "OK", onPress: () => navigation.navigate("Profile") }
+        ]);
+      } else {
+        // Not an admin
+        Alert.alert("Access Denied", "You are not authorized as an admin.");
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+}
+
   function toSelection(){
     navigation.navigate("LoginSelection");
   }
   
+
   return(
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={toSelection}>
         <Image style={styles.backlogo2} source={require('../../assets/backlogo.png')}></Image>
       </TouchableOpacity>
 
-      <Image style={styles.logo_login} source={require('../../assets/test.jpg')} alt="Logo"></Image>
+      <Image style={styles.logo_login2} source={require('../../assets/applogo.png')} alt="Logo"></Image>
 
-      <View style={styles.login_container}>
+      <View style={styles.login_container2}>
         <View style={styles.login_container_text}>
           <Text style={styles.login_title}>Welcome Back</Text>
         </View>
 
         <View>
           <Text style={styles.input_label}>Email</Text>
-          <TextInput style={styles.input_textinput} placeholder="john@example.com"></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="john@example.com" value={email} onChangeText={setEmail} autoCapitalize="none"></TextInput>
         </View>
 
         <View>
           <Text style={styles.input_label}>Password</Text>
-          <TextInput style={styles.input_textinput} placeholder="********" secureTextEntry={true}></TextInput>
+          <TextInput style={styles.input_textinput} placeholder="********" secureTextEntry={true} value={password} onChangeText={setPassword}></TextInput>
         </View>
 
         <View style={styles.row}>
@@ -36,7 +77,7 @@ export default function AdminLogin({navigation}){
         </View>
 
         <View style={styles.button_login_container}>
-          <TouchableOpacity style={styles.button_login}>
+          <TouchableOpacity style={styles.button_login} onPress={handleAdminLogin}>
             <Text style={styles.button_text}>Log In</Text>
           </TouchableOpacity>
         </View>
@@ -107,7 +148,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
 
-  // User Login Page & Admin Register Page
+  // User Login Page & Admin Login Page
   backlogo: {
     width: 40,
     height: 40,
@@ -139,14 +180,22 @@ const styles = StyleSheet.create({
     left: 10,
   },
 
-  logo_login:{
+  logo_login2:{
     width: 100,
     height: 100,
     borderRadius: 50,
-    bottom: 50,
+    bottom: 100,
+    backgroundColor: "rgba(255, 255, 255, 0.49)", 
+    shadowColor: "#366728ff",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8, // for Android
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.4)",  
   },
 
-  login_container: {
+  login_container2: {
     backgroundColor: '#578C5B',
     padding: 20,
     borderRadius: 20,
@@ -155,6 +204,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 10,
+    bottom: 50,
   },
 
   login_container_text: {

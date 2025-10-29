@@ -1,9 +1,93 @@
 import React from "react";
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as LocalAuthentication from 'expo-local-authentication';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase/FirebaseConfig";
 
 
 export default function LoginSelection({navigation}) {
+  const [biometricEnabled, setBiometricEnabled] = React.useState(false);
+  const [checking, setChecking] = React.useState(true);
+  const [authLoading, setAuthLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const flag = await AsyncStorage.getItem("biometricEnabled");
+        setBiometricEnabled(flag === "true");
+      } catch (e) {
+        console.log("AsyncStorage read error:", e);
+      } finally {
+        setChecking(false);
+      }
+    })();
+  }, []);
+
+  async function handleQuickLogin() {
+    // Quick login via biometric (only triggered by user pressing button)
+    setAuthLoading(true);
+    try {
+      const savedEmail = await AsyncStorage.getItem("savedEmail");
+      if (!savedEmail) {
+        Alert.alert("No saved user", "Please login once normally to enable quick login.");
+        setAuthLoading(false);
+        return;
+      }
+
+      // Check if device has hardware for biometric
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const supportedTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+      if (!hasHardware || !isEnrolled || supportedTypes.length === 0) {
+        Alert.alert("Biometrics not available", "Your device doesn't support biometric authentication or it isn't set up.");
+        setAuthLoading(false);
+        return;
+      }
+
+      const promptResult = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to Quick Login",
+        fallbackLabel: "Use Passcode",
+        disableDeviceFallback: false,
+      });
+
+      if (promptResult.success) {
+        const savedPassword = await AsyncStorage.getItem("savedPassword");
+
+        if (!savedPassword) {
+          Alert.alert("Missing credentials", "Please log in manually once to enable Quick Login.");
+          setAuthLoading(false);
+          return;
+        }
+
+        // Sign in to Firebase before navigation
+        const userCredential = await signInWithEmailAndPassword(auth, savedEmail, savedPassword);
+        const user = userCredential.user;
+
+        Alert.alert("Welcome back!", "Login successful!");
+        navigation.navigate("HomepageUser", { userEmail: user.email });
+      } else {
+        // fallback: show message and stay on selection screen
+        Alert.alert("Authentication failed", "Could not authenticate using biometrics.");
+      }
+    } catch (e) {
+      console.log("Quick login error:", e);
+      Alert.alert("Error", "An error occurred during biometric authentication.");
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  if (checking) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center'}]}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   function toUserLogin(){
     navigation.navigate("UserLogin");
   }
@@ -14,8 +98,9 @@ export default function LoginSelection({navigation}) {
 
   return(
     <View style={styles.container}>
-      <Image style={styles.logo} source={require('../../assets/test.jpg')} alt="Logo"></Image>
-      <Text style={styles.logo_caption}>Our App Name</Text>
+      <Image style={styles.logo} source={require('../../assets/applogo.png')} alt="Logo"></Image>
+      <Text style={styles.logo_caption}>SmartPlant Sarawak</Text>
+      <Text style={styles.logo_caption}>A Community-Driven Mobile App</Text>
 
       <View style={styles.button_container}>
         <TouchableOpacity style={styles.button_selection} onPress={toUserLogin}>
@@ -28,8 +113,18 @@ export default function LoginSelection({navigation}) {
       </View>
 
       <Text style={styles.quicklogin_text1}>Now! Use Touch ID for Quick Login</Text>
-        <Image style={styles.touchid} source={require('../../assets/touchid.png')}></Image>
-      <Text style={styles.quicklogin_text2}>Use Touch ID</Text>
+        {biometricEnabled ? (
+        <TouchableOpacity style={styles.quicklogin_button} onPress={handleQuickLogin} disabled={authLoading}>
+          {authLoading ? <ActivityIndicator color="#fff" /> : (
+            <>
+              <Image style={styles.touchid} source={require('../../assets/touchid.png')} />
+              <Text style={styles.quicklogin_text2}>Quick Login</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      ) : (
+        <Text style={{ marginTop: 10, color: '#666' }}>Quick login not enabled. Sign in once to enable.</Text>
+      )}
     </View>
   );
 }
@@ -49,11 +144,21 @@ const styles = StyleSheet.create({
     height: 100,
     marginBottom: 18,
     borderRadius: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.49)", 
+    shadowColor: "#366728ff",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8, // for Android
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.4)",  
   },
 
   logo_caption: {
     fontWeight: 'bold',
     fontSize: 17,
+    color: '#344d36ff',
+    margin: 2,
   },
 
   touchid: {
@@ -94,6 +199,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 'bold',
     color: '#000',
+    marginLeft: 15,
   },
 
   // User Login Page & Admin Register Page

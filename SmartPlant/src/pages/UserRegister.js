@@ -1,28 +1,81 @@
 import React from "react";
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { user_register } from '../firebase/login_register/user_register.js';
-import { Alert } from "react-native";
+import { getAuth } from "firebase/auth";
+import CheckBox from 'expo-checkbox';
 
 export default function UserRegister({navigation}){
   const [fullName, setFullName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [agree, setAgree] = React.useState(false);
+
+  const minLength = /^.{8,}$/;
+  const hasUppercase = /[A-Z]/;
+  const hasNumber = /\d/;
+  const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   async function handleRegister() {
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
+    // Check empty fields
+    if (!fullName || !email || !password || !confirmPassword) {
+      Alert.alert("Error", "All fields are required.");
       return;
     }
 
+    // Check email format
+    if (!emailPattern.test(email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
+      return;
+    }
+
+    // Check password strength with separate error messages
+    if (!minLength.test(password)) {
+      Alert.alert("Weak Password", "Password must be at least 8 characters long.");
+      return;
+    }
+
+    if (!hasUppercase.test(password)) {
+      Alert.alert("Weak Password", "Password must contain at least one uppercase letter.");
+      return;
+    }
+
+    if (!hasNumber.test(password)) {
+      Alert.alert("Weak Password", "Password must contain at least one number.");
+      return;
+    }
+
+    if (!hasSymbol.test(password)) {
+      Alert.alert("Weak Password", "Password must contain at least one special character.");
+      return;
+    }
+
+    if (!agree) {
+      Alert.alert("Agreement Required", "You must agree to the Terms and Privacy Policy.");
+      return;
+    }
+
+    // If all checks pass, proceed to register
+    const auth = getAuth();
     try {
       await user_register(fullName, email, password);
       Alert.alert("Success", "Account created successfully!", [
-        { text: "OK", onPress: function () { navigation.navigate("UserLogin"); } }
+        { text: "OK", onPress: function () { navigation.navigate("UserLogin") } }
       ]);
     } catch (error) {
-      Alert.alert("Registration Failed", error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        Alert.alert("Email Already Used", "This email is already registered. Please use another email.");
+      } else {
+        Alert.alert("Registration Failed", "Try Again!");
+      }
     }
   }
 
@@ -36,9 +89,9 @@ export default function UserRegister({navigation}){
         <Image style={styles.backlogo1} source={require('../../assets/backlogo.png')}></Image>
       </TouchableOpacity>
 
-      <Image style={styles.logo_login} source={require('../../assets/test.jpg')} alt="Logo"></Image>
+      <Image style={styles.logo_login3} source={require('../../assets/applogo.png')} alt="Logo"></Image>
 
-      <View style={styles.login_container}>
+      <View style={styles.login_container3}>
         <View style={styles.login_container_text}>
           <Text style={styles.login_title}>Create Your Account</Text>
         </View>
@@ -64,8 +117,9 @@ export default function UserRegister({navigation}){
         </View>
         
         <View style={styles.text_agreement_container}>
+          <CheckBox style={styles.checkbox_agreement} value={agree} onValueChange={setAgree} color={agree ? '#43772cff' : undefined}></CheckBox>
           <Text style={styles.text_agreement}>
-            I agree to the Terms of Condition and Privacy Policy
+            I agree to the <Text style={{ textDecorationLine: 'underline' }}>Terms of Condition</Text> and <Text style={{ textDecorationLine: 'underline' }}>Privacy Policy</Text>
           </Text>
         </View>
 
@@ -141,7 +195,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
 
-  // User Login Page & Admin Register Page
+  // User Login Page & Admin Login Page
   backlogo: {
     width: 40,
     height: 40,
@@ -173,14 +227,22 @@ const styles = StyleSheet.create({
     left: 10,
   },
 
-  logo_login:{
+  logo_login3:{
     width: 100,
     height: 100,
     borderRadius: 50,
-    bottom: 50,
+    bottom: 55,
+    backgroundColor: "rgba(255, 255, 255, 0.49)", 
+    shadowColor: "#366728ff",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8, // for Android
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.4)",  
   },
 
-  login_container: {
+  login_container3: {
     backgroundColor: '#578C5B',
     padding: 20,
     borderRadius: 20,
@@ -189,6 +251,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 10,
+    bottom: 20,
   },
 
   login_container_text: {
@@ -305,5 +368,12 @@ const styles = StyleSheet.create({
 
   text_agreement_container: {
     alignItems: 'center',
+    flexDirection: 'row', 
+  },
+
+  checkbox_agreement: {
+    borderColor: "#94b094",
+    backgroundColor: '#fff',
+    marginRight: 5,
   },
 });
