@@ -18,11 +18,42 @@ export default function NotificationsScreen({ navigation }) {
   const newItems = items.filter(n => !n.read);
   const pastItems = items.filter(n => n.read);
 
-  const renderRow = (n) => (
+  const renderRow = (n) => {
+  const buildPrediction = (p = {}) => {
+    // If your notification payload already includes top_1/2/3
+    if (p.top_1) {
+      return [
+        { class: p.top_1?.plant_species ?? "Unknown", confidence: p.top_1?.ai_score ?? 0 },
+        { class: p.top_2?.plant_species ?? "Unknown", confidence: p.top_2?.ai_score ?? 0 },
+        { class: p.top_3?.plant_species ?? "Unknown", confidence: p.top_3?.ai_score ?? 0 },
+      ];
+    }
+    // Back-compat: old payload with just label/confidence
+    return [{ class: p.label ?? "Unknown", confidence: p.confidence ?? 0 }];
+  };
+
+  const onPressRow = async () => {
+    await markNotificationRead(n.id);
+
+    if (n.type === "plant_identified") {
+      const prediction = buildPrediction(n.payload);
+      navigation.navigate("identify_output", {
+        prediction,
+        imageURI: n.payload?.imageURI ?? null, // if you later store it in payload
+        fromNotification: true,
+        notiId: n.id,
+      });
+      return;
+    }
+
+    // handle other types here if you add them later...
+  };
+
+  return (
     <TouchableOpacity
       key={n.id}
       style={[styles.row, n.read ? styles.rowRead : styles.rowUnread]}
-      onPress={() => markNotificationRead(n.id)}
+      onPress={onPressRow}
       activeOpacity={0.7}
     >
       <View style={[styles.leftDot, !n.read && styles.leftDotActive]} />
@@ -33,6 +64,8 @@ export default function NotificationsScreen({ navigation }) {
       <Text style={styles.tag}>{tag(n.type)}</Text>
     </TouchableOpacity>
   );
+};
+
 
   return (
     <View style={styles.background}>

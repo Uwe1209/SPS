@@ -43,7 +43,7 @@ export default function App() {
   return (
     <>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="identify" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="HomepageUser" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Testing" component={Testing} />
         <Stack.Screen name="Profile" component={Profile} />
         {/* <Stack.Screen name="IoTDashboard" component={IoTDashboard} /> */}
