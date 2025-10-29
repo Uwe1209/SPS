@@ -48,7 +48,7 @@ export default function PlantDetailUser({ navigation }) {
 
 const styles = StyleSheet.create({
   background: { flex: 1, backgroundColor: "#FFF8EE" },
-  container: { flexGrow: 1, paddingBottom: 110 },
+  container: { flexGrow: 1, paddingBottom: 110, minHeight: "100%" },
   banner: { height: 140, backgroundColor: "#5A7B60" },
   card: { backgroundColor: "#FFF", padding: 16 },
   label: { fontWeight: "700", color: "#222", marginTop: 6 },

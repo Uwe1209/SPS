@@ -12,7 +12,8 @@ import MyProfile from "./src/pages/Myprofile";
 import EditProfile from "./src/pages/EditProfile";
 import Setting from "./src/pages/Setting";
 import Saved from "./src/pages/Saved";
-import Notification from "./src/pages/Notification";
+import NotificationUser from "./src/pages/NotificationUser";
+import NotificationExpert from "./src/pages/NotificationExpert";
 import MapPage from "./src/pages/MapPage";
 
 import LoginSelection from "./src/pages/LoginSelection";
@@ -31,13 +32,15 @@ import TopSuggestions from "./src/pages/TopSuggestions";
 import CreatePost from "./src/pages/CreatePost";
 import AdminNavigator from './src/admin/AdminNavigator';
 import IoTDashboard from './src/pages/iot_dashboard';
+import FlashMessage, { showMessage } from "react-native-flash-message";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
+    <>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="IoTDashboard" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="HomepageUser" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Profile" component={Profile} />
         {/* <Stack.Screen name="IoTDashboard" component={IoTDashboard} /> */}
         {/* <Stack.Screen name="DashboardScreen" component={DashboardScreen} /> */}
@@ -47,7 +50,8 @@ export default function App() {
         <Stack.Screen name="MapPage" component={MapPage} />
         <Stack.Screen name="Setting" component={Setting} />
         <Stack.Screen name="Saved" component={Saved} />
-        <Stack.Screen name="Notification" component={Notification} />
+        <Stack.Screen name="NotificationUser" component={NotificationUser} />
+        <Stack.Screen name="NotificationExpert" component={NotificationExpert} />
         <Stack.Screen name="identify" component={IdentifyPage} />
         <Stack.Screen name="identify_tips" component={IdentifyTips} />
         <Stack.Screen name="identify_output" component={IdentifyOutput}/>
@@ -67,9 +71,10 @@ export default function App() {
         <Stack.Screen name="TopSuggestions" component={TopSuggestions}/>
         <Stack.Screen name="CreatePost" component={CreatePost}/>
         <Stack.Screen name="AdminDashboard" component={AdminNavigator} />
-
       </Stack.Navigator>
     </NavigationContainer>
+    <FlashMessage position="top" />
+    </>
   );
 }
 

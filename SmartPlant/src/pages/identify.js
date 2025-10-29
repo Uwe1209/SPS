@@ -14,6 +14,7 @@ import CustomButton from '../components/Button';
 //noti start
 import { addNotification } from "../firebase/notification_user/addNotification";
 import { auth } from "../firebase/FirebaseConfig";
+import { showMessage } from "react-native-flash-message";
 const currentUserId = auth.currentUser?.uid || "U001"; 
 //noti end
 
@@ -121,7 +122,7 @@ export default function IdentifyPage() {
 
         try {
             setLoading(true);
-            const response = await fetch("http://10.209.143.207:3000/predict", {
+            const response = await fetch("http://172.17.27.94:3000/predict", {
                 method: "POST",
                 headers: { "Content-Type": "multipart/form-data" },
                 body: formData,
@@ -145,6 +146,15 @@ export default function IdentifyPage() {
         message: conf != null ? `We found: ${label} (${Math.round(conf * 100)}%)` : `We found: ${label}`,
         payload: { label, confidence: conf },
     });
+
+    showMessage({
+    message: "Plant Identification Complete",
+    description:
+      conf != null ? `${label} (${Math.round(conf * 100)}%)` : label,
+    type: "success",
+    duration: 3000,
+    onPress: () => navigation.navigate("NotificationUser"),
+  });
 
     // build the array that identify_output expects
     const normalized =

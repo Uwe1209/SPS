@@ -2,7 +2,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BottomNav from "../components/Navigation";
+import BottomNav from "../components/NavigationExpert";
 
 export default function HomepageExpert({ navigation }) {
   return (
@@ -62,7 +62,7 @@ export default function HomepageExpert({ navigation }) {
 
 const styles = StyleSheet.create({
   background: { flex: 1, backgroundColor: "#F6F1E9" },
-  container: { flexGrow: 1, padding: 16, paddingBottom: 80 },
+  container: { flexGrow: 1, padding: 16, paddingBottom: 80, minHeight: "100%" },
   greetingCard: {
     backgroundColor: "#FFF", borderRadius: 16, padding: 16,
     flexDirection: "row", alignItems: "center", gap: 12, marginTop: 20,

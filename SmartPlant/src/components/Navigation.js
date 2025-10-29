@@ -31,8 +31,8 @@ export default function BottomNav({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={[styles.tab, route.name === "Notification" && styles.activeTab]}
-        onPress={() => navigation.navigate("Notification")}
+        style={[styles.tab, route.name === "NotificationUser" && styles.activeTab]}
+        onPress={() => navigation.navigate("NotificationUser")}
       >
         <Ionicons name="notifications" size={28} color="black" />
       </TouchableOpacity>

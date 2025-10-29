@@ -40,7 +40,7 @@ export default function ResultScreen() {
     try {
       setLoading(true);
 
-      const response = await fetch("http://10.209.143.207:3000/heatmap", {
+      const response = await fetch("http://172.17.27.94:3000/heatmap", {
         method: "POST",
         headers: { "Content-Type": "multipart/form-data" },
         body: formData,
